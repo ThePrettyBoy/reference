@@ -1,0 +1,766 @@
+% !TeX encoding = GB2312
+\defaultfont
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiChapter{哈密尔顿偏微分方程任意高阶的线性隐能量守恒方法}{Arbitrary high-order linearly implicit energy-preserving methods for Hamiltonian PDEs}\label{BiChapter-4}
+众多研究者对能量守恒算法给予了广泛的关注, 这归功于其在计算模拟中的长时间行为, 并在算法的稳定性证明中发挥重要作用~\cite{li-95-difference-KG}. 全隐格式在这类算法的发展中占据主要地位, 却在实际计算中带来了计算量的消耗. 兼顾能量守恒性质和计算效率的一种思路在于构造线性隐方法, 每一时间步只需线性方程组的求解而避免了非线性迭代的计算量且具有良好的稳定性质. 能量二次化方法~\cite{yang-16-IEQ,yang-17-IEQ,gong-18-IEQ-binary-fluid,gong-20-high-stable-TC}~和辅助变量方法~\cite{shen-18-SAV,shen-19-SIAM-REV,qiao-19-PR-SAV}~使得对一般形式的能量可构造线性隐格式, 它们由梯度流问题提出以产生能量稳定算法, 也被成功推广到哈密尔顿系统得到了线性隐能量守恒格式~\cite{cai-19-SG-NB,cai-20-MS-linear,jiang-19-SG-IEQ,jiang-20-CH-SAV-JSC,jiang-20-CH-SAV-ANM}. 能量二次化方法的系数矩阵是依赖于解变量的, 而辅助变量方法的常系数矩阵使得快速算法可使用, 从而辅助变量方法是更加高效的. 
+
+但辅助变量方法的解变量和辅助变量耦合, 必须先计算额外的内积才能给出解变量和辅助变量的数值解, 这将在高阶辅助变量方法中相当复杂~\cite{akrivis-19-RK-SAV}. 为了克服这一缺点, 本章将新提出的处理梯度流方程的指数辅助变量方法~\cite{liu-20-ESAV}~推广应用于哈密尔顿偏微分方程. 在傅里叶拟谱方法空间离散后, 解变量和辅助变量是完全解耦的且能快速显式计算. 使用辛龙格-库塔方法, 预估校正方法及高阶外推技巧, 我们系统构造了两类任意高阶的线性隐能量守恒方法. 所得到的方法中, 解变量和辅助变量的计算是解耦的, 这避免了在标准辅助变量方法中高阶算法的计算复杂性. 最后, 通过一些数值算例证实了这两类算法的高效性及守恒性.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{辅助变量方法}{Scalar auxiliary variable approaches}\label{BiSec-4-1}
+我们考查如下形式的哈密尔顿偏微分方程
+\begin{equation}\label{eq-4-1-1}
+z_t=\mathcal{D}\frac{\delta\mathcal{H}}{\delta z}.
+\end{equation} 
+这里~$\mathcal{D}$~为常反对称算子, $\mathcal{H}$~是能量泛函, $(x,t)\in\Omega\times[0,T]$~且空间区域~$\Omega\in\mathbb{R}^d$. 许多守恒系统能表示为~\eqref{eq-4-1-1}, 如非线性薛定谔方程, sine-Gordon~方程, Korteweg-de Vries~方程等~\cite{leimkuhler-04-simulating,gong-17-Fourier-NLS,cai-19-SG-NB,jiang-20-CH-SAV-ANM,jiang-20-CH-SAV-JSC}. 系统~\eqref{eq-4-1-1}~的最基本性质是能量守恒, 也就是~$\mathcal{H}$~随着时间变化恒定为常值.
+
+为了应用辅助变量方法, 将能量泛函~$\mathcal{H}$~分为线性部分~$\mathcal{H}_1$~和非线性部分~$\mathcal{H}_2$. 此时, 系统~\eqref{eq-4-1-1}~重新写作
+\begin{equation}\label{eq-4-1-2}
+\begin{aligned}
+z_t&=\mathcal{D}\mu,\\
+\mu&=\mathcal{L}z+\mathcal{N}^\prime(z).
+\end{aligned}
+\end{equation} 
+其中, $\delta\mathcal{H}_1/\delta z=\mathcal{L}z$, $\mathcal{L}$~为对称非负线性算子, 且~$\delta\mathcal{H}_2/\delta z=\mathcal{N}^\prime(z)$, $\mathcal{N}(z)$~为能量密度. 系统~\eqref{eq-4-1-2}~的两边分别与~$\mu$~和~$-z_t$~作内积, 求和可得到能量守恒率
+\begin{align}\label{eq-4-1-3}
+\aligned	
+&\frac{d}{dt}\mathcal{H}\big(z\big)=0,\\ &\mathcal{H}(z)=\frac{1}{2}\big(z,\mathcal{L}z\big)+\big(\mathcal{N}(z),1\big)=\mathcal{H}_1(z)+\mathcal{H}_2(z).
+\endaligned
+\end{align} 
+记号~$(\cdot,\cdot)$~表示在区域~$\Omega$~上标准的~$L^2$~内积.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{标准辅助变量方法}{Standard scalar auxiliary variable approach}\label{BiSubsec-4-1-1}
+标准辅助变量方法将~$\mathcal{H}_2(z)$~转化为二次形式, 其使得非线性项~$\mathcal{N}'(z)$~更加简单地得到处理. 具体在于先假定~$\mathcal{H}_2(z)$~是有下界的~\cite{shen-18-SAV,shen-19-SIAM-REV}, 而后引入辅助变量~$w(t)=\sqrt{\mathcal{H}_2(z)+C_0}$, 即常数~$C_0$~使得~$\mathcal{H}_2(z)+C_0$~不小于零. 这样, 原系统~\eqref{eq-4-1-2}~被表示为等价形式
+\begin{align}\label{eq-4-1-4}
+\aligned
+&z_t=\mathcal{D}\mu,\\
+&\mu~=\mathcal{L}z+A(z)w,\quad A(z)=\frac{\mathcal{N}'(z)}{\sqrt{\mathcal{H}_2(z)+C_0}},\\
+&w_t=\frac{1}{2}\big(A(z),z_t\big).
+\endaligned
+\end{align}
+以上系统的两边依次与~$\mu$, $z_t$~和~$2w$~作内积, 求和即可得到修正的能量守恒律
+\begin{equation}\label{eq-4-1-5}
+\frac{d}{dt}\bar{\mathcal{H}}(t)=0,\quad\bar{\mathcal{H}}(t)=\frac{1}{2}\big(z,\mathcal{L}z\big)+w^2.
+\end{equation} 
+
+应用~Crank-Nicolson~方法和显式外推可获得如下的二阶线性隐能量守恒方法
+\begin{align}\label{eq-4-1-6}
+\aligned
+&\frac{z^{n+1}-z^n}{\tau}=\mathcal{D}\mu^{n+\frac{1}{2}},\\
+&\mu^{n+\frac{1}{2}}=\mathcal{L}z^{n+\frac{1}{2}}+A(\bar{z}^{n+\frac{1}{2}})w^{n+\frac{1}{2}},\quad A(\bar{z}^{n+\frac{1}{2}})=\frac{\mathcal{N}'(\bar{z}^{n+\frac{1}{2}})}{\sqrt{\mathcal{H}_2(\bar{z}^{n+\frac{1}{2}})+C_0}}\triangleq A^n,\\
+&w^{n+1}-w^n=\frac{1}{2}\big(A(\bar{z}^{n+\frac{1}{2}}),z^{n+1}-z^n\big).
+\endaligned
+\end{align}
+这里, $\tau$~为时间步长, $z^{n+\frac{1}{2}}=(z^n+z^{n+1})/2$~且~$\bar{z}^{n+\frac{1}{2}}=(3z^n-z^{n-1})/2$. 将~\eqref{eq-4-1-6}~简记为~SAV-CN, 依次取该方法的两边同~$\mu^{n+\frac{1}{2}}$, $(z^{n+1}-z^n)/\tau$~和~$w^{n+1}+w^n$~的内积可推导出半离散能量守恒律
+\begin{equation}\label{eq-4-1-7}
+\bar{\mathcal{H}}^{n+1}=\bar{\mathcal{H}}^n,\quad \bar{\mathcal{H}}^n=\frac{1}{2}\big(z^n,\mathcal{L}z^n\big)+(w^n)^2.
+\end{equation} 
+
+标准辅助变量方法中, 需要先计算额外的内积才能依次确定解变量和辅助变量的值. 故考虑到~\eqref{eq-4-1-6}~的计算实现, 首先消去~$\mu^{n+\frac{1}{2}}$~和~$\omega^{n+1}$~给出
+\begin{equation}\label{eq-4-1-8}
+z^{n+1}=\left(I-\frac{1}{2}\tau\mathcal{D}\mathcal{L}\right)^{-1}C^n+\frac{1}{4}\tau\left(I-\frac{1}{2}\tau\mathcal{D}\mathcal{L}\right)^{-1}\mathcal{D}A^n\left(A^n,z^{n+1}\right).
+\end{equation} 
+其中, 已知项~$C^n=\left(I+\frac{1}{2}\tau\mathcal{D}\mathcal{L}\right)z^n+\frac{1}{4}\tau\mathcal{D}A^n\big[4w^n-(A^n,z^n)\big]$, $I$~为合适维度的单位矩阵. 等式~\eqref{eq-4-1-8}~的两端与~$A^n$~作内积, 可得到
+\begin{equation}\label{eq-4-1-9}
+\left(A^n,z^{n+1}\right)=\frac{\left(A^n,(I-\frac{1}{2}\tau\mathcal{D}\mathcal{L})^{-1}C^n\right)}{1-\frac{1}{4}\tau\left(A^n,(I-\frac{1}{2}\tau\mathcal{D}\mathcal{L})^{-1}\mathcal{D}A^n\right)}.
+\end{equation} 
+将~\eqref{eq-4-1-9}~代入~\eqref{eq-4-1-8}~便有~$z^{n+1}$, 而后可由~\eqref{eq-4-1-6}~的第三个方程计算~$w^{n+1}$~的值. 方法~SAV-CN~的优势在于只需要两次计算常系数线性方程组便可得到数值解, 这将在快速求解器可使用的情况下高效地进行. 
+
+\begin{remark}\label{Re-4-1-1}
+标准辅助变量方法的缺陷在于非线性项~$\mathcal{H}_2$~被假定是有下界的, 以保证存在常数~$C_0$~使得辅助变量的定义有意义. 然而, 这一假定并不总是成立的. 比如, 对于~Korteweg-de Vries~方程~\cite{luigi-19-HBVM-KDV}, 其能被表示为
+\begin{equation}\label{eq-4-1-10}
+\begin{aligned}
+z_t&={\partial_x}\mu,\\
+\mu&=-\partial_{xx}z-\frac{1}{2}z^2.
+\end{aligned}
+\end{equation} 
+注意到,非线性项~$\mathcal{H}_2$~为~$-\frac{1}{6}(z^3,1)$, 它显然是无下界的. 这样, 标准辅助变量方法的可行性便不能得到肯定, 尽管在稍后的数值实验中标准辅助变量方法可以正常使用.
+\end{remark}
+
+为了克服这一缺点, 且伴随着计算效率的提升, 指数辅助变量方法最近用于处理梯度流方程而提出~\cite{liu-20-ESAV}, 其与标准辅助变量方法相比, 主要差别在辅助变量的定义上. 指数辅助变量方法引入一个指数变量, 将不出现开方运算而移除了下界的限制. 接下来的一节中, 我们简短地概括指数辅助变量方法的思路, 并给出相关的二阶~Crank-Nicolson~离散.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{指数辅助变量方法}{Exponential scalar auxiliary variable approach}\label{BiSubsec-4-1-2}
+在指数辅助变量方法的框架中, 令辅助变量~$e(t)=\exp(\mathcal{H}_2)$, 系统~\eqref{eq-4-1-2}~能表示为如下的等价形式
+\begin{subequations}\label{eq-4-1-11}
+\begin{align}
+&z_t=\mathcal{D}\mu,\label{eq-4-1-11-a}\\
+&\mu~=\mathcal{L}z+B(z,e),\quad B(z,e)=\frac{\mathcal{N}'(z)e}{\exp\big(\mathcal{H}_2(z)\big)},\label{eq-4-1-11-b}\\
+&\frac{d}{dt}\mbox{ln}(e)=\big(B(z,e),z_t\big).\label{eq-4-1-11-c}
+\end{align}
+\end{subequations}
+取~\eqref{eq-4-1-11-a}~和~\eqref{eq-4-1-11-b}~分别同~$\mu$~和~$z_t$~的内积, 再与~\eqref{eq-4-1-11-c}~结合可诱导出修正的能量守恒律
+\begin{equation}\label{eq-4-1-12}
+\frac{d}{dt}\tilde{\mathcal{H}}(t)=0,\quad \tilde{\mathcal{H}}(t)=\frac{1}{2}\big(z,\mathcal{L}z\big)+\mbox{ln}(e).
+\end{equation} 
+
+\begin{remark}\label{Re-4-1-2}
+由于定义了指数形式的辅助变量, 现在~Korteweg-de Vries~方程能被表述为~\eqref{eq-4-1-11}, 而没有任何额外的假定.
+\end{remark}
+
+\begin{remark}\label{Re-4-1-3}
+在实际计算中, 一个可供选择的辅助变量~$e(t)=\exp\big(\mathcal{H}_2(z)/C_0\big)$~被使用, 常数~$C_0$~避免了快速增长的指数函数所带来的计算失败的风险. 通常选择~$C_0$~为~$\mathcal{H}_2(z^0)$~的绝对值, 其可由初始值直接获得. 此时, 在这个辅助变量下, 系统~\eqref{eq-4-1-11}~可重新写为 
+\begin{align}\label{eq-2-12}
+\aligned
+&z_t=\mathcal{D}\mu,\\
+&\mu~=\mathcal{L}z+B(z,e),\quad B(z,e)=\frac{\mathcal{N}'(z)e}{\exp \big(\mathcal{H}_2(z)/C_0\big)},\\
+&\frac{d}{dt}\ln(e)=\big(B(z,e),z_t\big)\big/C_0.
+\endaligned
+\end{align}
+守恒的修正能量为~$\tilde{\mathcal{H}}(t)=\frac{1}{2}\big(z,\mathcal{L}z\big)+C_0\ln (e)$.
+\end{remark} 
+
+\begin{remark}\label{Re-4-1-4}
+因为~$\bar{\mathcal{H}}=\mathcal{H}+C_0~(C_0\neq0)$, 故标准辅助变量方法的修正能量~\eqref{eq-4-1-7}~与原能量~\eqref{eq-4-1-3}~并不等价. 而注意到~$\tilde{\mathcal{H}}=\mathcal{H}$~正是由于等式~$\mbox{ln}(e)=\mathcal{H}_2$, 这意味着~\eqref{eq-4-1-12}~与原能量等价. 特别地, $\mbox{ln}(e)$~为~\eqref{eq-4-1-12}~的线性项, 这使得在守恒数值算法的构造上更加自由. 在指数辅助变量方法中, $e(t)$~始终为正被满足, 这在两个系统的等价上是十分重要的, 而这一点在标准辅助变量方法中并得不到保证.
+\end{remark}
+
+相似地, 使用~Crank-Nicolson~方法和外推技巧可构造如下的二阶线性隐能量守恒方法
+\begin{subequations}\label{eq-4-1-14}
+\begin{align}
+&\frac{z^{n+1}-z^n}{\tau}=\mathcal{D}\mu^{n+\frac{1}{2}},\label{eq-4-1-14-a}\\
+&\mu^{n+\frac{1}{2}}=\mathcal{L}z^{n+\frac{1}{2}}+B(\bar{z}^{n+\frac{1}{2}},\bar{e}^{n+\frac{1}{2}}),\quad B(\bar{z}^{n+\frac{1}{2}},\bar{e}^{n+\frac{1}{2}})=\frac{\mathcal{N}'(\bar{z}^{n+\frac{1}{2}})\bar{e}^{n+\frac{1}{2}}}{\mbox{exp}\big(\mathcal{H}_2(\bar{z}^{n+\frac{1}{2}})\big)}\triangleq B^n,\label{eq-4-1-14-b}\\
+&\mbox{ln}(e^{n+1})-\mbox{ln}(e^n)=\big(B(\bar{z}^{n+\frac{1}{2}},\bar{e}^{n+\frac{1}{2}}),z^{n+1}-z^n\big).\label{eq-4-1-14-c}
+\end{align}
+\end{subequations}
+其中的记号~$z^{n+\frac{1}{2}}=(z^n+z^{n+1})/2$, $\bar{z}^{n+\frac{1}{2}}=(3z^n-z^{n-1})/2$~且~$\bar{e}^{n+\frac{1}{2}}=(3e^n-e^{n-1})/2$, 将~\eqref{eq-4-1-14}~简记为~ESAV-CN. 直观地, 可以先由~\eqref{eq-4-1-14-a}~和~\eqref{eq-4-1-14-b}~线性求解出~$z^{n+1}$, 而后将其代入~\eqref{eq-4-1-14-c}~便得到~$e^{n+1}$~的值.
+
+\begin{theorem}\label{Th-4-1-1}
+方法~\eqref{eq-4-1-14}~是二阶线性隐的, 其满足半离散能量守恒律
+\begin{equation}\label{eq-4-1-15}
+\tilde{\mathcal{H}}^{n+1}=\tilde{\mathcal{H}}^n,\quad \tilde{\mathcal{H}}^n=\frac{1}{2}\big(z^n,\mathcal{L}z^n\big)+\ln (e^n).
+\end{equation} 
+\end{theorem} 
+
+\begin{proof}
+方法~\eqref{eq-4-1-14}~的线性性质和收敛精度是显然的. 取~\eqref{eq-4-1-14-a}~和~\eqref{eq-4-1-14-b}~的两边分别与~$\mu^{n+\frac{1}{2}}$~和~$(z^{n+1}-z^n)/\tau$~作内积, 求和后再使用~\eqref{eq-4-1-14-c}~可推导出守恒律~\eqref{eq-4-1-15}.
+\end{proof}
+
+将方法~SAV-CN~和~ESAV-CN~作比较, 它们的主要区别在于非线性项的离散方式. SAV-CN~隐式处理辅助变量且显式处理变量~$z$~以实现能量守恒, 而~ESAV-CN~则均显式处理两个变量, 其并不破坏能量守恒性质. 此时, 产生的方法~\eqref{eq-4-1-14}~对于两个变量的计算是完全解耦的, 也就是可依次获得
+\begin{align}\label{eq-4-1-16}
+\aligned
+&z^{n+1}=\left(I-\frac{1}{2}\tau\mathcal{D}\mathcal{L}\right)^{-1}\left[\big(I+\frac{1}{2}\tau\mathcal{D}\mathcal{L}\big)z^n+\tau\mathcal{D}B^n\right],\\
+&e^{n+1}=\mbox{exp}\left(\mbox{ln}(e^n)+(B^n,z^{n+1}-z^n)\right).
+\endaligned
+\end{align}
+因此, ESAV-CN~在实际计算中相比~SAV-CN~是更加高效的. 以上这些优势将在接下来的高阶线性隐能量守恒方法的构造中得到继承.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{两类任意高阶线性隐方法}{Two classes of arbitrary high-order linearly implicit methods}\label{BiSec-4-2}
+对于哈密尔顿偏微分方程~\eqref{eq-4-1-1}, 线性高阶能量守恒方法的构造一直是突出且又令人困扰的课题. 在这一节中, 我们应用高斯配置方法, 高阶外推和预估校正方法时间离散系统~\eqref{eq-4-1-11}, 发展了两类能简单实现的线性隐高阶能量守恒方法. 众所周知, 辛龙格-库塔方法保持二次守恒量~\cite{cooper-87-RK,hairer-lubich-06-geometric}. 由于外推方法的使用, 这里使用高斯配置方法设计能量守恒方法, 正因为其良好的稳定性质~\cite{mcLachlan-11-stability,leimkuhler-04-simulating,hairer-lubich-06-geometric}. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{高斯配置方法}{Gauss collocation method}\label{BiSubsec-4-2-1}
+根据定义~\ref{De-1-2-1}~和定理~\ref{Th-1-2-1}~可知, 龙格-库塔方法~\eqref{eq-1-2-2}~的系数需要满足~\eqref{eq-1-2-5}~才具有辛守恒性质. 令~$c_1,\cdots,c_s$~是~$s$~次移位勒让德多项式的零点, $b_1,\cdots,b_s$~是相关高斯求积公式的权重, 我们可得到~$s$~级的高斯配置方法. 特别地, 如下的~$2$~级~(Gauss2)~和~$3$~级~(Gauss3)~的高斯方法将在数值实验中使用. 对于更高级的高斯配置方法, 请读者参考专著~\cite{leimkuhler-04-simulating,hairer-lubich-06-geometric,luigi-16-line-integral}.
+\begin{equation}\label{eq-4-2-1}
+\begin{array}{c|cc}
+\frac{1}{2}-\frac{\sqrt{3}}{6} & \frac{1}{4} & \frac{1}{4}-\frac{\sqrt{3}}{6}\\
+\frac{1}{2}+\frac{\sqrt{3}}{6} & \frac{1}{4}+\frac{\sqrt{3}}{6} & \frac{1}{4}\\
+\hline
+& \frac{1}{2} & \frac{1}{2}
+\end{array}\quad\mbox{和}\quad
+\begin{array}{c|cccc}
+\frac{1}{2}-\frac{\sqrt{15}}{10} & \frac{5}{36} & \frac{2}{9}-\frac{\sqrt{15}}{15} & \frac{5}{36}-\frac{\sqrt{15}}{30}\\
+\frac{1}{2} & \frac{5}{36}+\frac{\sqrt{15}}{24} & \frac{2}{9}  &\frac{5}{36}-\frac{\sqrt{15}}{24} \\
+\frac{1}{2}+\frac{\sqrt{15}}{10} & \frac{5}{36}+\frac{\sqrt{15}}{30} & \frac{2}{9}+\frac{\sqrt{15}}{15} & \frac{5}{36}\\
+\hline
+& \frac{5}{18} & \frac{4}{9} & \frac{5}{18}
+\end{array}.
+\end{equation}
+
+使用~$s$~级辛龙格-库塔方法时间离散~\eqref{eq-4-1-11}~可得到半离散方法
+\begin{subequations}\label{eq-4-2-2}
+\begin{align}
+&z_i^n=z^n+\tau\sum_{j=1}^sa_{ij}k_j^n,\quad k_i^n=\mathcal{D}\mu_i^n,\quad \mu_i^n=\mathcal{L}z_i^n+B(z_{s,i}^n,e_{s,i}^n),\label{eq-4-2-2-a}\\
+&e_i^n=\mbox{exp}\left(\mbox{ln}(e^n)+\tau\sum_{j=1}^sa_{ij}l_j^n\right),\quad l_i^n=\left(B(z_{s,i}^n,e_{s,i}^n),k_i^n\right),\quad i=1,2,\cdots,s,\label{eq-4-2-2-b}\\
+&z^{n+1}=z^n+\tau\sum_{i=1}^sb_ik_i^n,\quad e^{n+1}=\mbox{exp}\left(\mbox{ln}(e^n)+\tau\sum_{i=1}^sb_il_i^n\right).\label{eq-4-2-2-c}
+\end{align}
+\end{subequations}
+
+当以上辛方法的系数选择为高斯配置方法~\eqref{eq-4-2-1}~的系数时, 简记方法~\eqref{eq-4-2-2}~为~ESAV-Gauss. 假定有时间网格点~$t_n=t_0+n\tau$, 对于第一个时间间隔~$[t_0,t_1]$, 我们使用全隐的辛龙格-库塔方法计算~$z_i^0$, $e_i^0$~和~$z^1$, $e^1$~的值, 正如 
+\begin{align*}
+&z_i^0=z^0+\tau\sum_{j=1}^sa_{ij}k_j^0,\quad k_i^0=\mathcal{D}\mu_i^0,\quad \mu_i^0=\mathcal{L}z_i^0+B(z_i^0,e_i^0),\\
+&e_i^0=\mbox{exp}\left(\mbox{ln}(e^0)+\tau\sum_{j=1}^sa_{ij}l_j^0\right),\quad l_i^0=\left(B(z_{i}^0,e_{i}^0),k_i^0\right),\quad i=1,2,\cdots,s,\\
+&z^{1}=z^0+\tau\sum_{i=1}^sb_ik_i^0,\quad e^{1}=\mbox{exp}\left(\mbox{ln}(e^0)+\tau\sum_{i=1}^sb_il_i^0\right).
+\end{align*}
+对于~$n>1$, 应用~ESAV-Gauss~\eqref{eq-4-2-2}~更新数值解. 更具体地, 假定我们已经获得时间间隔~$[t_{n-1},t_n]$~中~$z^{n-1}$~和~$z^{n-1}_i$~的值, 而后~$z_{s,i}^n$~则由点~$(t_{n-1},z^{n-1})$~和~$\left(t_{n-1}+c_i\tau,z_i^{n-1}\right)$~的插值多项式计算. 辅助变量~$e$~的处理是完全相同的, 因此可获得~$B(z_i^n,e_i^n)$~的高阶外推近似~$B(z_{s,i}^n,e_{s,i}^n)$.
+
+\begin{remark}\label{Re-4-2-1}
+考虑到~ESAV-Gauss~\eqref{eq-4-2-2}~的计算实现, 首先由~\eqref{eq-4-2-2-a}~得到~$z_i^n$~的线性方程, 然后代入~\eqref{eq-4-2-2-b}~中计算~$e_i^n$~的值. 最后, 数值解~$z^{n+1}$~和~$e^{n+1}$~由~\eqref{eq-4-2-2-c}~更新. 注意到中间值~$z_i^n$~和~$e_i^n$~的计算是解耦的, 这避免了标准辅助变量方法中高阶算法的计算复杂性~\cite{akrivis-19-RK-SAV}.
+\end{remark}
+
+以~$s=2$~为例解释非线性项~$B(z_{s,i}^n,e_{s,i}^n)$~的获取, 先计算出两次插值多项式
+\begin{align}\label{eq-4-2-3}
+\aligned
+z_2^n(c)=&\frac{(1+c-c_1)(1+c-c_1)}{c_1c_2}z^{n-1}+\frac{(1+c)(1+c-c_2)}{c_1(c_1-c_2)}z_1^{n-1}\\
+&+\frac{(1+c)(1+c-c_1)}{c_2(c_2-c_1)}z_2^{n-1}.
+\endaligned
+\end{align}
+其中~$c_1=\frac{1}{2}-\frac{\sqrt{3}}{6}$~和~$c_2=\frac{1}{2}+\frac{\sqrt{3}}{6}$. 于是, 可得到中间值的近似为
+\begin{equation}\label{eq-4-2-4}
+\begin{aligned}
+&z_{2,1}^n=z_2^n(c_1)=(-2\sqrt{3}+6)z^{n-1}+(-3\sqrt{3}+1)z_1^{n-1}+(5\sqrt{3}-6)z_2^{n-1},\\
+&z_{2,2}^n=z_2^n(c_2)=(2\sqrt{3}+6)z^{n-1}+(-5\sqrt{3}-6)z_1^{n-1}+(3\sqrt{3}+1)z_2^{n-1}.
+\end{aligned}
+\end{equation}
+相似地, $e_{2,i}^n$~的表达式为
+\begin{equation}\label{eq-4-2-5}
+\begin{aligned}
+&e_{2,1}^n=e_2^n(c_1)=(-2\sqrt{3}+6)e^{n-1}+(-3\sqrt{3}+1)e_1^{n-1}+(5\sqrt{3}-6)e_2^{n-1},\\
+&e_{2,2}^n=e_2^n(c_2)=(2\sqrt{3}+6)e^{n-1}+(-5\sqrt{3}-6)e_1^{n-1}+(3\sqrt{3}+1)e_2^{n-1}.
+\end{aligned}
+\end{equation}
+更多地, 由~$3$~级高斯点确定的插值多项式系数见如下表格:
+
+\begin{table}[H]
+\tabcolsep=9pt \small \renewcommand \arraystretch{1.2} \centering
+\caption{当~$s=3$~时插值多项式的系数.}\label{tab-4-1}\vspace{4mm}
+\begin{tabularx}{\textwidth}{*{5}{c}} \toprule
+$t_n+c_i\tau$ & $z^{n-1}~(e^{n-1})$ & $z_1^{n-1}~(e_1^{n-1})$ & $z_2^{n-1}~(e_2^{n-1})$  & $z_3^{n-1}~(e_3^{n-1})$ \\ \midrule
+\multirow{1}*{$z_{3,1}^{n}~(e_{3,1}^{n})$}
+& $6\sqrt{15}-26$ & $-5\sqrt{15}/3+11$ & $16\sqrt{15}/3-24$ & $-29\sqrt{15}/3+40$\\
+\multirow{1}*{$z_{3,2}^{n}~(e_{3,2}^{n})$}
+& $-17$ & $5\sqrt{15}/2+35/2$ & $-17$ & $-5\sqrt{15}/2+35/2$\\ 
+\multirow{1}*{$z_{3,3}^{n}~(e_{3,3}^{n})$}
+& $-6\sqrt{15}-26$ & $29\sqrt{15}/3+40$ & $-16\sqrt{15}/3-24$ & $5\sqrt{15}/3+11$\\ \bottomrule
+\end{tabularx}
+\end{table}	 
+
+考虑到~ESAV-Gauss~的收敛精度, 首先由插值多项式的余项可给出
+\begin{equation}\label{eq-4-2-6}
+\begin{aligned}
+&z_{2,i}^n = z(t_n+c_i\tau)+\mathcal{O}(\tau^3),\\
+&e_{2,i}^n = e(t_n+c_i\tau)+\mathcal{O}(\tau^3),\quad i=1,2.
+\end{aligned}
+\end{equation}
+这表明当~$s=2$~时, 方法~\eqref{eq-4-2-2}~可能实现三阶收敛, 且进一步意味着该类方法有一般的局部误差~$\mathcal{O}(\tau^{s+2})$. 注意到这里没有选择过多的插值点, 否则产生的插值多项式可能会出现高震荡现象, 这便使得外推近似并不是精确的~\cite{gong-20-high-stable}. 
+
+为了提升收敛精度, 一个新颖的预估校正技巧稍后将被提出以重新获得高斯方法的收敛阶. 然而, \eqref{eq-4-2-2}~满足如下的能量守恒性质. 
+
+\begin{theorem}\label{Th-4-2-1}
+半离散~$s$~级方法~\eqref{eq-4-2-2}~是线性隐能量守恒方法, 其具有离散能量守恒律 	
+\begin{equation}\label{eq-4-2-7}
+\tilde{\mathcal{H}}_s^{n+1}=\tilde{\mathcal{H}}_s^n,\quad \tilde{\mathcal{H}}_s^n=\frac{1}{2}\big(z^n,\mathcal{L}z^n\big)+\ln (e^n).
+\end{equation} 
+\end{theorem} 
+
+\begin{proof}
+方法~\eqref{eq-4-2-2}~的线性性质正如注~\ref{Re-4-2-1}. 使用~\eqref{eq-4-2-2-c}~左边的方程可得到 
+\begin{equation}\label{eq-4-2-8}
+\begin{aligned}
+\left(z^{n+1},\mathcal{L}z^{n+1}\right)=&\left(z^n,\mathcal{L}z^n\right)+\tau\sum_{i=1}^{s}b_i\left(k_i^{n},\mathcal{L}z^n\right)+\tau\sum_{j=1}^{s}b_j\left(z^{n},\mathcal{L}k_j^{n}\right)\\ &+\tau^{2}\sum_{i,j=1}^{s}b_ib_{j}\left(k_i^{n},\mathcal{L}k_j^{n}\right).
+\end{aligned}
+\end{equation}
+代入~$\mathcal{L}z^n=\mathcal{L}z_i^n-\tau\sum_{j=1}^sa_{ij}\mathcal{L}k_j^n$~到~\eqref{eq-4-2-8}, 并利用~$\mathcal{L}$~的对称性, 推导出
+\begin{equation}\label{eq-4-2-9}
+\begin{aligned}
+\left(z^{n+1},\mathcal{L}z^{n+1}\right)=&\left(z^n,\mathcal{L}z^n\right)+2\tau\sum_{i=1}^{s}b_i\left(k_i^{n},\mathcal{L}z_i^n\right)\\
+&+\tau^{2}\sum_{i,j=1}^{s}\left(b_ib_j-b_ia_{ij}-b_ja_{ji}\right)\left(k_i^{n},\mathcal{L}k_j^{n}\right).
+\end{aligned}
+\end{equation}
+辛条件~\eqref{eq-1-2-5}~意味着~$b_ib_j-b_ia_{ij}-b_ja_{ji}=0$. \eqref{eq-4-2-2-c}~右边的方程可转变为
+\begin{equation}\label{eq-4-2-10}
+\mbox{ln}\left(e^{n+1}\right)=\mbox{ln}\left(e^n\right)+\tau\sum_{i=1}^sb_il_i^n.
+\end{equation} 	
+求和~\eqref{eq-4-2-9}~和~\eqref{eq-4-2-10}~得到
+\begin{equation}\label{eq-4-2-11}
+\tilde{\mathcal{H}}_s^{n+1}=\tilde{\mathcal{H}}_s^n+\tau\sum_{i=1}^{s}b_i\big[\left(k_i^n,\mathcal{L}z_i^n\right)+l_i^n\big].
+\end{equation} 
+最终结果~\eqref{eq-4-2-7}~则可由等式
+\begin{equation}\label{eq-4-2-12}
+\begin{aligned}
+\left(k_i^n,\mathcal{L}z_i^n\right)&=\left(k_i^n,\mu_i^n-B(z_{s,i}^n,e_{s,i}^n)\right)\\
+&=(\mathcal{D}\mu_i^n,\mu_i^n)-\left(k_i^n,B(z_{s,i}^n,e_{s,i}^n)\right)=-l_i^n
+\end{aligned}
+\end{equation} 
+获得.
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{预估校正方法}{Prediction-correction method}\label{BiSubsec-4-2-2}
+本节提出一个不同于~\cite{gong-20-high-stable}~的预估-矫正技巧以改善~ESAV-Gauss~的收敛精度, 从而给出了另一类任意高阶的线性隐能量守恒格式. 当提出方法的系数取自于高斯方法的系数时, 我们简单记该类方法为~ESAV-Gauss-PC.
+
+ESAV-Gauss-PC:~令$\lambda$~和~$\Lambda$~依次为迭代变量和最大迭代步数, 记号~TOL~为给定的容许误差, 并假定~$z_{s,i}^n$~及~$e_{s,i}^n$~已经由低阶精度的插值多项式所获得. 首先令~$z_i^{n(1)}=z_{s,i}^n$~且~$e_i^{n(1)}=e_{s,i}^n$, 然后对于~$\lambda=1,2,\cdots,\Lambda$, 由如下的等式迭代求解~$z_i^{n(\lambda+1)}$~和~$e_i^{n(\lambda+1)}$:
+\begin{subequations}\label{eq-4-2-13}
+\begin{align}
+&z_i^{n(\lambda+1)}=z^n+\tau\sum_{j=1}^sa_{ij}k_j^{n(\lambda+1)},\label{eq-4-2-13-a}\\ &k_i^{n(\lambda+1)}=\mathcal{D}\mu_i^{n(\lambda+1)},\quad \mu_i^{n(\lambda+1)}=\mathcal{L}z_i^{n(\lambda+1)}+B\left(z_i^{n(\lambda)},e_i^{n(\lambda)}\right),\label{eq-4-2-13-b}\\
+&e_i^{n(\lambda+1)}=\exp\bigg(\ln (e_n)+\tau\sum_{j=1}^sa_{ij}l_j^{n(\lambda+1)}\bigg),\label{eq-4-2-13-c}\\ &l_i^{n(\lambda+1)}=\left(B\left(z_i^{n(\lambda)},e_i^{n(\lambda)}\right),k_i^{n(\lambda+1)}\right),\quad i=1,2,\cdots,s.\label{eq-4-2-13-d}
+\end{align}
+\end{subequations}
+如果~$\max\limits_{1\leq i\leq s}\left\{\|z_i^{n(\lambda+1)}-z_i^{n(\lambda)}\|_{\infty},~\|e_i^{n(\lambda+1)}-e_i^{n(\lambda)}\|_{\infty}\right\}<\mbox{TOL}$, 终止迭代过程并计算~$k_i^{n(\lambda+1)}$~和~$l_i^{n(\lambda+1)}$~的值. 否则取~$k_i^{n(\lambda+1)}=k_i^{n(\Lambda+1)}$~及~$l_i^{n(\lambda+1)}=l_i^{n(\Lambda+1)}$. 最后更新数值解如下 
+\begin{equation}\label{eq-4-2-14}
+z^{n+1}=z^n+\tau\sum_{i=1}^sb_ik_i^{n(\lambda+1)},\quad e^{n+1}=\exp\bigg(\ln (e^n)+\tau\sum_{i=1}^sb_il_i^{n(\lambda+1)}\bigg).
+\end{equation}
+
+与方法~ESAV-CN~和~ESAV-Gauss~相似, ESAV-Gauss-PC~的计算实现也是完全显式的, 并且~$z_i^{n(\lambda+1)}$~和~$e_i^{n(\lambda+1)}$~可依次解耦地求解. 更多地, 这类方法具有接下来的能量守恒律.
+
+\begin{theorem}\label{Th-4-2-2}
+对于每一个迭代步~$\lambda=1,2,\cdots,\Lambda$, ESAV-Gauss-PC~是一个线性能量守恒方法, 其半离散能量守恒律如下
+\begin{equation}\label{eq-4-2-15}
+\tilde{\mathcal{H}}_s^{n+1}=\tilde{\mathcal{H}}_s^n,\quad \tilde{\mathcal{H}}_s^n=\frac{1}{2}\big(z^n,\mathcal{L}z^n\big)+\ln (e^n).
+\end{equation} 	
+\end{theorem}
+
+\begin{proof}
+利用~\eqref{eq-4-2-14}~可得到
+\begin{equation}\label{eq-4-2-16}
+\mathcal{L}z^{n+1}=\mathcal{L}z^n+\tau\sum_{i=1}^sb_i\mathcal{L}k_i^{n(\lambda+1)},\quad \mbox{ln}\left(e^{n+1}\right)=\mbox{ln}(e^n)+\tau\sum_{i=1}^sb_il_i^{n(\lambda+1)}.
+\end{equation} 	
+在~\eqref{eq-4-2-16}~左边等式的两边与~$z^{n+1}$~作内积有
+\begin{equation}\label{eq-4-2-17}
+\begin{aligned}
+\left(z^{n+1},\mathcal{L}z^{n+1}\right)
+=&\left(z^n,\mathcal{L}z^n\right)+\tau\sum_{i=1}^{s}b_i\left(k_i^{n(\lambda+1)},\mathcal{L}z^n\right)+\tau\sum_{j=1}^{s}b_j\left(z^{n},\mathcal{L}k_j^{n(\lambda+1)}\right)\\
+&+\tau^{2}\sum_{i,j=1}^{s}b_ib_{j}\left(k_i^{n(\lambda+1)},\mathcal{L}k_j^{n(\lambda+1)}\right).
+\end{aligned}
+\end{equation}
+由~\eqref{eq-4-2-13-a}~可知~$\mathcal{L}z^n=\mathcal{L}z_i^{n(\lambda+1)}-\tau\sum_{j=1}^sa_{ij}\mathcal{L}k_j^{n(\lambda+1)}$. 将其代入上式, 并使用~$\mathcal{L}$~的对称性推导出
+\begin{equation}\label{eq-4-2-18}
+\begin{aligned}
+\left(z^{n+1},\mathcal{L}z^{n+1}\right)
+=&\left(z^n,\mathcal{L}z^n\right)+2\tau\sum_{i=1}^{s}b_i\left(k_i^{n(\lambda+1)},\mathcal{L}z_i^{n(\lambda+1)}\right)\\
+&+\tau^{2}\sum_{i,j=1}^{s}\left(b_ib_j-b_ia_{ij}-b_ja_{ji}\right)\left(k_i^{n(\lambda+1)},\mathcal{L}k_j^{n(\lambda+1)}\right).
+\end{aligned}
+\end{equation}
+此时, 凭借辛条件~\eqref{eq-1-2-5}, 将上述等式与~\eqref{eq-4-2-16}~右边等式求和便有
+\begin{equation}\label{eq-4-2-19}
+\tilde{\mathcal{H}}_s^{n+1}=\tilde{\mathcal{H}}_s^n+\tau\sum_{i=1}^{s}b_i\bigg[\left(k_i^{n(\lambda+1)},\mathcal{L}z_i^{n(\lambda+1)}\right)+l_i^{n(\lambda+1)}\bigg].
+\end{equation} 
+最后, 根据~\eqref{eq-4-2-13-a}~和~\eqref{eq-4-2-13-b}~及~$\mathcal{D}$~的反对称性, 由
+\begin{equation}\label{eq-4-2-20}
+\begin{aligned}
+\left(k_i^{n(\lambda+1)},\mathcal{L}z_i^{n(\lambda+1)}\right)
+&=\left(k_i^{n(\lambda+1)},\mu_i^{n(\lambda+1)}-B\left(z_i^{n(\lambda)},e_i^{n(\lambda)}\right)\right)\\
+&=\left(\mathcal{D}\mu_i^{n(\lambda+1)},\mu_i^{n(\lambda+1)}\right)-\left(k_i^{n(\lambda+1)},B\left(z_i^{n(\lambda)},e_i^{n(\lambda)}\right)\right)\\
+&=-l_i^{n(\lambda+1)}
+\end{aligned}
+\end{equation}
+可获得半离散能量守恒律~\eqref{eq-4-2-15}.
+\end{proof}
+
+\begin{remark}\label{Re-4-2-2}
+以上的预估校正方法与文献~\cite{gong-20-high-stable}~确实是不同的. 该文献中预估步骤在于获得中间级的高阶近似, 而校正步骤则是为实现能量守恒性质. 本章中, 预估步骤为通过插值多项式获得中间级的低阶近似, 而后使用校正步骤~\eqref{eq-4-2-13}~提高了方法的收敛精度.	
+\end{remark}
+
+\begin{remark}\label{Re-4-2-3}
+ESAV-Gauss-PC~能被视为将全隐的高斯方法应用于修正系统~\eqref{eq-4-2-10}, 这时不动点迭代的初始值选取为由插值多项式所得到的低阶近似. 通过本章的数值例子, 我们发现校正步骤~\eqref{eq-4-2-13}~大约进行了五次迭代. 而在标准辛龙格-库塔方法中, 初始值通常给定为~$z^n$~及~$e^n$, 以至于在迭代的收敛速度上远不如~ESAV-Gauss-PC.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{空间傅里叶拟谱方法}{Spatial Fourier pseudo-spectral method}\label{BiSubsec-4-2-3}
+本章专注于空间周期边界条件的设定, 故而应用傅里叶拟谱方法~\cite{gong-17-Fourier-NLS,shen-11-spectral}~进行空间离散. 以二维区域~$\Omega=[x_R,x_L]\times[y_R,y_L]$~为例, 空间网格大小为~$h_x=l_1/N_x$~和~$h_y=l_2/N_y$, 其中的~$N_x$, $N_y$~取定为偶数, 周期为~$l_1=x_L-x_R$~和~$l_2=y_L-y_R$. 这样, 空间网格点即为
+\begin{equation}\label{eq-4-2-21}
+\begin{aligned}
+\Omega_h=\big\{(x_j,y_k)|x_j=x_R+(j-1)h_x,y_k=y_R+(k-1)h_y&,\\
+j=1,2,\cdots,N_x,k=1,2,\cdots,N_y\big\}&.
+\end{aligned}
+\end{equation} 
+再选取插值空间为
+\begin{equation}\label{eq-4-2-22}
+I_N=\mbox{span}\big\{X_m(x)Y_n(y),m=1,2,\cdots,N_x,n=1,2,\cdots,N_y\big\}.
+\end{equation} 
+这里, $X_m(x)$~和~$Y_n(y)$~分别为次数不超过~$N_x/2$, $N_y/2$~的指数多项式. 使用~Kronecker~记号, 这些多项式满足~$X_m(x_j)=\delta_m^j$, $Y_n(y_k)=\delta_n^k$, 且具有如下的显式表达式
+\begin{equation}\label{eq-4-2-23}
+X_m(x)=\frac{1}{N_x}\sum_{w=-N_x/2}^{N_x/2}\frac{1}{\alpha_w}e^{iw\mu_x\left(x-x_m\right)},\quad Y_n(y)=\frac{1}{N_y}\sum_{w=-N_y/2}^{N_y/2}\frac{1}{\alpha_w}e^{iw\mu_y\left(y-y_n\right)}.
+\end{equation} 
+其中的~$\alpha_w=1$~($-N_\gamma/2<w<N_\gamma/2$), $\alpha_{-N_\gamma/2}=\alpha_{N_\gamma/2}=2$~且~$\gamma=x\ \mbox{或}\ y$. 记号~$\mu_x=2\pi/l_1$~和~$\mu_y=2\pi/l_2$~为空间区域的矫正因子. 假定~$z_{jk}$~是~$z$~在网格点~$(x_j,y_k)$~处的精确解, 则~$z$~的插值多项式可写为
+\begin{equation}\label{eq-4-2-24}
+\big(\mathcal{I}_Nz\big)\left(x,y\right)=\sum_{m=1}^{N_x}\sum_{n=1}^{N_y}z_{mn}X_m(x)Y_n(y),
+\end{equation} 
+也就是~$\big(\mathcal{I}_Nz\big)\left(x_j,y_k\right)=z_{jk}$. 为了计算~$\frac{\partial^2(\mathcal{I}_Nz)}{\partial x^2}$~和~$\frac{\partial^2(\mathcal{I}_Nz)}{\partial y^2}$~在点~$(x_j,y_k)$~处的值, 微分~\eqref{eq-4-2-24}~可得到
+\begin{subequations}\label{eq-4-2-25}
+\begin{align}
+&\frac{\partial^2(\mathcal{I}_Nz)}{\partial x^2}(x_j,y_k)=\sum_{m=1}^{N_x}\sum_{n=1}^{N_y}z_{mn}\frac{d^2 X_m}{dx^2}\left(x_j\right)Y_n(y_k)=\left(D_x^2\textbf{z}\right)_{jk},\label{eq-4-2-25-a}\\
+&\frac{\partial^2(\mathcal{I}_Nz)}{\partial y^2}(x_j,y_k)=\sum_{m=1}^{N_x}\sum_{n=1}^{N_y}z_{mn}X_m(x_j)\frac{d^2 Y_n}{dy^2}\left(y_k\right)=\left(\textbf{z}D_y^2\right)_{jk}.\label{eq-4-2-25-b}
+\end{align} 
+\end{subequations}
+这里, $\textbf{z}=\left(z_{jk}\right)$~是~$N_x\times N_y$~的矩阵, $D_\gamma^2\ (\gamma=x\ \mbox{或}\ y)$~为二阶谱微分矩阵. 此外, $D_\gamma^2$~为~$N_\gamma\times N_\gamma$~的实对称矩阵, 其各元素为
+\begin{align}\label{eq-4-2-26}
+(D_\gamma^2)_{mn}=
+\left\{\aligned
+&-\mu_\gamma^2\frac{N_\gamma^2+2}{12},\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad~~\mbox{if}\ m=n,\\
+&(-1)^{m+n+1}\frac{\mu_\gamma^2}{2}\mbox{csc}^2\left(\frac{(m-n)\mu_\gamma h_\gamma}{2}\right),\quad \mbox{if}\ m\neq n.\\
+\endaligned
+\right.
+\end{align}
+相似地, 可推导出一阶谱微分矩阵为
+\begin{align}\label{eq-4-2-27}
+(D_\gamma^1)_{mn}=
+\left\{\aligned
+&0,\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad~\mbox{if}\ m=n,\\
+&(-1)^{m+n}\frac{\mu_\gamma}{2}\mbox{cot}\left(\frac{(m-n)\mu_\gamma h_\gamma}{2}\right),\quad \mbox{if}\ m\neq n.\\
+\endaligned
+\right.
+\end{align}
+对于高阶谱微分矩阵的相关内容, 请读者参考文献~\cite{gong-17-Fourier-NLS,shen-11-spectral,chen-01-MS-Fourier}. 令~$Z=(Z_{jk})$~为数值解矩阵, 对于任意的网格函数~$Z$~和~$\hat{Z}$, 定义离散内积为
+\begin{equation}\label{eq-4-2-28}
+\left(Z,\hat{Z}\right)_h=h_xh_y\sum_{j=1}^{N_x}\sum_{k=1}^{N_y}{Z}_{jk}{\hat{Z}}_{jk},
+\end{equation} 
+其诱导的~$L^2$~范数和~$L^{\infty}$~范数为
+\begin{equation}\label{eq-4-2-29}
+||Z||_h=\sqrt{(Z,Z)_h},\quad ||Z||_{h,\infty}=\mathop{\max}\limits_{(x_j,y_k)\in\Omega_h}\left|Z_{jk}\right|,
+\end{equation} 
+及半范数~\cite{gong-17-Fourier-NLS}
+\begin{equation}\label{eq-4-2-30}
+|Z|_h=\sqrt{(-D_x^2Z,Z)_h+(-ZD_y^2,Z)_h}.
+\end{equation} 
+以上引入的范数将使用在全离散方法的能量表达式及数值误差测量中.
+
+根据关系式~$D_\gamma^\alpha=F_{N_\gamma}^{H}\Lambda_\gamma^\alpha F_{N_\gamma}$~$(\alpha=1\ \mbox{或}\ 2)$, 其中的~$F_{N_\gamma}$~和~$F_{N_\gamma}^H$~分别为离散傅里叶变换矩阵及其共轭转置, 矩阵~$\Lambda_\gamma^\alpha$~为~$D_\gamma^\alpha$~的特征值形成的对角矩阵, 在实际计算中, 本文提出的具有解耦性质的两类线性隐能量守恒方法将在快速傅里叶变换的加持下十分高效地运行.
+
+\begin{example}\label{Ex-4-2-1}
+我们以~Korteweg-de Vries~方程~\eqref{eq-4-1-10}~为例, 展示本章的线性能量守恒方法所对应的全离散格式, 一维空间区域为~$\Omega=[x_R,x_L]$, 使用~$Z^n$, $W^n$~及~$E^n$~分别表示解变量及辅助变量在时间~$t_n$~的数值解.
+
+\begin{itemize}
+\item 全离散~SAV-CN:
+\begin{align*}
+&A\left(\bar{Z}^{n+\frac{1}{2}}\right)=\frac{1}{2}-\left(\bar{Z}^{n+\frac{1}{2}}\right)^22\sqrt{-\frac{1}{6}\left(\left(\bar{Z}^{n+\frac{1}{2}}\right)^3,1\right)_h+C_0},\\
+&\frac{Z^{n+1}-Z^n}{\tau}=D_x^1\left(-D_x^2Z^{n+\frac{1}{2}}+A\left(\bar{Z}^{n+\frac{1}{2}}\right)W^{n+\frac{1}{2}}\right),\\
+&W^{n+1}-W^n=\frac{1}{2}\left(A\left(\bar{Z}^{n+\frac{1}{2}}\right),Z^{n+1}-Z^n\right)_h, 
+\end{align*}
+其全离散能量守恒律为
+\begin{equation}\label{eq-4-2-31}
+\bar{\mathcal{H}}^{n+1}=\bar{\mathcal{H}}^n,\quad \bar{\mathcal{H}}^n=\frac{1}{2}|Z^n|_h^2+(W^n)^2.
+\end{equation} 
+
+\item 全离散~ESAV-CN:
+\begin{align*}
+&B\left(\bar{Z}^{n+\frac{1}{2}},\bar{E}^{n+\frac{1}{2}}\right)=-\frac{1}{2}\bar{E}^{n+\frac{1}{2}}\left(\bar{Z}^{n+\frac{1}{2}}\right)^2\mbox{exp}\left(\left((\bar{Z}^{n+\frac{1}{2}})^3,1\right)_h\Big/6\right),\\
+&\frac{Z^{n+1}-Z^n}{\tau}=D_x^1\left(-D_x^2Z^{n+\frac{1}{2}}+B\left(\bar{Z}^{n+\frac{1}{2}},\bar{E}^{n+\frac{1}{2}}\right)\right),\\
+&\mbox{ln}\left(E^{n+1}\right)-\mbox{ln}\left(E^n\right)=\left(B\left(\bar{Z}^{n+\frac{1}{2}},\bar{E}^{n+\frac{1}{2}}\right),Z^{n+1}-Z^n\right)_h,
+\end{align*}
+其全离散能量守恒律为
+\begin{equation}\label{eq-4-2-32}
+\tilde{\mathcal{H}}^{n+1}=\tilde{\mathcal{H}}^n,\quad \tilde{\mathcal{H}}^n=\frac{1}{2}|Z^n|_h^2+\mbox{ln}\left(E^n\right).
+\end{equation} 
+
+\item 全离散~ESAV-Gauss:~首先由如下格式线性求解出~$K_i^n$~和~$L_i^n$, 即
+\begin{align*}
+&B\left(Z_{s,i}^n,E_{s,i}^n\right)=-\frac{1}{2}E_{s,i}^n\left(Z_{s,i}^n\right)^2\mbox{exp}\left(\left((Z_{s,i}^n)^3,1\right)_h\Big/6\right),\\
+& Z_i^n=Z^n+\tau\sum_{j=1}^sa_{ij}K_j^n,\quad K_i^n=D_x^1\left(-D_x^2Z_i^n+B(Z_{s,i}^n,E_{s,i}^n)\right),\\
+&E_i^n=\mbox{exp}\bigg(\mbox{ln}(E^n)+\tau\sum_{j=1}^sa_{ij}L_j^n\bigg),\\
+&L_i^n=\left(B(Z_{s,i}^n,E_{s,i}^n),K_i^n\right),\quad i=1,2,\cdots,s,
+\end{align*}
+再代入下式更新数值解为
+\begin{equation*}
+Z^{n+1}=Z^n+\tau\sum_{i=1}^sb_iK_i^n,\quad E^{n+1}=\mbox{exp}\bigg(\mbox{ln}(E^n)+\tau\sum_{i=1}^sb_iL_i^n\bigg),
+\end{equation*}
+其全离散能量守恒律为
+\begin{equation}\label{eq-4-2-33}
+\tilde{\mathcal{H}}_s^{n+1}=\tilde{\mathcal{H}}_s^n,\quad \tilde{\mathcal{H}}_s^n=\frac{1}{2}|Z^n|_h^2+\mbox{ln}(E^n).
+\end{equation} 
+
+\item 全离散~ESAV-Gauss-PC:~令~$\lambda$~和~$\Lambda$~分别为迭代变量及最大迭代步数, $Z_i^{n(1)}=Z_{s,i}^n$~且~$E_i^{n(1)}=E_{s,i}^n$, 对于~$\lambda=1,2,\cdots,\Lambda$, 迭代求解中间级~$Z_i^{n(\lambda+1)}$~和~$E_i^{n(\lambda+1)}$~的格式为
+\begin{align*}
+&B\left(Z_{s,i}^{n(\lambda)},E_{s,i}^{n(\lambda)}\right)=-\frac{1}{2}E_{s,i}^{n(\lambda)}\left(Z_{s,i}^{n(\lambda)}\right)^2\mbox{exp}\left(\big((Z_{s,i}^{n(\lambda)})^3,1\big)_h\Big/6\right),\quad i=1,2,\cdots,s,\\
+&Z_i^{n(\lambda+1)}=Z_n+\tau\sum_{j=1}^sa_{ij}K_j^{n(\lambda+1)},\\ &k_i^{n(\lambda+1)}=D_x^1\left(-D_x^2Z_i^{n(\lambda+1)}+B\big(Z_i^{n(\lambda)},E_i^{n(\lambda)}\big)\right),\\
+&E_i^{n(\lambda+1)}=\mbox{exp}\bigg(\mbox{ln}(E_n)+\tau\sum_{j=1}^sa_{ij}L_j^{n(\lambda+1)}\bigg),\\
+&L_i^{n(\lambda+1)}=\left(B\big(Z_i^{n(\lambda)},E_i^{n(\lambda)}\big),K_i^{n(\lambda+1)}\right).
+\end{align*}
+如果~$\max\limits_{1\leq i\leq s}\left\{\|Z_i^{n(\lambda+1)}-Z_i^{n(\lambda)}\|_{\infty},~\|E_i^{n(\lambda+1)}-E_i^{n(\lambda)}\|_{\infty}\right\}<\mbox{TOL}$, 终止迭代过程并计算~$K_i^{n(\lambda+1)}$~和~$L_i^{n(\lambda+1)}$~的值. 否则令~$K_i^{n(\lambda+1)}=K_i^{n(\Lambda+1)}$, $L_i^{n(\lambda+1)}=L_i^{n(\Lambda+1)}$, 再更新数值解为
+\begin{equation*}
+Z^{n+1}=Z^n+\tau\sum_{i=1}^sb_iK_i^{n(\lambda+1)},\quad E^{n+1}=\mbox{exp}\bigg(\mbox{ln}(E^n)+\tau\sum_{i=1}^sb_iL_i^{n(\lambda+1)}\bigg),
+\end{equation*}
+其全离散能量守恒律为
+\begin{equation}\label{eq-4-2-34}
+\tilde{\mathcal{H}}_s^{n+1}=\tilde{\mathcal{H}}_s^n,\quad \tilde{\mathcal{H}}_s^n=\frac{1}{2}|Z^n|_h^2+\mbox{ln}(E^n).
+\end{equation}  
+\end{itemize}
+\end{example}
+
+以上全离散方法的能量守恒律能以定理~\ref{Th-4-2-1}~和定理~\ref{Th-4-2-2}~相同的方式证明, 这里省略其细节. 由于提出方法的线性和解耦性质, 及快速傅里叶变换的使用, 本章的所有算法均能高效地进行计算模拟.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{数值实验}{Numerical experiments}\label{BiSec-4-3}
+本节中, 我们数值模拟三类哈密尔顿偏微分方程以验证提出方法的精度及能量守恒. 对于预估校正方法~ESAV-Gauss-PC, 在所有实验中取定容许误差为~$\mbox{TOL}=10^{-12}$. 所有方法均在~Matlab~R2016a~中运行, 且计算机配置为英特尔~i5-3470~CPU, 3.20~GHz~及~4GB~内存.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{非线性薛定谔方程}{The nonlinear Schr\"odinger equation}\label{BiSubsec-4-3-1}
+考查非线性薛定谔方程
+\begin{equation}\label{eq-4-3-1}
+\mbox{i}u_t+\triangle u +\beta |u|^2u=0,\quad (x,y)\in\Omega\in \mathbb{R}^2,\ t\in (0,T],
+\end{equation} 
+其生成了一个渐进平面波解~\cite{gong-17-Fourier-NLS}
+\begin{equation}\label{eq-4-3-2}
+u(x,y,t)=A\ \mbox{exp}\big(\mbox{i}(c_1x+c_2y-\omega t)\big).
+\end{equation} 
+其中~$\omega=c_1^2+c_2^2-\beta A^2$, 空间周期为~$2\pi$~且~$\Omega=[0,2\pi)\times[0,2\pi)$, 选择~$\beta=c_1=c_2=A=1$~及~$N_x=N_y$. 在~$t=0$~时, 精确解~\eqref{eq-4-3-2}~给出初始条件. 该实验中, 空间剖分数的不同选择使得空间数值误差足够小的可以忽略不计.
+
+表~\ref{tab-4-2}~表明当空间误差较小时, 总数值误差完全依赖于时间离散, 这也证实了精确解~\eqref{eq-4-3-2}~是足够光滑的使得空间傅里叶拟谱方法具有高精度. 接下来, SAV-CN~等方法的时间收敛率由公式
+\begin{equation}\label{eq-4-3-3}
+\mbox{Order}=\mbox{log}_2\frac{\mbox{Error}(h,\tau)}{\mbox{Error}(h,\tau/2)}
+\end{equation} 
+计算, 其中~$\mbox{Error}(h,\tau)$~表示对于时空网格步长~$\tau$~和~$h$, 数值解与精确解~\eqref{eq-4-3-2}~的误差大小. 表~\ref{tab-4-3}~说明~SAV-CN~和~ESAV-CN~在时间上均是二阶收敛的, 以上两个表格也报告了这两个方法的~CPU~计算时间, 显然~ESAV-CN~在计算效率上是更有优势的. 此外, 对于不同的时间步长, 图~\ref{fig-4-1}~给出了~SAV-CN~和~ESAV-CN~的数值误差比较, 实验结果可以得到~ESAV-CN~具有更小的数值误差, 尽管它们的能量误差看上去几乎是相同的.
+
+对于本章中的高阶方法, 图~\ref{fig-4-2}~展示了全隐高斯方法与~ESAV-Gauss-PC~计算时间的比较, 当选择一个低阶近似的初始值时, 全隐高斯方法的计算效率得到了明显提升. 更加清楚地, 表~\ref{tab-4-4}~列举了不同时间步长下, 这两个方法所需要的迭代数大小. 最后, 图~\ref{fig-4-3}~给出了高阶方法的时间收敛性测试, ESAV-Gauss~的精度等于选取的高斯方法的节点数, 而预估校正技巧使得这类方法重新获得了高斯方法原本的收敛精度.
+
+\begin{table}[H]
+\tabcolsep=8.5pt 
+\small \renewcommand \arraystretch{1.15} \centering
+\caption{在~$T=1$~处~SAV-CN~和~ESAV-CN~的空间收敛测试, $\tau=1e-05$.}\label{tab-4-2}\vspace{2mm}
+\begin{tabularx}{\textwidth}{*{7}{l}} \toprule
+Schemes & $N_x\times N_y$ & $8\times8$ & $16\times16$ & $32\times32$ & $64\times64$ & $128\times128$\\ \midrule 
+\multirow{3}*{SAV-CN}
+& L$^2$ error & 4.55E-10 & 3.90E-10 & 3.72E-10 & 4.09E-10 & 4.20E-10\\
+& L$^\infty$ error & 7.26E-11 & 6.29E-11 & 6.01E-11 & 6.57E-11 & 6.77E-11\\
+& CPU time & 33.63s & 44.93s & 79.35s & 213.59s & 668.90s\\ \midrule
+\multirow{3}*{ESAV-CN}
+& L$^2$ error & 8.40E-11 & 8.62E-11 & 1.00E-10 & 7.66E-11 & 7.44E-11\\
+& L$^\infty$ error & 1.47E-11 & 1.46E-11 & 1.68E-11 & 1.31E-11 & 1.27E-11\\
+& CPU time & 17.91s & 24.09s & 45.92s & 132.12s & 398.58s\\ \bottomrule
+\end{tabularx}
+\end{table}	
+\vspace{-2mm}
+\begin{table}[H]
+\tabcolsep=8.5pt
+\small \renewcommand \arraystretch{1.15} \centering
+\caption{在~$T=1$~处~SAV-CN~和~ESAV-CN~的时间收敛测试, $N_x=N_y=64$.}\label{tab-4-3}\vspace{2mm}
+\begin{tabularx}{\textwidth}{*{7}{l}} \toprule
+Schemes & $\tau$ & $0.001$ & $0.001/2$ & $0.001/4$ & $0.001/8$ & $0.001/16$\\ \midrule 
+\multirow{5}*{SAV-CN}
+& L$^2$ error & 3.66E-06 & 9.16E-07 & 2.29E-07 & 5.73E-08 & 1.43E-08\\
+& Order & -- & 2.00 & 2.00 & 2.00 & 2.00\\
+& L$^\infty$ error & 5.82E-07 & 1.46E-07 & 3.64E-08 & 9.11E-09 & 2.28E-09\\
+& Order & -- & 2.00 & 2.00 & 2.00 & 2.00\\
+& CPU time & 2.38s & 4.35s & 8.67s & 17.32s & 34.54s\\ \midrule
+\multirow{5}*{ESAV-CN}
+& L$^2$ error & 1.05E-06 & 2.62E-07 & 6.55E-08 & 1.64E-08 & 4.08E-09\\
+& Order & -- & 2.00 & 2.00 & 2.00 & 2.00\\
+& L$^\infty$ error & 1.67E-07 & 4.17E-08 & 1.04E-08 & 2.60E-09 & 6.50E-10\\
+& Order & -- & 2.00 & 2.00 & 2.00 & 2.00 \\
+& CPU time & 1.53s & 2.84s & 5.16s & 10.39s & 21.50s\\ \bottomrule
+\end{tabularx}
+\end{table}	
+
+\begin{figure}[H]
+\centering
+\subfigure[$L^2$~误差比较]{
+\includegraphics[width=0.45\textwidth]{NLS_AE_solu_L2_error}}
+\subfigure[$L^\infty$~误差比较]{
+\includegraphics[width=0.45\textwidth]{NLS_AE_solu_Linf_error}}\\
+\subfigure[能量误差比较]{
+\includegraphics[width=0.45\textwidth]{NLS_AE_energy_error}}
+\caption{SAV-CN~和~ESAV-CN~的数值误差比较, $N_x=N_y=64$.}\label{fig-4-1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.45\textwidth]{NLS_AE_L2_effic}
+\includegraphics[width=0.45\textwidth]{NLS_AE_Linf_effic}
+\caption{全隐高斯方法和~ESAV-Gauss-PC~直至~$T=100$~的~CPU~计算时间比较, $N_x=N_y=8$.}\label{fig-4-2}
+\end{figure}
+
+\begin{table}[H]
+\tabcolsep=20pt 
+\small \renewcommand \arraystretch{1.3} \centering
+\caption{不同的时间步长下, 全隐高斯方法和~ESAV-Gauss-PC~计算至~$T=100$~的迭代数比较, $N_x=N_y=8$.}\label{tab-4-4}\vspace{4mm}
+\begin{tabularx}{\textwidth}{*{6}{l}} \toprule
+Schemes & 0.2 & 0.2/2 & 0.2/4  & 0.2/8 & 0.2/16 \\ \midrule 
+\multirow{1}*{Gauss2}
+& 15 & 12 & 11 & 9 & 8\\ 
+\multirow{1}*{ESAV-Gauss2-PC}
+& 10 & 8 & 6 & 5 & 4\\ \midrule
+\multirow{1}*{Gauss3}
+& 14 & 12 & 10 & 9 & 8\\ 
+\multirow{1}*{ESAV-Gauss3-PC}
+& 9 & 6 & 5 & 4 & 3\\ \bottomrule
+\end{tabularx}
+\end{table}	 
+
+\begin{figure}[H]
+\centering
+\subfigure[$L^2$~误差, ESAV-Guass]{
+\includegraphics[width=0.45\textwidth]{NLS_AE_L2_order}}
+\subfigure[$L^\infty$~误差, ESAV-Guass]{
+\includegraphics[width=0.45\textwidth]{NLS_AE_Linf_order}}
+\subfigure[$L^2$~误差, Gauss \& ESAV-Gauss-PC]{
+\includegraphics[width=0.45\textwidth]{NLS_AE_L2_pc_order}}
+\subfigure[$L^\infty$~误差, Gauss \& ESAV-Gauss-PC]{
+\includegraphics[width=0.45\textwidth]{NLS_AE_Linf_pc_order}}
+\caption{在~$T=1$~处, 全隐高斯方法, ESAV-Guass~和~ESAV-Gauss-PC~的时间收敛测试, $N_x=N_y=8$.}\label{fig-4-3}
+\end{figure}
+
+作为非线性薛定谔方程~\eqref{eq-4-3-1}~的另一数值算例, 考察由如下初始条件 
+\begin{equation}\label{eq-4-3-4}
+u(x,y,0)=\big(1+\mbox{sin}(x)\big)\big(2+\mbox{sin}(y)\big)
+\end{equation} 
+决定的在时间~$t=0.108$~处的一个奇异解~\cite{gong-17-Fourier-NLS}, 其中的~$\beta=1$, 选取一个周期的空间区域~$\Omega=[0,2\pi)\times[0,2\pi)$. 图~\ref{fig-4-6}~描绘了~SAV-CN~和~ESAV-CN~的奇异解及所对应的等高线, 其与文献~\cite{gong-17-Fourier-NLS}~中刻画的结果是一致的. 高阶方法的数值轨迹与这两个方法是相似的, 自此以后仅展示这两个二阶方法的数值解. 图~\ref{fig-4-4}~和图~\ref{fig-4-5}~给出了所有方法直至~$T=1$~的能量误差演化, 可以看到~SAV-CN~对于该时间步长, 在~$t=0.2$~之后便展示了完全错误的能量曲线, 这表明该格式的稳定性不如基于指数辅助变量的方法.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.45\textwidth]{NLS_energy_SAV_CN}
+\caption{非线性薛定谔方程:~SAV-CN~的能量误差, $N_x=N_y=128$, $\tau=0.0001$.}\label{fig-4-4}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.45\textwidth]{NLS_energy}
+\caption{非线性薛定谔方程:~指数辅助变量方法的能量误差, $N_x=N_y=128$, $\tau=0.0001$.}\label{fig-4-5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[$T=0$~时初始值]{
+\includegraphics[width=0.45\textwidth]{NLS_Init_Con}}
+\subfigure[$T=0$~时等高线]{
+\includegraphics[width=0.45\textwidth]{NLS_Init_contour}}\vspace{6mm}
+\subfigure[SAV-CN, 奇异解]{
+\includegraphics[width=0.45\textwidth]{NLS_Solu_SAV_CN}}
+\subfigure[SAV-CN, 等高线]{
+\includegraphics[width=0.45\textwidth]{NLS_SAV_CN_contour}}\vspace{6mm}
+\subfigure[ESAV-CN, 奇异解]{
+\includegraphics[width=0.45\textwidth]{NLS_Solu_ESAV_CN}}
+\subfigure[ESAV-CN, 等高线]{
+\includegraphics[width=0.45\textwidth]{NLS_ESAV_CN_contour}}\vspace{6mm}
+\caption{非线性薛定谔方程:~SAV-CN~和~ESAV-CN~的奇异解及对应的等高线, $N_x=N_y=128$, $\tau=0.0001$.}\label{fig-4-6}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{sine-Gordon~方程}{The sine-Gordon equation}\label{BiSubsec-4-3-2}
+本算例模拟如下形式的~sine-Gordon~方程
+\begin{equation}\label{eq-4-3-5}
+u_{tt}-\triangle u+\phi(x,y)\ \mbox{sin}\left(u\right)=0,\quad (x,y)\in\Omega\in\mathbb{R}^2,\ t\in (0,T].
+\end{equation} 
+其中, 函数~$\phi(x,y)=1$~在实际物理背景中能视为~Josephson~电流密度. 选取周期边界条件及接下来的两种不同的初始条件:
+\begin{itemize}
+\item 圆环孤子~\cite{argyris-91-FEM-SG,jiang-19-SG-IEQ,cai-19-SG-NB}~(请参考图~\ref{fig-4-7}):
+\begin{align}\label{eq-4-3-6}
+\aligned
+&u(x,y,0)=4\ \mbox{tan}^{-1}\bigg(\mbox{exp}\left(3-\sqrt{x^2+y^2}\right)\bigg),\quad \Omega=[-7,7)\times[-7,7),\\
+&u_t(x,y,0)=0,
+\endaligned
+\end{align}
+\item 四个圆环孤子碰撞~\cite{argyris-91-FEM-SG,jiang-19-SG-IEQ,cai-19-SG-NB}~(请参考图~\ref{fig-4-8}):
+\begin{align}\label{eq-4-3-7}
+\aligned
+&u(x,y,0)=4\ \mbox{tan}^{-1}\mbox{exp}\bigg[\left(4-\sqrt{(x+3)^2+(y+3)^2}\right)/0.436\bigg],\\
+&u_t(x,y,0)=4.13\ \mbox{sech}\bigg[\left(4-\sqrt{(x+3)^2+(y+3)^2}\right)/0.436\bigg],\\
+&\Omega=[-30,10)\times[-30,10).
+\endaligned
+\end{align}
+\end{itemize} 
+
+图~\ref{fig-4-7}~和图~\ref{fig-4-8}~陈列了在两种初始条件下, ESAV-CN~在不同时刻的数值解, 其余方法的数值解是相似的, 所有数值解的波形与文献~\cite{argyris-91-FEM-SG,jiang-19-SG-IEQ,cai-19-SG-NB}~是一致的. 在图~\ref{fig-4-8}~中, 直至~$T=10$~的模拟重新产生了沿着直线~$x=-10$~和~$y=-10$~的对称性. ESAV-CN~正确刻画了四个圆环孤子极其复杂的相互作用, 传达了在空间区域中心处~$u$~值的快速变化. 凭借线性隐方法的快速计算, 我们在图~\ref{fig-4-9}~中展示了两种不同初始条件对应的长时间能量误差.
+
+\begin{figure}[H]
+\centering
+\subfigure[$T=0$~时初始值]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_0_ESAV_CN}}
+\subfigure[ESAV-CN, $T=2.8$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_1_ESAV_CN}}\vspace{6mm}
+\subfigure[ESAV-CN, $T=5.6$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_2_ESAV_CN}}
+\subfigure[ESAV-CN, $T=8.4$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_3_ESAV_CN}}\vspace{6mm}
+\subfigure[ESAV-CN, $T=11.2$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_4_ESAV_CN}}
+\subfigure[ESAV-CN, $T=12.6$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_5_ESAV_CN}}\vspace{6mm}
+\caption{sine-Gordon~方程圆环孤子:~ESAV-CN~在不同时刻的数值解, $N_x=N_y=128$, $\tau=0.01$.}\label{fig-4-7}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[$T=0$~时初始值]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_0_ESAV_CN}}
+\subfigure[ESAV-CN, $T=2.5$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_1_ESAV_CN}}\vspace{6mm}
+\subfigure[ESAV-CN, $T=5$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_2_ESAV_CN}}
+\subfigure[ESAV-CN, $T=7.5$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_3_ESAV_CN}}\vspace{6mm}
+\subfigure[ESAV-CN, $T=10$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_4_ESAV_CN}}\vspace{6mm}
+\caption{sine-Gordon~方程四个圆环孤子碰撞:~ESAV-CN~在不同时刻的数值解, $N_x=N_y=128$, $\tau=0.01$.}\label{fig-4-8}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[圆环孤子]{
+\includegraphics[width=0.45\textwidth]{CRS_energy}}
+\subfigure[四个圆环孤子碰撞]{
+\includegraphics[width=0.45\textwidth]{CCS_energy}}
+\caption{sine-Gordon~方程的能量误差, $N_x=N_y=128$, $\tau=0.01$.}\label{fig-4-9}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{Korteweg-de~Vries~方程}{The Korteweg-de Vries equation}\label{BiSubsec-4-3-3}
+考查~Korteweg-de~Vries~方程
+\begin{equation}\label{eq-4-3-8}
+u_t+\alpha u_{xxx}+\beta uu_x=0,\quad (x,y)\in\Omega\in\mathbb{R},\ t\in (0,T],
+\end{equation} 
+这里取定~$\beta=1$~及周期边界条件, 初始条件由如下的两种精确解在~$t=0$~时计算, 正如
+\begin{itemize}
+\item 单孤立波解~\cite{luigi-19-HBVM-KDV}~(请参考图~\ref{fig-4-10}):
+\begin{align}\label{eq-4-3-9}
+\aligned
+&u(x,t)= 3\gamma\bigg[\mbox{sech}\left(\sqrt{\frac{\gamma}{4\alpha}}(x-\gamma t)_\Omega\right)\bigg]^2,\quad \Omega=[x_L,x_R],\\
+&\alpha=0.0013020833,~\gamma=\frac{1}{3},
+\endaligned
+\end{align}
+其中的记号
+\begin{equation}\label{eq-4-3-10}
+(\theta)_\Omega=
+\left\{\aligned
+&x_R-\mbox{Rem}\left(x_R-\theta,x_R-x_L\right),\quad \mbox{if}\ \theta<x_L,\\
+&\theta,\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad~~~\mbox{if}\ \theta\in\Omega,\\
+&x_L+\mbox{Rem}\left(\theta-x_L,x_R-x_L\right), \quad\mbox{if}\ \theta>x_R.
+\endaligned\right.
+\end{equation}
+Rem~表示其两个参数整除后的余数, 选择空间区域~$\Omega=[-3,5]$~为一个周期.
+\item 双孤立波解~\cite{luigi-19-HBVM-KDV}~(请参考图~\ref{fig-4-11}):
+\begin{align}\label{eq-4-3-11}
+\aligned
+&u(x,t)=12\frac{k_1^2e^{\xi_1}+k_2^2e^{\xi_2}+2(k_2-k_1)^2e^{\xi_1+\xi_2}+\rho^2(k_2^2e^{\xi_1}+k_1^2e^{\xi_2})e^{\xi_1+\xi_2}}{\left(1+e^{\xi_1}+e^{\xi_2}+\rho^2e^{\xi_1+\xi_2}\right)^2},\\
+&\Omega=[-40,40],\ \alpha=1,
+\endaligned
+\end{align}
+其中的参数依次给定为
+\begin{align}\label{eq-4-3-12}
+\aligned
+&k_1=0.4,\ k_2=0.6,\ \rho=(k_1-k_2)/(k_1+k_2)=-0.2,\\
+&\xi_1=k_1x-k_1^3t+4,\ \xi_2=k_2x-k_2^3t+15.
+\endaligned
+\end{align}
+\end{itemize}
+
+单孤立波解~\eqref{eq-4-3-9}~在时间上是周期的~\cite{luigi-19-HBVM-KDV}, 其周期即为我们所计算的时间间隔~$T=24$. 图~\ref{fig-4-10}~表明~ESAV-CN~较好地保持了单孤立波的波形, 其与精确解几乎是相同的, 相似的结果也可由双孤立波解~\eqref{eq-4-3-11}~的演化得到. 在图~\ref{fig-4-11}~中, 双孤立波解包括一个较高的和一个较低的, 随着向右移动而缓慢地彼此接近. 当~$t=80$~时, 它们发生碰撞并继续相互远离. 图~\ref{fig-4-12}~中数值哈密尔顿函数得到保持, 这表明双孤立波的碰撞被近似到机器精度.
+
+\begin{figure}[H]
+\centering
+\subfigure[ESAV-CN~直至~$T=24$~时数值解]{
+\includegraphics[width=0.45\textwidth]{KDV_OS_ESAV_CN}}
+\subfigure[ESAV-CN, $T=24$~时数值解]{
+\includegraphics[width=0.45\textwidth]{KDV_OS_ESAV_CN_time}}
+\caption{Korteweg-de~Vries~方程:~ESAV-CN~的单孤立波解, $N_x=N_y=128$, $\tau=0.01$. 右图中蓝色实线为精确解, 红色圆圈为数值解.}\label{fig-4-10}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[ESAV-CN~直至~$T=40$~时数值解]{
+\includegraphics[width=0.45\textwidth]{KDV_TS_ESAV_CN_1}}
+\subfigure[ESAV-CN, $T=40$~时数值解]{
+\includegraphics[width=0.45\textwidth]{KDV_TS_ESAV_CN_time1}}\vspace{6mm}
+\subfigure[ESAV-CN~直至~$T=80$~时数值解]{
+\includegraphics[width=0.45\textwidth]{KDV_TS_ESAV_CN_2}}
+\subfigure[ESAV-CN, $T=80$~时数值解]{
+\includegraphics[width=0.45\textwidth]{KDV_TS_ESAV_CN_time2}}\vspace{6mm}
+\subfigure[ESAV-CN~直至~$T=120$~时数值解]{
+\includegraphics[width=0.45\textwidth]{KDV_TS_ESAV_CN_3}}
+\subfigure[ESAV-CN, $T=120$~时数值解]{
+\includegraphics[width=0.45\textwidth]{KDV_TS_ESAV_CN_time3}}\vspace{6mm}
+\caption{Korteweg-de~Vries~方程:~ESAV-CN~的双孤立波解, $N_x=N_y=128$, $\tau=0.01$. 右图中蓝色实线为精确解, 红色圆圈为数值解.}\label{fig-4-11}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[单孤立波解]{
+\includegraphics[width=0.45\textwidth]{KDV_OS_energy}}
+\subfigure[双孤立波解]{
+\includegraphics[width=0.45\textwidth]{KDV_TS_energy}}
+\caption{Korteweg-de~Vries~方程的能量误差, $N_x=N_y=128$, $\tau=0.01$.}\label{fig-4-12}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{结论}{Concluding remarks}\label{BiSec-4-4}
+对于哈密尔顿偏微分方程, 本章系统构造了两类具有任意阶精度的线性隐能量守恒方法. 基本思想便是结合最近提出的指数辅助变量方法和辛龙格-库塔方法, 以及外推技巧. 在数值计算中, 解变量与引入的辅助变量是完全解耦的, 因此避免了标准辅助变量方法中额外内积的计算, 也克服了经典高阶辅助变量方法的计算复杂性. 当傅里叶拟谱方法用于空间周期区域的离散时, 所得数值方法是完全显式的, 以至于实际计算相比标准辅助变量方法是更加高效的. 数值实验以三类具有代表性的哈密尔顿偏微分方程为例演示了所有方法优异的数值表现.

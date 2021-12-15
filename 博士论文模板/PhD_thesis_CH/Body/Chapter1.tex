@@ -1,0 +1,668 @@
+% !TeX encoding = GB2312
+\defaultfont
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiChapter{几何数值积分}{Geometric numerical integration}\label{BiChapter-1}
+在过去三十年中, 几何数值积分这一研究领域吸引了广泛的注意力. 基本思想便是处理微分方程的数值方法能在离散意义下保持微分方程精确流的守恒性质. 通常, 这类方法在数值模拟上具有长时间稳定的优越性. 而基本的研究对象, 便是如下两类等价的微分方程. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{拉格朗日方程和哈密尔顿方程}{Lagrange's equations and Hamilton's equations}\label{BiSec-1-1}
+哈密尔顿系统是许多物理分支的基本研究对象, 比如粒子加速器, 分析动力学, 几何光学, 等离子体物理, 控制论和流体力学等~\cite{menyuk-84-Hamiltonian,arnold-89-classical,hairer-lubich-06-geometric,leimkuhler-04-simulating,sanzserna-94-Hamiltonian,feng-qin-10-symplectic,luigi-16-line-integral}. 正如我国计算数学奠基人冯康先生曾说: ``一切具有可忽略耗散的力学系统均能被表示为合适的哈密尔顿形式"~\cite{feng-85-symplectic}.
+
+然而, 一般力学系统的计算模拟总可以归结为求解一个或多个质点所满足的微分方程. $1760$~年, 著名物理学家拉格朗日首先引入了一类用以刻画一般力学系统的微分方程, 被称为拉格朗日方程.
+
+首先假定具有~$d$~个自由度的力学系统的位置由广义坐标~$q=(q_1,\dots,q_d)$~所描述, 而速度则以~$\dot{q}=(\dot{q}_1,\dots,\dot{q}_d)$~表示. 动能与势能的表达式分别为
+\begin{equation}\label{eq-1-1-1}
+T=T(q,\dot{q}),\quad U=U(q).
+\end{equation}
+通常, 动能在形式上可以表示为~$T=\frac{1}{2}\dot{q}^TM(q)\dot{q}$, 这里~$M(q)$~是一个~$d\times d$~维的对称正定矩阵. 然后, 拉格朗日函数
+\begin{equation}\label{eq-1-1-2}
+L(q,\dot{q})=T-U
+\end{equation}
+便给出了坐标~$q_1(t),\cdots,q_d(t)$~所满足的微分方程
+\begin{equation}\label{eq-1-1-3}
+\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{q}_k}\right)=\frac{\partial L}{\partial q_k},\quad k=1,\dots,d.
+\end{equation}
+上述方程组~\eqref{eq-1-1-3}~构成了拉格朗日方程. 由此, 通过给定的初始值, 该方程的数值模拟便能够去预测任意力学对象的运动.
+
+\begin{example}\label{Ex-1-1-1}
+以开普勒系统~(双体问题)~为例, 它刻画了行星在以太阳为焦点的椭圆轨道上的运动. 选择太阳作为坐标系的原点, 则行星的位置为二维坐标~$q=(q_1,q_2)$. 该问题的拉格朗日函数为
+\begin{equation}\label{eq-1-1-4}
+L(q_1,q_2,\dot{q}_1,\dot{q}_2)=\frac{1}{2}(\dot{q}_1^2+\dot{q}_2^2)+\frac{1}{\sqrt{q_1^2+q_2^2}}.
+\end{equation}
+根据~\eqref{eq-1-1-3}, 便给出了拉格朗日方程
+\begin{equation}\label{eq-1-1-5}
+\ddot{q}_1=-\frac{q_1}{(q_1^2+q_2^2)^\frac{3}{2}},\quad \ddot{q}_2=-\frac{q_2}{(q_1^2+q_2^2)^\frac{3}{2}}.
+\end{equation}
+\end{example}
+
+$1834$~年, 哈密尔顿通过引入共轭动量并定义哈密尔顿函数, 简化了拉格朗日方程~\eqref{eq-1-1-3}~的结构, 使得该类系统具有了显著的对称性. 共轭动量定义如下
+\begin{equation}\label{eq-1-1-6}
+p_k=\frac{\partial L}{\partial \dot{q}_k}(q,\dot{q}),\quad k=1,\dots,d.
+\end{equation}
+在矩阵~$\frac{\partial^2 L}{\partial \dot{q}^2}$~非奇异的意义下, 变换~\eqref{eq-1-1-6}~定义了~$\dot{q}$~与动量~$p=(p_1,\dots,p_d)$~之间的一个双射, 该变换称为勒让德变换. 由此, 便能自然地定义哈密尔顿函数
+\begin{equation}\label{eq-1-1-7}
+H(p,q)=p^T\dot{q}-L(q,\dot{q}).
+\end{equation}
+简单的证明过程给出了如下定理:
+\begin{theorem}[\cite{hairer-lubich-06-geometric}]\label{Th-1-1-1}
+拉格朗日方程~\eqref{eq-1-1-3}~与哈密尔顿方程
+\begin{equation}\label{eq-1-1-8}
+\dot{p}_k=-\frac{\partial H}{\partial q_k}(p,q),\quad \dot{q}_k=\frac{\partial H}{\partial p_k}(p,q),\quad k=1,\dots,d,
+\end{equation}
+是等价的. 
+\end{theorem}
+
+\begin{example}\label{Ex-1-1-2}
+以开普勒系统为例, 该系统的哈密尔顿函数为
+\begin{equation}\label{eq-1-1-9}
+H(p_1,p_2,q_1,q_2)=\frac{1}{2}(p_1^2+p_2^2)-\frac{1}{\sqrt{q_1^2+q_2^2}}.
+\end{equation}
+从而, 相应的哈密尔顿系统为
+\begin{equation}\label{eq-1-1-10}
+\dot{p}_k=-\frac{q_k}{(q_1^2+q_2^2)^\frac{3}{2}},\quad \dot{q}_k=p_k,\quad k=1,2.
+\end{equation}
+\end{example}
+
+给定记号~$y=(p,q)^T$, 系统~\eqref{eq-1-1-8}~能被写为如下的典则形式
+\begin{equation}\label{eq-1-1-11}
+\dot{y}=J_{2d}^{-1}\nabla H(y),\quad J_{2d} = \left(\begin{array}{cc} 0 & I_d\\ -I_d & 0 \end{array}\right).
+\end{equation}
+值得注意的是, 当动能~$T=\frac{1}{2}\dot{q}^TM(q)\dot{q}$~的情况下, 哈密尔顿函数~$H=T+U$. 此时, 哈密尔顿函数等于动能加上势能, 其随着时间演化是不变的, 也就是
+\begin{equation}\label{eq-1-1-12}
+\frac{d}{dt}H(y)=0.
+\end{equation}
+哈密尔顿函数通常被称为系统~\eqref{eq-1-1-11}~的能量. 除了这一守恒性之外, 系统~\eqref{eq-1-1-11}~的辛二形式~$w$~随着时间是恒定的, 也就是
+\begin{equation}\label{eq-1-1-13}
+\frac{d}{dt}w=0,\quad w=\frac{1}{2}dy\wedge J_{2d}dy.
+\end{equation}
+
+对于系统~\eqref{eq-1-1-11}, 一个基本概念是该系统的解流. 给定初始值~$y(t_0)=y_0$, 精确解流是一个由初始值~$y_0$~到解析解~$y(t)$~的映射, 即为
+\begin{equation}\label{eq-1-1-14}
+y(t)=\phi_t(y_0)\quad \mbox{if}\quad y(t_0)=y_0.
+\end{equation}
+此时, 系统~\eqref{eq-1-1-11}~的辛守恒性质~\eqref{eq-1-1-13}~便可以等价地表示为
+\begin{equation}\label{eq-1-1-15}
+\left(\frac{\partial \phi_t(y_0)}{\partial y_0}\right)^TJ_{2d}\left(\frac{\partial \phi_t(y_0)}{\partial y_0}\right)=J_{2d},\quad \mbox{for\ all}\ t\ \mbox{and}\ y_0.
+\end{equation}
+
+考虑到数值求解, 正如精确解流~\eqref{eq-1-1-14}, 一个数值单步方法将对应着一个数值解流. 对于给定的时间步长~$\tau$, 其形式为
+\begin{equation}\label{eq-1-1-16}
+y_{n+1}=\Phi_\tau(y_n),\quad n=0,1,\dots,
+\end{equation}
+这里~$y_n$~是精确解~$y(t)$~在时间~$t_n$~处的近似值.
+
+\begin{definition}[\cite{hairer-lubich-06-geometric,feng-85-symplectic,feng-qin-10-symplectic,luigi-16-line-integral,mclachlan-99-gradient}]\label{De-1-1-1}
+一个数值单步方法~\eqref{eq-1-1-16}~是辛方法, 如果其解流是辛的, 即满足
+\begin{equation}\label{eq-1-1-17}
+\left(\frac{\partial \Phi_\tau(y_n)}{\partial y_n}\right)^TJ_{2d}\left(\frac{\partial \Phi_\tau(y_n)}{\partial y_n}\right)=J_{2d}.
+\end{equation}
+若该方法是能量守恒的, 则只需满足~$H(y_{n+1})=H(y_n)$.
+\end{definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{辛积分子}{Symplectic integrator}\label{BiSec-1-2}
+哈密尔顿系统~\eqref{eq-1-1-11}~的两类被广泛研究的性质, 就是沿着精确解流的能量守恒~\eqref{eq-1-1-12}~和辛守恒~\eqref{eq-1-1-15}. 考虑到数值求解器, 分享其中一个或两个守恒性质的数值方法往往在数值模拟上具有长时间的优越性~\cite{hairer-lubich-06-geometric,benettin-94-symplectic,reich-99-backward}. 
+
+辛守恒的概念首次在开创性工作~\cite{vogelaere-56-contact}~中出现. 随后, 粒子加速器动力学的研究促使了第一类辛积分子的构造~\cite{ruth-83-canonical}. 目前, 辛积分子有着多种构造方法, 大体上可分为辛龙格-库塔方法~\cite{sanzserna-88-RK,lasagni-88-canonical}, 辛分块龙格-库塔方法~\cite{sun-93-symplectic-PRK,sun-00-symplectic-RK}, 变分积分子~\cite{veselov-91-integrable,marsden-98-multisymplectic,marsden-99-symmetry}, 生成函数方法~\cite{feng-89-generating}~和组合方法~\cite{yoshida-90-construction,qin-92-composition}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{辛龙格-库塔方法}{Symplectic Runge-Kutta method}\label{BiSubsec-1-2-1}
+考查一阶常微分方程的非自治系统
+\begin{equation}\label{eq-1-2-1}
+\dot{y} = f(t,y),\quad y(t_0)=y_0.
+\end{equation}
+一般的龙格-库塔方法定义如下:
+\begin{definition}[\cite{leimkuhler-04-simulating,sanzserna-94-Hamiltonian,hairer-lubich-06-geometric}]\label{De-1-2-1} 
+对于求解区间~$[t_n,t_{n+1}]$, 时间步长为~$\tau=t_{n+1}-t_n$. 令~$b_i,~a_{ij}~(i,j=1,2,\dots,s)$~是实数且~$c_i=\sum_{i=1}^sa_{ij}$. 以下的公式给出了一个~$s$~级龙格-库塔方法：
+\begin{equation}\label{eq-1-2-2}
+\begin{aligned}
+&y_i^n=y_n+\tau\sum_{j=1}^sa_{ij}k_j^n,\quad k_i^n=f\left(t_n+c_i\tau,y_i^n\right),\quad i=1,2,\cdots,s,\\
+&y_{n+1}=y_n+\tau\sum_{i=1}^sb_ik_i^n,
+\end{aligned}
+\end{equation}
+这里~$y_i^n$~是中间级的值.~$y_{n+1}$~定义了在~$t_{n+1}$~时刻的数值解.
+\end{definition}
+
+凭借~Butcher~表~\cite{hairer-lubich-06-geometric,luigi-16-line-integral}, 龙格-库塔方法的系数能以如下的表格展示： 
+\begin{equation}\label{eq-1-2-3}
+\begin{array}{c|ccc}
+c_1 & a_{11} & \cdots & a_{1s}\\
+\vdots & \vdots &  & \vdots\\
+c_s & a_{s1} & \cdots & a_{ss}\\
+\hline
+& b_1 & \cdots & b_s\\
+\end{array}.
+\end{equation}
+
+\begin{definition}[\cite{hairer-lubich-06-geometric,hairer-08-ODE-I}]\label{De-1-2-2}
+对于充分正则的问题~\eqref{eq-1-2-1}, 如果由~\eqref{eq-1-2-2}~所定义的龙格-库塔方法满足截断误差
+\begin{equation}\label{eq-1-2-4}
+y_{n+1}-y(t_{n+1})=\mathcal{O}(h^{m+1}),
+\end{equation}	
+那么该方法就具有~$m$~阶精度.	
+\end{definition}
+
+\begin{theorem}[\cite{hairer-lubich-06-geometric,sanzserna-88-RK}]\label{Th-1-2-1}
+一个~$s$~级龙格-库塔方法应用于哈密尔顿系统~\eqref{eq-1-1-11}, 如果它的系数满足
+\begin{equation}\label{eq-1-2-5}
+b_ia_{ij}+b_ja_{ji}=b_ib_j,\quad \mbox{for}\quad i,j=1,2,\dots,s,
+\end{equation}
+那么它是一个辛方法. 且在该条件下, 此方法保持系统~\eqref{eq-1-2-1}~的形式为~$y^TCy$~的二次守恒量. 其中, $C$~是一个对称方阵.
+\end{theorem}
+
+以下展示两种常用的辛方法, 依次称为隐中点法则和两级高斯方法：
+\begin{equation}\label{eq-1-2-6}
+\begin{array}{c|c}
+\frac{1}{2} & \frac{1}{2}\\ \hline
+& 1
+\end{array}\quad\quad \mbox{和} \quad\quad
+\begin{array}{c|cc}
+\frac{1}{2}-\frac{\sqrt{3}}{6} & \frac{1}{4} & \frac{1}{4}-\frac{\sqrt{3}}{6}\\
+\frac{1}{2}+\frac{\sqrt{3}}{6} & \frac{1}{4}+\frac{\sqrt{3}}{6} & \frac{1}{4}\\
+\hline
+& \frac{1}{2} & \frac{1}{2}
+\end{array}.
+\end{equation}
+以上两个方法均属于配置方法, 对于更高阶的辛配置方法, 请读者参考专著~\cite{hairer-lubich-06-geometric,sanzserna-94-Hamiltonian,leimkuhler-04-simulating,luigi-16-line-integral}.
+
+由于哈密尔顿系统~\eqref{eq-1-1-11}~本身就是一个分块形式的微分方程, 分块龙格-库塔方法吸引了广泛的注意力. 一般地, 考查分块微分方程
+\begin{equation}\label{eq-1-2-7}
+\dot{y}=u(y,z),\quad \dot{z}=v(y,z),\quad y(t_0)=y_0,\quad z(t_0)=z_0.
+\end{equation}
+一个~$s$~级分块龙格-库塔方法便由如下定义给出：
+\begin{definition}[\cite{leimkuhler-04-simulating,sanzserna-94-Hamiltonian,hairer-lubich-06-geometric}]\label{De-1-2-3} 
+对于求解区间~$[t_n,t_{n+1}]$, 时间步长为~$\tau=t_{n+1}-t_n$. 令~$b_i,~a_{ij}~(i,j=1,2,\dots,s)$~和~$\hat{b}_i,~\hat{a}_{ij}~(i,j=1,2,\dots,s)$~是两个~$s$~级龙格-库塔方法的系数.~$s$~级分块龙格-库塔方法如下:
+\begin{align}\label{eq-1-2-8}
+\aligned
+&k_i^n=u\Big(y_n+\tau\sum_{j=1}^{s}a_{ij}k_j^n,z_n+\tau\sum_{j=1}^{s}\hat{a}_{ij}l_j^n\Big),\\ &l_i^n=v\Big(y_n+\tau\sum_{j=1}^{s}a_{ij}k_j^n,z_n+\tau\sum_{j=1}^{s}\hat{a}_{ij}l_j^n\Big),\\
+&y_{n+1}=y_n+\tau\sum_{i=1}^{s}b_ik_i^n,\quad z_{n+1}=z_n+\tau\sum_{i=1}^{s}\hat{b}_il_i^n,
+\endaligned
+\end{align}
+由此, $y_{n+1}$~和~$z_{n+1}$~定义了在~$t_{n+1}$~时刻的数值解.
+\end{definition}
+
+\begin{theorem}[\cite{hairer-lubich-06-geometric,sun-93-symplectic-PRK}]\label{Th-1-2-2}
+一个~$s$~级分块龙格-库塔方法应用于哈密尔顿系统~\eqref{eq-1-1-11}, 如果它的系数满足
+\begin{equation}\label{eq-1-2-9}
+b_i\hat{a}_{ij}+\hat{b}_ja_{ji}=b_i\hat{b}_j,\quad b_i=\hat{b}_i\quad \mbox{for}\quad i,j=1,\dots,s,
+\end{equation}
+那么它是一个辛方法. 且在该条件下, 此方法保持系统~\eqref{eq-1-2-7}~的形式为~$y^TDz$~的二次守恒量. 其中, $D$~是一个具有适当维度的矩阵.
+\end{theorem}
+
+如下~Butcher~表给出了两个常用的辛分块龙格-库塔方法, 依次称为辛欧拉方法和~St\"{o}rmer-Verlet~(SV)~方法：
+\begin{equation}\label{eq-1-2-10}
+\begin{array}{c|c}
+0 & 0\\ \hline
+& 1
+\end{array}\quad\quad \mbox{和} \quad\quad
+\begin{array}{c|c}
+1 & 1\\ \hline
+& 1
+\end{array},
+\end{equation}
+\begin{equation}\label{eq-1-2-11}
+\begin{array}{c|cc}
+0 & 0 & 0\\ 
+1 & \frac{1}{2} & \frac{1}{2}\\ \hline
+& \frac{1}{2} & \frac{1}{2}
+\end{array}\quad\quad \mbox{和} \quad\quad
+\begin{array}{c|cc}
+\frac{1}{2} & \frac{1}{2} & 0\\ 
+\frac{1}{2} & \frac{1}{2} & 0\\ \hline
+& \frac{1}{2} & \frac{1}{2}
+\end{array}.
+\end{equation}
+对于更高阶的辛分块龙格-库塔方法, 正如~Lobatto~IIIA-IIIB~方法, 请参考专著~\cite{hairer-lubich-06-geometric,sanzserna-94-Hamiltonian,leimkuhler-04-simulating}. 时至今日, 所有辛积分子中, 形式上最为简单的只有隐中点方法则~\eqref{eq-1-2-6}~和辛欧拉方法~\eqref{eq-1-2-10}, 它们应用于哈密尔顿系统产生了如下的格式：
+\begin{align}\label{eq-1-2-12} 
+\aligned
+&p_{n+1}=p_n-\tau H_q(p_{n+1},q_n),\\
+&q_{n+1}=q_n+\tau H_p(p_{n+1},q_n),\\
+\endaligned \quad \mbox{或} \quad
+\aligned
+&p_{n+1}=p_n-\tau H_q(p_n,q_{n+1}),\\
+&q_{n+1}=q_n+\tau H_p(p_n,q_{n+1});\\
+\endaligned
+\end{align}
+\vspace{-5mm}
+\begin{align}\label{eq-1-2-13}
+\aligned
+&p_{n+1}=p_n-\tau H_q\left(\frac{p_n+p_{n+1}}{2},\frac{q_n+q_{n+1}}{2}\right),\\
+&q_{n+1}=q_n+\tau H_p\left(\frac{p_n+p_{n+1}}{2},\frac{q_n+q_{n+1}}{2}\right).\\
+\endaligned
+\end{align}
+以上两个方法在数值实现上是十分简单的, 从而在实际问题中已经得到广泛的应用~\cite{miniati-15-galaxies,hairer-lubich-06-geometric,sanzserna-94-Hamiltonian}. 在第二章中, 我们将给出一个一般的辛方法, 该方法含有一个自由参数, 以至于对参数的特定值便对应着以上这两个方法.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{变分积分子}{Variational integrator}\label{BiSubsec-1-2-2}
+在经典力学中, 哈密尔顿原理给出了欧拉-拉格朗日方程~\eqref{eq-1-1-3}~\cite{marsden-99-symmetry,marsden-98-multisymplectic}. 而在离散情形下, 离散哈密尔顿原理便可以推导出一类数值方法, 这些方法自然地具有辛守恒性质, 被称为辛积分子. 基本理论能在一系列文章~\cite{arnold-89-classical,veselov-91-integrable,marsden-98-multisymplectic,suris-90-variational,marsden-01-variational}~中发现. 上一小节中所介绍的辛龙格-库塔方法和辛分块龙格-库塔方法均能由变分积分子的框架给出~\cite{suris-90-variational,hairer-lubich-06-geometric}. 
+
+考查如下作用量积分
+\begin{equation}\label{eq-1-2-14}
+\mathcal{S}(q)=\int_{t_0}^{t_1}L\big(q(t),\dot{q}(t)\big)~dt,
+\end{equation}
+这里曲线~$q(t)$~连接两个给定的端点~$q(t_0)=q_0$~和~$q(t_1)=q_1$. 对以上积分求极值, 则对应的稳定点就是欧拉-拉格朗日方程~\eqref{eq-1-1-3}, 也就是
+\begin{equation}\label{eq-1-2-15}
+0=\frac{d}{d\epsilon}\bigg|_{\epsilon=0}\mathcal{S}\big(q+\epsilon\delta q\big)=\int_{t_0}^{t_1}\left(\frac{\partial L}{\partial q}-\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{q}}\right)\right)\delta q~dt,
+\end{equation}
+这里~$\delta q$~表示~$q$~的变分且满足~$\delta q(t_0)=\delta q(t_1)=0$. 应用哈密尔顿原理, ``真实的运动使得作用量积分取得极值", 便能推导出方程~\eqref{eq-1-1-3}. 
+
+而离散哈密尔顿原理则是对给定的端点~$q_0$~和~$q_N$, 对于如下的离散作用量求和
+\begin{equation}\label{eq-1-2-16}
+\mathcal{S}_\tau(q_0,\dots,q_N)=\sum_{n=0}^{N-1}L_\tau(q_n,q_{n+1})
+\end{equation}
+求极值, 这里~$N$~是正整数. 事实上, 上述离散求和的每一项均是对拉格朗日函数~\eqref{eq-1-1-2}~的积分的数值近似, 也就是
+\begin{equation}\label{eq-1-2-17}
+L_\tau(q_n,q_{n+1})\approx\int_{t_n}^{t_{n+1}}L\big(q(t),\dot{q}(t)\big)~dt,\quad \mbox{for}\quad n=0,\dots,N-1.
+\end{equation}
+此时, 哈密尔顿原理告诉我们, 如果积分近似~\eqref{eq-1-1-2}~是精确的, 那么方程~\eqref{eq-1-1-3}~的精确解~$q(t)$~在节点处的值~$\{q_n\}_{n=0}^N$~使得~\eqref{eq-1-2-16}~取得极值. 
+
+离散作用量求和~\eqref{eq-1-2-16}~取值极值的必要条件为
+\begin{equation}\label{eq-1-2-18}
+D_2L_\tau(q_{n-1},q_n)+D_1L_\tau(q_n,q_{n+1})=0,\quad \mbox{for}\quad n=1,\dots,N-1,
+\end{equation}
+这里~$D_i$~表示对第~$i$~个位置变量的导数. 等式~\eqref{eq-1-2-18}~被称为离散欧拉-拉格朗日方程, 它是一个以给定的~$q_0$~和~$q_N$, 进而确定~$q_1,\dots,q_{N-1}$~的三项递推关系式. 此时, 与变换~\eqref{eq-1-1-6}相对应, 通过离散勒让德变换
+\begin{equation}\label{eq-1-2-19}
+p_n=-D_1L_\tau(q_n,q_{n+1})
+\end{equation}
+引入离散动量. 根据方程~\eqref{eq-1-2-18}, 便能获得适用于哈密尔顿系统~\eqref{eq-1-1-11}~的辛方法
+\begin{equation}\label{eq-1-2-20}
+p_n=-D_1L_\tau(q_n,q_{n+1}),\quad p_{n+1}=D_2L_\tau(q_n,q_{n+1}).
+\end{equation}
+
+\begin{example}\label{Ex-1-2-1}
+为了获得数值格式, 使用~$q_n$~和~$q_{n+1}$~的线性插值近似~$q(t)$, 以梯形求积公式近似积分~\eqref{eq-1-2-17}, 给出了
+\begin{equation}\label{eq-1-2-21}
+L_\tau(q_n,q_{n+1})=\frac{\tau}{2}L\left(q_n,\frac{q_{n+1}-q_n}{\tau}\right)+\frac{\tau}{2}L\left(q_{n+1},\frac{q_{n+1}-q_n}{\tau}\right).
+\end{equation}
+将上式代入到~\eqref{eq-1-2-20}, 便可以获得一个辛算法. 通常情况下, 对于拉格朗日函数~\eqref{eq-1-1-2}, 其动能表达式为~$T=\frac{1}{2}\dot{q}^TM\dot{q}$. 此时, 由~\eqref{eq-1-2-20}~和~\eqref{eq-1-2-21}~所诱导的变分积分子
+\begin{equation}\label{eq-1-2-22}
+\begin{aligned}
+Md_{n+1/2}&=p_n-\frac{\tau}{2}\nabla U(q_n),\\
+q_{n+1}&=q_{n}+\tau d_{n+1/2},\\
+p_{n+1}&=Md_{n+1/2}-\frac{\tau}{2}\nabla U(q_{n+1}),
+\end{aligned}
+\end{equation}
+就是~SV~方法. 这里, 记号~$d_{n+1/2}=(q_{n+1}-q_n)/\tau$. 并且, 离散欧拉-拉格朗日方程~\eqref{eq-1-2-18}~成为二阶中心差商公式 
+\begin{equation}\label{eq-1-2-23}
+M\left(\frac{q_{n+1}-2q_n+q_{n-1}}{\tau^2}\right)=-\nabla U(q_n).
+\end{equation}
+\end{example}
+
+\begin{example}\label{Ex-1-2-2}
+如果以中点求积公式近似积分~\eqref{eq-1-2-17}, 则有
+\begin{equation}\label{eq-1-2-24}
+L_\tau(q_n,q_{n+1})=\tau L\left(\frac{q_{n+1}+q_n}{2},\frac{q_{n+1}-q_n}{\tau}\right).
+\end{equation}
+将~\eqref{eq-1-2-24}~代入~\eqref{eq-1-2-20}~也获得一个辛方法. 相似地, 对于拉格朗日函数~\eqref{eq-1-1-2}, 有
+\begin{equation}\label{eq-1-2-25}
+\begin{aligned}
+Md_{n+1/2}&=p_n-\frac{\tau}{2}\nabla U(q_{n+1/2}),\\
+q_{n+1}&=q_{n}+\tau d_{n+1/2},\\
+p_{n+1}&=Md_{n+1/2}-\frac{\tau}{2}\nabla U(q_{n+1/2}).
+\end{aligned}
+\end{equation}	
+这里记号~$q_{n+1/2}=(q_n+q_{n+1})/2$, 该方法即为隐中点法则. 此时, 方程~\eqref{eq-1-2-18}~为
+\begin{equation}\label{eq-1-2-26}
+M\left(\frac{q_{n+1}-2q_n+q_{n-1}}{\tau^2}\right)=-\frac{1}{2}\left(\nabla U(q_{n-1/2})+\nabla U(q_{n+1/2})\right).
+\end{equation}
+\end{example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{生成函数方法}{Generating function method}\label{BiSubsec-1-2-3}
+生成函数方法作为构造辛方法的一般框架由我国计算数学奠基人冯康先生于~$1989$~年提出~\cite{feng-89-generating}. 这类方法证实了任意阶辛方法的存在性, 在辛方法的理论和构造上均有着重要的意义. 
+
+任意给定的辛映射均能由生成函数来生成, 而生成函数是哈密尔顿-雅可比方程的解. 通过幂级数方法, 冯康先生给出了生成函数的显式幂级数表达式. 截断这一级数, 便可以获得任意高阶的辛方法. 目前, 已有三类生成函数广泛地得到应用. 生成函数方法的更多细节及应用, 请读者参考文献~\cite{sun-05-Birkhoffian,channell-90-symplectic,hairer-lubich-06-geometric,feng-qin-10-symplectic,hong-08-MS-DW,shang-94-generating-volume,wang-14-stochastic,zhang-16-charged,makazaga-09-generating,shang-94-generating-volume-JCM,siegel-71-Lectures}.
+
+考查时间间隔~$[t_0,t_1]$, 我们以列向量~$p,q\in\mathbb{R}^d$~表示系统~\eqref{eq-1-1-11}~在~$t_0$~时刻的初始值, 而在时刻~$t_1$~处的值则被表示为~$P,Q\in\mathbb{R}^d$. 根据真解流~\eqref{eq-1-1-14}~的性质, 映射~$(p,q)\mapsto(P,Q)$~是辛的.
+
+\begin{theorem}[\cite{hairer-lubich-06-geometric,sanzserna-94-Hamiltonian,feng-qin-10-symplectic}]\label{Th-1-2-3}
+映射~$(p,q)\mapsto(P,Q)$~是辛的, 当且仅当局部存在着函数~$S(p,q)$, 使得
+\begin{equation}\label{eq-1-2-27}
+P^T~dQ-p^T~dq=dS,
+\end{equation}
+这里~``$d$"~是微分符号. 
+\end{theorem}
+
+此时, 在~$\frac{\partial Q}{\partial p}$~非奇异的意义下, 将坐标~$(p,q)$~替换为新坐标~$(q,Q)$. 然后将~$dS=\left(\frac{\partial S}{\partial q}\right)^Tdq+\left(\frac{\partial S}{\partial Q}\right)^TdQ$~与等式~\eqref{eq-1-2-27}~左边作比较, 便得到系统
+\begin{equation}\label{eq-1-2-28}
+P=\frac{\partial S}{\partial Q}(q,Q),\quad p=-\frac{\partial S}{\partial q}(q,Q).
+\end{equation}
+定理~\ref{Th-1-2-3}~告诉我们系统~\eqref{eq-1-2-28}~所定义的变换~$(p,q)\mapsto(P,Q)$~是辛的. 这也说明任意一个辛变换均可以通过找到~$S(q,Q)$~和~\eqref{eq-1-2-28}~重构. 任意给定一个适当的~$S(q,Q)$, 系统~\eqref{eq-1-2-28}~就生成了一个辛变换.
+
+\begin{remark}\label{Re-1-2-1}
+在上一小节变分积分子的介绍中, 欧拉-拉格朗日方程~\eqref{eq-1-2-18}~使得
+\begin{equation}\label{eq-1-2-29}
+\mathcal{S}_\tau(q_0,q_N)=\sum_{n=0}^{N-1}L_\tau(q_n,q_{n+1}).
+\end{equation}
+再次使用~\eqref{eq-1-2-18}, 我们可以得到
+\begin{equation}\label{eq-1-2-30}
+D_1\mathcal{S}_\tau(q_0,q_N)=D_1L_\tau(q_0,q_1),\quad D_2\mathcal{S}_\tau(q_0,q_N)=D_2L_\tau(q_{N-1},q_N).
+\end{equation}
+此时, 离散勒让德变换~\eqref{eq-1-2-19}~就意味着
+\begin{equation}\label{eq-1-2-31}
+p_N^T~dq_N-p_0^T~dq_0=dS_\tau(q_0,q_N).
+\end{equation}
+这证实了变分积分子~$(p_0,q_0)\mapsto(p_N,q_N)$~的辛守恒性质.
+\end{remark}
+
+目前, 有三类生成函数被经常使用来构造辛方法. 当然, 这也对应着三类经典的坐标, 它们分别为两个交错坐标和一个中心坐标. 我们以如下定理来展示, 相关证明过程能在专著~\cite{hairer-lubich-06-geometric}~中找到.
+
+\begin{theorem}[\cite{hairer-lubich-06-geometric,sanzserna-94-Hamiltonian,feng-qin-10-symplectic}]\label{Th-1-2-4}
+令~$(p,q)\mapsto(P,Q)$~是接近于单位映射的光滑变换. 该变换是辛的, 当且仅当如下三个条件中的一个局部成立:
+\begin{subequations}\label{eq-1-2-32}
+\begin{align}
+&(1)~P^T~dQ+q^T~dp=d\big(p^TQ-S^1(p,Q)\big);\label{eq-1-2-32-a}\\
+&(2)~Q^T~dP+p^T~dq=d\big(P^Tq+S^2(P,q)\big);\label{eq-1-2-32-b}\\
+&(3)~(Q-q)^T~d(P+p)-(P-p)^T~d(Q+q)=2~dS^3\big((P+p)/2,(Q+q)/2)\big).\label{eq-1-2-32-c}
+\end{align}
+\end{subequations}
+\end{theorem}
+
+\begin{example}\label{Ex-1-2-3}
+以生成函数~$S^3$~为例, 通过正如~\eqref{eq-1-2-28}~的方式比较系数, 可以推导出系统
+\begin{equation}\label{eq-1-2-33}
+\begin{aligned}
+P&=p-D_2S^3\big((P+p)/2,(Q+q)/2)\big),\\
+Q&=q+D_1S^3\big((P+p)/2,(Q+q)/2)\big).
+\end{aligned}
+\end{equation}	
+定理~\ref{Th-1-2-4}~表明对于任意生成函数~$S^3$, 系统~\eqref{eq-1-2-33}~均生成了一个辛变换. 特别地, 令~$S^3=\tau H$, 便产生了隐中点方法~\eqref{eq-1-2-13}. 对于~\eqref{eq-1-2-32-a}~和~\eqref{eq-1-2-32-b}~进行相同的过程, 辛欧拉方法~\eqref{eq-1-2-12}~能被展示. 由生成函数的角度出发, 便提供了这三个方法辛守恒的优美的证明方式.
+\end{example}
+
+对应于生成函数~$S^1$~和~$S^2$~的系统能被写为
+\begin{align}
+&P=p-D_2S^1(p,Q),\quad Q=q+D_1S^1(p,Q);\label{eq-1-2-34}\\
+&P=p-D_2S^2(P,q),\quad Q=q+D_1S^2(P,q).\label{eq-1-2-35}
+\end{align}
+以上的三类生成函数是相应的哈密尔顿-雅可比方程的解, 其形式如下:
+
+\begin{theorem}[\cite{hairer-lubich-06-geometric,sanzserna-94-Hamiltonian,feng-qin-10-symplectic}]\label{Th-1-2-5}
+(1)~假定~$S^1(p,Q,t)$~是微分方程
+\begin{equation}\label{eq-1-2-36}
+\frac{\partial S^1}{\partial t}(p,Q,t) = H\left(p-\frac{\partial S^1}{\partial Q}(p,Q,t),Q\right),\ S^1(p,Q,0) = 0,
+\end{equation}
+的解, 那么哈密尔顿系统~\eqref{eq-1-1-11}~的精确解满足~\eqref{eq-1-2-34}.
+
+(2)~假定~$S^2(P,q,t)$~是微分方程
+\begin{equation}\label{eq-1-2-37}
+\frac{\partial S^2}{\partial t}(P,q,t) = H\left(P,q+\frac{\partial S^2}{\partial P}(P,q,t)\right),\ S^2(P,q,0) = 0,
+\end{equation}
+的解, 那么~\eqref{eq-1-1-11}~的精确解满足~\eqref{eq-1-2-35}.
+
+(3)~假定~$S^2(\xi,\eta,t)$~是微分方程
+\begin{equation}\label{eq-1-2-38}
+\frac{\partial S^3}{\partial t}(\xi,\eta,t) = H\left(\xi-\frac{1}{2}\frac{\partial S^3}{\partial \eta}(\xi,\eta,t),\eta+\frac{1}{2}\frac{\partial S^3}{\partial \xi}(\xi,\eta,t)\right),\ S^3(\xi,\eta,0) = 0,
+\end{equation}
+的解, 那么~\eqref{eq-1-1-11}~的精确解满足~\eqref{eq-1-2-33}. 这里, 记号~$\xi=(P+p)/2,~\eta=(Q+q)/2$.
+\end{theorem}
+
+一阶偏微分方程~\eqref{eq-1-2-36}--\eqref{eq-1-2-38}~是三类经典的哈密尔顿-雅可比方程. 与哈密尔顿系统~\eqref{eq-1-1-11}~建立联系, 其中的生成函数也依赖于时间变量~$t$. 为了构造辛方法, 以下我们以~$S^1$~为例介绍生成函数方法.
+
+首先, 假定哈密尔顿函数~\eqref{eq-1-1-7}~是解析的, 而后引入~$S^1$~的幂级数表达式:
+\begin{equation}\label{eq-1-2-39}
+S^1(p,Q,t)=\sum_{i=1}^{\infty} K_i(p,Q)t^i.
+\end{equation}
+将~\eqref{eq-1-2-39}~代入~\eqref{eq-1-2-36}, 泰勒展开并比较方程两边~$t$~的同次幂系数, 可以得到
+\begin{align}
+&K_1(p,Q)=H(p,Q),\label{eq-1-2-40}\\
+&K_2(p,Q)=-\frac{1}{2}\left(\big(\frac{\partial H}{\partial p}\big)^T\frac{\partial H}{\partial Q}\right)(p,Q),\label{eq-1-2-41}\\
+&K_3(p,Q) =\frac{1}{6}\left(\big(\frac{\partial H}{\partial p}\big)^T \frac{\partial^2H}{\partial Q^2}\frac{\partial H}{\partial p}+\big(\frac{\partial H}{\partial Q}\big)^T \frac{\partial^2H}{\partial p^2}\frac{\partial H}{\partial Q}\right)(p,Q)
+\nonumber\\&\quad\quad\quad\quad\quad+\frac{1}{6}\left(\big(\frac{\partial H}{\partial Q}\big)^T\frac{\partial^2H}{\partial p\partial Q}\frac{\partial H}{\partial p}\right)(p,Q),\dots.\label{eq-1-2-42}
+\end{align}
+此时, 截断级数~\eqref{eq-1-2-39}~为
+\begin{equation}\label{eq-1-2-43}
+\bar{S}^1\big(p,Q,t)=\sum_{i=1}^{r} K_i(p,Q)t^i.
+\end{equation}
+这是对~$S^1$~的~$r$~阶近似, 将其代入~\eqref{eq-1-2-34}, 取时间步长为~$\tau$, 这样就获得一个~$r$~阶的辛方法:
+\begin{equation}\label{eq-1-2-44}
+\begin{aligned}
+p_{n+1}&=p_n-D_2\bar{S}^1\big(p_n,q_{n+1},\tau),\\
+q_{n+1}&=q_n+D_1\bar{S}^1\big(p_n,q_{n+1},\tau).
+\end{aligned}
+\end{equation}	
+
+基于另外两个坐标的生成函数方法, 这里不再赘述, 请参考专著~\cite{hairer-lubich-06-geometric,sanzserna-94-Hamiltonian,feng-qin-10-symplectic}. 尽管当~$r\geq3$~时, 辛方法~\eqref{eq-1-2-44}~会涉及到哈密尔顿函数高阶导数的计算, 然而生成函数方法仍在较多领域中得到广泛使用, 正如无源系统保体积算法的生成函数方法~\cite{shang-94-generating-volume,shang-94-generating-volume-JCM}, 随机哈密尔顿系统随机辛方法的生成函数方法~\cite{wang-14-stochastic}, 多辛~(分块)~龙格-库塔方法的生成函数方法~\cite{hong-08-MS-DW}~等.
+
+在第二章中, 我们将引入一个一般的生成函数, 该生成函数的坐标包含着一个自由的实参数. 对于参数的三种不同的取值, 可以涵盖上述三类经典的生成函数. 并从而由生成函数方法的框架, 给出了一类任意高阶的参数辛算法.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{分裂组合方法}{Splitting-composition method}\label{BiSubsec-1-2-4}
+以上三小节介绍了构造辛方法的主要的三种策略, 而将要介绍的分裂方法也为获得辛方法提供了一种角度. 基本思想是将哈密尔顿函数分为两个或多个部分, 每一个部分对应的哈密尔顿系统是可积的. 将每一部分的精确解作组合, 则得到对原系统真解的近似. 进一步地, 组合方法的使用也提供一种构造高阶辛算法的策略~\cite{qin-92-composition,yoshida-90-construction}. 
+
+正因为哈密尔顿系统的真解流是辛的, 辛变换的组合是辛的, 所以分裂组合方法得到的格式仍然是一个辛方法. 更多的细节, 请参考文献~\cite{hairer-lubich-06-geometric,suzuki-90-decomposition,feng-95-volume}. 这里, 我们以哈密尔顿函数分解~$H(y)=H_1(y)+H_2(y)$~为例: 
+\begin{equation}\label{eq-1-2-45}
+\dot{y}=J_{2d}^{-1}H_1(y)+J_{2d}^{-1}H_2(y)\triangleq f^{(1)}(y)+f^{(2)}(y).
+\end{equation}
+
+分别以记号~$\phi_t^{(1)}$~和~$\phi_t^{(2)}$~表示分裂~\eqref{eq-1-2-45}~的两个子系统~$\dot{y}=f^{(1)}(y)$~和~$\dot{y}=f^{(2)}(y)$~的真解流. 此时, 可以得到~Lie-Trotter~分裂公式~\cite{trotter-59-semi-groups}
+\begin{equation}\label{eq-1-2-46}
+\begin{aligned}
+y_{n+1}&=\Phi_\tau(y_n)\triangleq \phi_\tau^{(1)}\circ\phi_\tau^{(2)}(y_n),\\
+y_{n+1}&=\Phi_\tau^*(y_n)\triangleq \phi_\tau^{(2)}\circ\phi_\tau^{(1)}(y_n).
+\end{aligned}
+\end{equation}
+公式~\eqref{eq-1-2-46}~提供了两个互为伴随的数值方法, 均是对系统~\eqref{eq-1-2-45}~真解的一阶逼近. 而在~$1968$~年, Strang~\cite{strang-68-difference}~给出了一个二阶对称分裂算法
+\begin{equation}\label{eq-1-2-47}
+y_{n+1}=\Phi_\tau^{(s)}(y_n)\triangleq \phi_{\tau/2}^{(1)}\circ\phi_\tau^{(2)}\circ\phi_{\tau/2}^{(1)}(y_n).
+\end{equation}
+该算法有时也称为~Marchuk~分裂~\cite{marchuk-68-splitting}, 且它是~Lie-Trotter~分裂方法的组合, 即成立~$\Phi_\tau^{(s)}=\Phi_{\tau/2}\circ\Phi_{\tau/2}^*$.
+
+\begin{example}\label{Ex-1-2-4}
+以可分哈密尔顿函数~$H(p,q)=T(p)+U(q)$~为例, 得到两个子系统	
+\begin{align}\label{eq-1-2-48} 
+\aligned
+&\dot{p}=0,\\
+&\dot{q}=T'(p),\\
+\endaligned \quad\quad \mbox{和} \quad\quad
+\aligned
+&\dot{p}=-U'(q),\\
+&\dot{q}=0.\\
+\endaligned
+\end{align}	
+给定初始点~$p(t_0)=p_0$~和~$q(t_0)=q_0$, 以上两个子系统的解流写作
+\begin{align}\label{eq-1-2-49} 
+\phi_{t}^{(1)}:\Bigg\{\aligned
+&p(t)=p_0,\\
+&q(t)=q_0+tT'(p_0);\\
+\endaligned \quad \mbox{和} \quad
+\phi_{t}^{(2)}:\Bigg\{\aligned
+&p(t)=p_0-tU'(q_0),\\
+&q(t)=q_0.\\
+\endaligned
+\end{align}
+此时~Lie-Trotter~分裂~\eqref{eq-1-2-46}~就是辛欧拉方法~\eqref{eq-1-2-12}, 而~Strang~分裂~\eqref{eq-1-2-47}~是~~SV~方法~\eqref{eq-1-2-11}. 这样, 分裂算法也为这两个方法的辛性质提供了一种证明方式.
+\end{example}
+
+一般地, 组合方法提供了一种构造高阶数值方法的途径. 考虑到辛积分子, 这也证实了任意高阶辛方法的存在性.
+
+\begin{theorem}[\cite{hairer-lubich-06-geometric,sanzserna-94-Hamiltonian,feng-qin-10-symplectic}]\label{Th-1-2-6}
+考查~$p$~阶方法~$y_{n+1}=\Phi_\tau(y_n)$~及一般的组合方法
+\begin{equation}\label{eq-1-2-50}
+\Psi_\tau=\Phi_{\alpha_s\tau}\circ\Phi_{\beta_s\tau}^*\circ\dots\circ\Phi_{\alpha_1\tau}\circ\Phi_{\beta_1\tau}^*.
+\end{equation}
+如果成立阶条件
+\begin{equation}\label{eq-1-2-51}
+\sum_{i=1}^{s}(\alpha_i+\beta_i)=1,\quad\sum_{i=1}^{s}\big(\alpha_i^{p+1}+(-1)^p\beta_i^{p+1}\big)=0,
+\end{equation}
+那么~$y_{n+1}=\Psi_\tau(y_n)$~是~$p+1$~阶方法.
+\end{theorem}
+
+本节中, 我们以四部分内容分别介绍了构造辛方法的四种方式. 在实际计算中, 辛方法具有长时间稳定模拟的优势, 原因在于辛方法能保持一个修正的哈密尔顿函数, 请参考向后误差分析理论~\cite{hairer-lubich-06-geometric,benettin-94-symplectic,reich-99-backward}. 辛方法可应用于哈密尔顿偏微分方程的离散, 如时间空间均应用辛~(分块)~龙格-库塔方法产生多辛~(分块)~龙格-库塔方法~\cite{hong-08-MS-DW,wang-13-multisymplectic,hong-05-MS-PRK,reich-00-MSRK-wave,chen-20-EQUIP-MS}, 以及直接应用于时间离散~\cite{cai-19-SG-NB,wang-03-sine-Gordon}. 另外, 基于无源动力系统的向量场分裂, 辛方法也可用于构造保体积算法~\cite{feng-95-volume}.
+
+接下来, 我们以双体问题~\eqref{eq-1-1-10}~为例, 展示辛方法的数值表现.
+
+\begin{example}\label{EX-1-2-5}
+对于双体问题, 初始点为~\cite{hairer-lubich-06-geometric,luigi-12-EQUIP}
+\begin{equation}\label{eq-1-2-52}
+p_1(0)=0,\ p_2(0)=\sqrt{\frac{1+e}{1-e}},\ q_1(0)=1-e,\ q_2(0)=0.
+\end{equation}
+本实验中, 我们选择离心率~$e=0.6$. 此系统除哈密尔顿函数~\eqref{eq-1-1-9}~是守恒的, 如下角动量
+\begin{equation}\label{eq-1-2-53}
+L(p_1,p_2,q_1,q_2)=q_1p_2-q_2p_1
+\end{equation}
+是该问题的一个二次守恒量, 这正是开普勒第二定律, 而该二次量可由辛~(分块)~龙格-库塔方法得到保持.
+
+在图~\ref{fig-1-1}~中, 给出了几个经典数值算法直到~$T=200$~模拟双体问题的椭圆轨道. 可以看出, 三种辛方法以步长~$\tau=0.02$~均刻画了与原始问题相似的椭圆轨迹. 两个辛欧拉方法均被使用, 简单区分为辛欧拉方法~A~和~B. 然而, 即使以较小的步长~$\tau=0.0002$, 显欧拉方法和隐欧拉方法却仍描绘了完全错误的轨迹, 表现为螺旋向外或向内旋转. 因此, 辛方法的一个优势在于长时间较好地保持轨道.
+
+在图~\ref{fig-1-2}~中, 展示了这几个数值方法的能量和角动量误差. 主要的观察是, 三种辛方法的能量误差是较小的, 且长时间地保持有界. 而对于显欧拉和隐欧拉方法, 即便时间步长较小, 能量误差呈现出线性增长的趋势. 根据定理~\ref{Th-1-2-2}, 三种辛方法均可视为辛分块龙格-库塔方法, 故角动量~\eqref{eq-1-2-53}~在数值模拟中是守恒的. 这由图~\ref{fig-1-2}~所证实, 而显欧拉和隐欧拉方法的角动量误差仍是线性增长的. 故辛方法的另一优势在于能量的误差始终以较小的量级演化, 而且能保持原问题的二次守恒量.
+	
+\begin{figure}[H]
+\centering
+\subfigure[显欧拉方法]{
+\includegraphics[width=0.45\textwidth]{explicit_euler}}
+\subfigure[隐欧拉方法]{
+\includegraphics[width=0.45\textwidth]{implicit_euler}}
+\subfigure[辛欧拉方法~A]{
+\includegraphics[width=0.45\textwidth]{sym_euler_1}}
+\subfigure[辛欧拉方法~B]{
+\includegraphics[width=0.45\textwidth]{sym_euler_2}}
+\subfigure[隐中点方法]{
+\includegraphics[width=0.45\textwidth]{implicit_midpoint}}
+\subfigure[SV~方法]{
+\includegraphics[width=0.45\textwidth]{SV}}
+\caption{双体问题几个经典方法直到~$T=200$~的数值轨道.}\label{fig-1-1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[显~(隐)~欧拉方法, 能量误差]{
+\includegraphics[width=0.45\textwidth]{nonsym_energy_error}}
+\subfigure[辛方法, 能量误差]{
+\includegraphics[width=0.45\textwidth]{sym_energy_error}}
+\subfigure[显~(隐)~欧拉方法, 角动量误差]{
+\includegraphics[width=0.45\textwidth]{nonsym_momentum_error}}
+\subfigure[辛方法, 角动量误差]{
+\includegraphics[width=0.45\textwidth]{sym_momentum_error}}
+\caption{双体问题几个经典方法的能量和角动量误差.}\label{fig-1-2}
+\end{figure}
+\end{example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{能量守恒方法}{Energy-preserving method}\label{BiSec-1-3}
+能量守恒算法的研究是设计哈密尔顿系统数值方法的另一突出课题. 辛方法能保持二次守恒量~\cite{sanzserna-88-RK,cooper-87-RK,chartier-06-algebraic}, 自然地想到, 是否存在数值格式能同时分享真解流的辛和能量守恒性质. 对于一般形式的能量, Ge-Marsden~定理~\cite{ge-88-Lie-Poisson}~则表明恒定时间步长格式不可能同时具有这两个性质. 
+
+目前, 能量守恒方法已得到广泛的发展, 这类方法在数值模拟上也有着长时间稳定的优势, 且在算法的稳定性证明中具有重要的地位~\cite{li-95-difference-KG}. 更多的细节, 请参考投影方法~\cite{hairer-lubich-06-geometric}, 离散梯度方法~\cite{gonzalez-96-discrete,harten-83-Godunov,itoh-88-VDQ,mclachlan-99-gradient}, 离散变分导方法~\cite{furihata-99-DVD,furihata-11-DVD-CHCRC,matsuo-01-dissipative}, 哈密尔顿边界值方法~\cite{luigi-10-HBVM,luigi-16-line-integral,luigi-19-HBVM-KDV,luigi-12-Poisson}~等. 
+
+而平均向量场方法~\cite{quispel-08-AVF,wu-13-oscillatory,cai-18-PAVF}, 总简写为~AVF, 其作为一类特殊的离散梯度方法被细致地研究, 比如用以构造多辛偏微分方程的局部或全局守恒算法~\cite{gong-14-local-global-AVF}, 如下将对这一类方法作简要介绍.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{平均向量场方法}{Averaged vector field method}\label{BiSubsec-1-3-1}
+这一节由离散梯度方法出发给出~AVF~方法. 为此, 考查如下的微分方程
+\begin{equation}\label{eq-1-3-1}
+\dot{y}=S(y)\nabla H(y), \quad y\in\mathbb{R}^m.
+\end{equation}
+这里, $S(y)$~是一个反对称矩阵, $H(y)$~为哈密尔顿函数. 可以简单地验证, $H(y)$~为系统~\eqref{eq-1-3-1}~的守恒量, 即利用~$S(y)$~的反对称性, 有
+\begin{equation}\label{eq-1-3-2}
+\frac{d}{dt}H(y)=\nabla H(y)^TS(y)\nabla H(y)=0.
+\end{equation}
+对于哈密尔顿函数~$H(y)$, 其离散梯度定义如下:
+
+\begin{definition}[\cite{mclachlan-99-gradient,hairer-lubich-06-geometric,itoh-88-VDQ,gonzalez-96-discrete}]\label{De-1-3-1}
+算子~$\bar{\nabla}H(y,\hat{y})$~是~$\mathbb{R}^m\times\mathbb{R}^m$~到~$\mathbb{R}^m$~的连续映射, 若其满足等式
+\begin{equation}\label{eq-1-3-3}
+\begin{aligned}
+\bar{\nabla}H(y,\hat{y})^T(y-\hat{y})&=H(y)-H(\hat{y}),\\
+\bar{\nabla}H(y,y)&=\nabla H(y),
+\end{aligned}
+\end{equation}
+则该算子称为哈密尔顿函数~$H(y)$~的离散梯度.
+\end{definition}
+
+根据定义~\ref{De-1-3-1}, 系统~\eqref{eq-1-3-1}~的离散梯度方法定义为
+\begin{equation}\label{eq-1-3-4}
+y_{n+1}=y_n+\tau\bar{S}(y_n,y_{n+1})\bar{\nabla}H(y_n,y_{n+1}).
+\end{equation}
+$\bar{S}(y_n,y_{n+1})$~对于所有~$y_n$~和~$y_{n+1}$~是反对称的. 特别地, 当等式
+\begin{equation}\label{eq-1-3-5}
+\bar{S}(y_n,y_{n+1})=\bar{S}(y_{n+1},y_n),\quad\bar{\nabla}H(y_n,y_{n+1})=\bar{\nabla}H(y_{n+1},y_n)
+\end{equation}
+成立时, 该方法是对称的, 即为二阶精度.
+
+\begin{theorem}[\cite{mclachlan-99-gradient,hairer-lubich-06-geometric}]\label{Th-1-3-3}
+离散梯度方法~\eqref{eq-1-3-4}~保持系统~\eqref{eq-1-3-1}~的守恒量~$H$, 即有~$H(y_{n+1})=H(y_n)$~成立.
+\end{theorem}
+
+使用~$\bar{S}$~的反对称性可以证实上述定理. 离散梯度的选择是多种多样的, 比如中点离散梯度~\cite{gonzalez-96-discrete}~和坐标增量离散梯度~\cite{itoh-88-VDQ}~等. $2008$~年, Quispel~\cite{quispel-08-AVF}~给出了平均向量场离散梯度, 正如
+\begin{equation}\label{eq-1-3-6}
+\bar{\nabla}_{\mbox{\tiny AVF}}H(y_n,y_{n+1})=\int_{0}^{1}\nabla H\big(\eta y_n+(1-\eta)y_{n+1}\big)~d\eta.
+\end{equation}
+直接验证~\eqref{eq-1-3-6}~符合定义~\eqref{eq-1-3-3}, 将其代入到~\eqref{eq-1-3-4}~便给出了平均向量场方法~(AVF). 而当考虑典则系统~\eqref{eq-1-1-11}~时, AVF~可以重新写为
+\begin{equation}\label{eq-1-3-7}
+y_{n+1}=y_n+\tau J_{2d}^{-1}\int_{0}^{1}\nabla H\big(\eta y_n+(1-\eta)y_{n+1}\big)~d\eta.
+\end{equation}
+该方法是二阶精度的能量守恒方法, 其更多的应用, 请见~\cite{gong-14-local-global-AVF,li-16-AVF,wu-13-oscillatory}~及其中的参考文献.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{能量和二次不变量守恒方法}{Energy and quadratic invariants-preserving method}\label{BiSubsec-1-3-2}
+尽管已有的结果~\cite{ge-88-Lie-Poisson,chartier-06-algebraic}~已经表明固定时间步长方案不可能同时继承辛和能量守恒. 而在较弱的意义下, 以时空的观点看待辛守恒, 自适应时间步长策略给出了辛和能量守恒格式~\cite{kane-99-variational,chen-02-total-MEM,chen-03-total}.
+
+另一建设性的思想, 则是在辛方法中引入自由参数, 在计算过程的每一步, 通过选择一个适当的参数值实现能量守恒~\cite{luigi-12-EQUIP}. 但该选定的参数依赖于初始点, 因此也被认为是在较弱的意义下得到辛和能量守恒算法. 随后, 这一思想得到发展和应用~\cite{luigi-18-analysis-EQUIP,luigi-16-line-integral,li-20-EQUIP-constraint,wang-13-parametric-PRK}, 并被称为能量和二次不变量守恒算法~(EQUIP). 特别地, 应用到哈密尔顿波方程产生了~EQUIP~多辛方法~\cite{chen-20-EQUIP-MS}.
+
+具体地, Brugnano~及其合作者首先在高斯辛方法中引入一个自由参数~$\lambda$, 如所得到的两级参数高斯方法
+\begin{equation}\label{eq-1-3-8}
+\begin{array}{c|cc}
+\frac{1}{2}-\frac{\sqrt{3}}{6} & \frac{1}{4} & \frac{1}{4}-\frac{\sqrt{3}}{6}-\lambda\\
+\frac{1}{2}+\frac{\sqrt{3}}{6} & \frac{1}{4}+\frac{\sqrt{3}}{6}+\lambda & \frac{1}{4}\\
+\hline
+& \frac{1}{2} & \frac{1}{2}
+\end{array}.
+\end{equation}
+对于更多级的参数高斯方法, 请参考~\cite{luigi-12-EQUIP}, 这类方法确定了数值流
+\begin{equation}\label{eq-1-3-9}
+y_{n+1}=\Phi_\tau(y_n,\lambda),\quad n=0,1,\dots.
+\end{equation}
+对于给定的参数值, 方法~\eqref{eq-1-3-9}~是辛的. 其次, 在求解的每一步, 通过调节参数值实现能量守恒. 直观地, 给定初始点~$y_n$, 有如下图示
+\begin{equation}\label{eq-1-3-10}
+y_n\stackrel{\Phi_\tau^{\lambda_1}}{\longmapsto}y_{n+1}\stackrel{\Phi_\tau^{\lambda_2}}{\longmapsto}y_{n+2}\stackrel{\Phi_\tau^{\lambda_3}}{\longmapsto}y_{n+3}\longmapsto \cdots.
+\end{equation}
+在每一步均需要确定参数~$\lambda_i$, 使得格式~$y_{n+i}=\Phi_\tau(y_{n-1+i},\lambda_i)$~所得到的数值解满足~$H(p_{n+i},q_{n+i})=H(p_n,q_n)$, $i=1,2,\cdots$. EQUIP~方法能被写为
+\begin{align}\label{eq-1-3-11}
+\aligned
+&y_{n+1}=\Phi_\tau(y_n,\lambda_*),\\
+&H(y_{n+1})=H(y_n).
+\endaligned
+\end{align}
+使用~\eqref{eq-1-3-11}~求解系统~\eqref{eq-1-1-11}, 正如图示~\eqref{eq-1-3-10}, 不同的辛方法依次被使用得到了能量守恒, 因此~EQUIP~方法也保持二次守恒量.
+
+一个直接的问题便是~\eqref{eq-1-3-11}~的可解性, 即参数值~$\lambda_*$~的存在性问题. 在隐函数定理的直接使用而导致奇异~Jacobi~矩阵的情况下, 定义如下的能量误差函数
+\begin{equation}\label{eq-1-3-12}
+E(\lambda_*,\tau)=H\big(y_{n+1}(\lambda_*,\tau)\big)-H(y_n)=0.
+\end{equation}
+其中, $y_{n+1}(\lambda_*,\tau)=\Phi_\tau(y_n,\lambda_*)$. 在适当的假定下, 凭借~Lyapunov-Schmidt~分解方法~\cite{sidorov-02-Lyapunov-Schmidt}~的使用, 如下定理被给出, 从而证实了~\eqref{eq-1-3-11}~中~$\lambda_*$~的存在性.
+
+\begin{theorem}[\cite{luigi-12-EQUIP}]\label{Th-1-3-4}
+在原点的小邻域~$(-\tau_0,\tau_0)$~中, 存在函数~$\lambda_*=\lambda_*(\tau)$~使得
+\begin{subequations}\label{eq-1-3-13}
+\begin{align}
+&(1)~E\big(\lambda_*(\tau),\tau\big)=0\quad for\ all\ \tau\in(-\tau_0,\tau_0),\label{eq-1-3-13-a}\\
+&(2)~\lambda_*=\mbox{constant}\cdot\tau^2+\mathcal{O}(\tau^3).\label{eq-1-3-13-b}
+\end{align}
+\end{subequations}
+\end{theorem}
+
+事实上, 非线性系统~\eqref{eq-1-3-12}~中~$\lambda_*$~的存在性也依赖于初始点~$y_n$, 尽管在上述定理中并不是明显的, 这便使得~EQUIP~方法在这种较弱的意义下辛守恒. 鉴于~$\lambda_*=\mathcal{O}(\tau^2)$, Brugnano~证明了~EQUIP~方法仍然保持原高斯方法的收敛阶. 即~EQUIP~方法可以看作是原辛方法的扰动, 而这一扰动并不破坏收敛阶. 有关~EQUIP~方法的更多细节, 请见专著~\cite{luigi-16-line-integral}~及其参考文献.
+
+在第二章中, 我们分别使用生成函数方法和对称组合方法, 引入两类新颖的任意高阶参数辛方法, 而其中所包含的参数将在第三章中被适当选取以实现能量守恒. 本章结束, 我们以双体问题~\eqref{eq-1-1-9}~为例, 展示~AVF~方法和~EQUIP~方法~\eqref{eq-1-3-8}~的数值比较.
+
+\begin{example}\label{Ex-1-3-1}	
+\begin{figure}[H]
+\centering
+\subfigure[AVF~方法数值轨道]{
+\includegraphics[width=0.45\textwidth]{AVF_solu}}
+\subfigure[EQUIP~方法数值轨道]{
+\includegraphics[width=0.45\textwidth]{EQUIP_solu}}\vspace{4mm}
+\subfigure[AVF~和~EQUIP~方法能量误差]{
+\includegraphics[width=0.45\textwidth]{EQUIP_AVF_energy}}
+\subfigure[AVF~和~EQUIP~方法角动量误差]{
+\includegraphics[width=0.45\textwidth]{EQUIP_AVF_momentum}}\vspace{4mm}
+\subfigure[EQUIP~方法参数分布]{
+\includegraphics[width=0.45\textwidth]{EQUIP_lambda}}
+\subfigure[求解非线性方程~\eqref{eq-1-3-12}~迭代数]{
+\includegraphics[width=0.45\textwidth]{EQUIP_iter}}\vspace{2mm}
+\caption{AVF~和~EQUIP~方法的数值结果.}\label{fig-1-3}
+\end{figure}
+
+初始条件由~\eqref{eq-1-2-52}~给出, 时间步长取为~$\tau=0.02$, 计算进行至时间~$T=1000$. 在图~\ref{fig-1-3}~中, 我们给出了AVF~和~EQUIP~方法的数值模拟结果. 首先, 它们均刻画了令人满意的椭圆轨道. 而~EQUIP~方法~\eqref{eq-1-3-8}~则展示了更加精确的数值轨迹, 这主要是由其四阶收敛精度导致的. 
+
+两个方法均是能量守恒的, 但可以看出, EQUIP~方法的能量误差具有更小的量级, 且长时间在固定范围内波动, 而~AVF~方法则表现出误差随着时间线性增长的趋势. EQUIP~方法保持系统~\eqref{eq-1-1-9}~的角动量~\eqref{eq-1-2-53}. 由保守恒量的角度来看, EQUIP~方法相比~AVF~方法在长时间模拟中确实是更有优势的. 在实际计算中, 我们使用割线法求解非线性方程~\eqref{eq-1-3-12}~得到~$\lambda_*$~的值, 割线法的容许误差设定为~$10^{-15}$. 图~\ref{fig-1-3}~的最后展示了~EQUIP~方法在每一时间步求解参数值的演化及迭代数, 割线法的迭代数大致为两次, 这说明~EQUIP~方法与原高斯辛方法的计算量是相当的.
+\end{example}

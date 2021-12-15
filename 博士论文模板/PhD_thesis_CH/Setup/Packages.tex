@@ -1,0 +1,105 @@
+% !TeX encoding = GB2312
+%=====================================
+\usepackage{ifpdf}
+\ifpdf\pdfoutput\undefined
+\usepackage[pdftex]{graphicx}
+
+\usepackage[dvipdf,a4paper,
+            CJKbookmarks=true,
+            bookmarksnumbered=true,
+            bookmarksopen=true,
+            colorlinks=true,
+            linkcolor=blue,
+            citecolor=blue,
+           % urlcolor=black
+            urlcolor=blue
+            ]{hyperref}
+
+\else
+\usepackage[dvipdfm,a4paper,
+            CJKbookmarks=true,
+            bookmarksnumbered=true,
+            bookmarksopen=true,
+            colorlinks=true,
+            linkcolor=blue,
+            citecolor=blue,
+            urlcolor=blue
+            ]{hyperref}
+\usepackage[dvips]{graphicx}
+\fi
+
+%=====================================
+
+\AtBeginDvi{\special{pdf:tounicode GBK-EUC-UCS2}}  %%% Very important for generating Chinese bookmarks
+
+\usepackage[%paperwidth=18.4cm, paperheight= 26cm,  % 版面控制宏包，定义规定的版面尺寸
+            body={14.5true cm,21true cm},           % 论文版芯145mm×210mm（包括页眉及页码则为145mm×230mm）
+           % twosideshift=0 pt,                      % 页码在版芯下边线之下隔行居中放置；
+            %headheight=1.0true cm
+            ]{geometry}
+
+\usepackage{layouts}                    % 打印当前页面格式的宏包
+\usepackage[sf]{titlesec}               % 控制标题的宏包
+\usepackage{titletoc}                   % 控制目录的宏包
+\usepackage[perpage,symbol]{footmisc}   % 脚注控制
+\usepackage{fancyhdr}                   % fancyhdr宏包 页眉和页脚的相关定义
+\usepackage{fancyref}
+\usepackage{CJK}              % 中文支持宏包
+\usepackage{type1cm}          % tex1cm宏包，控制字体的大小
+\usepackage{times}            % 使用Times字体的宏包
+\usepackage{indentfirst}      % 首行缩进宏包
+\usepackage{color}            % 支持彩色
+\usepackage{threeparttable}
+\usepackage{tabularx,booktabs}
+
+\usepackage{amsmath}          % AMSLaTeX宏包 用来排出更加漂亮的公式
+\usepackage{amssymb}
+\usepackage{mathrsfs}         % 不同于\mathcal or \mathfrak 之类的英文花体字体
+\usepackage{bm}               % 处理数学公式中的黑斜体的宏包
+\usepackage{amsthm}           % 定理类环境宏包
+\usepackage{epsf}
+\usepackage{epsfig}           % eps图像
+\usepackage[below]{placeins}  % 允许上一个section的浮动图形出现在下一个section的开始部分,
+                              % 还提供\FloatBarrier命令,使所有未处理的浮动图形立即被处
+\usepackage{floatflt}         % 图文混排用宏包
+\usepackage{setspace}         % 定制表格和图形的多行标题行距
+\usepackage{array}            % 增强表格的功能
+\usepackage{multirow}         % 使用Multirow宏包，使得表格可以合并多个row格
+\usepackage{changepage}
+
+%\usepackage[centerlast]{caption2}       %浮动图形和表格标题样式
+%\usepackage{flafter}         % 防止图形浮动到当前页的顶部，以免它出现在它所在文本的前面.
+%\usepackage{rotating}         % 图形和表格的控制
+%\usepackage{endfloat}        % 可将浮动对象放置到文件的最后
+%\usepackage{psfrag}          % 替换eps图形中的文字
+%% \usepackage{hypernat}  %% If your need this package, then please copy the hypernat.sty file to the main root file.
+
+\usepackage[hang]{subfigure}%支持子图 %centerlast 设置最后一行是否居中
+\usepackage[subfigure]{ccaption} %,caption2,
+\usepackage{cite}                           % 支持引用的宏包
+\usepackage[sort&compress,numbers]{natbib}   % 支持引用缩写的宏包
+\usepackage{paralist}                        % 使用paralist宏包,改变列表项的格式
+\usepackage{calc}                            % 长度可以用+ - * / 进行计算
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% New added %%%%%%%%%%%%%%%%%
+
+\usepackage[rotateright]{rotating}
+\usepackage{cases}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{framed} % 用于文本文字添加背景
+
+%%%%%%%%%%%%%%Yang%%%%%%%%%%%%
+
+\usepackage{natbib}
+\usepackage[normalem]{ulem}
+%\usepackage{titlesec}
+
+%\usepackage{showkeys}
+
+%\usepackage{epstopdf}  % This is a compatible package for using eps and jpg,pdf,png.... in the same texfile.
+
+
+
+
+

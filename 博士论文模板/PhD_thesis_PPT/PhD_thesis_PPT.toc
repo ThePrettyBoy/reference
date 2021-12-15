@@ -1,0 +1,5 @@
+\babel@toc {english}{}
+\beamer@sectionintoc {1}{Geometric numerical integration}{3}{0}{1}
+\beamer@sectionintoc {2}{Two families of arbitrary high-order parameterized symplectic schemes}{18}{0}{2}
+\beamer@sectionintoc {3}{Arbitrary high-order energy and quadratic invariants preserving methods}{41}{0}{3}
+\beamer@sectionintoc {4}{Linearly implicit energy-preserving methods for Hamiltonian PDEs}{55}{0}{4}

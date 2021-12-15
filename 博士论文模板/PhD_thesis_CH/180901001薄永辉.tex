@@ -1,0 +1,76 @@
+% !TeX encoding = GB2312
+\def\version{1.6} %该变量仅用于模板文件的版本号控制
+\documentclass[12pt,a4paper,openany,twoside]{report}
+\def\useyap{true} %是否使用Yap的开关 \def\useyap{false}
+\input{Setup/Packages} %引用的宏包
+\usepackage{tikz,tabularx}
+\allowdisplaybreaks[4] %LaTex允许公式跨页 equation环境命令不允许跨页 可以用align环境跨页
+
+\begin{document}
+\begin{CJK*}{GBK}{song}
+\graphicspath{{Figs/}} %定义所有的图形文件都在Figs文件夹下
+\input{Setup/Definition} %文本格式定义
+\include{Body/Cover} %封面
+
+\pagenumbering{roman}  \setcounter{page}{1} %页码设置为小写罗马字体并重设为1
+%正文部分
+\sloppy %解决中英文混排的断行问题,会加入间距,但不会影响断行
+\defaultfont %对应于小四的标准字号是12pt,可以在正文中用此命令修改所需要字体的的大小
+
+\renewcommand{\baselinestretch}{1}
+\fontsize{12pt}{12pt}\selectfont \cleardoublepage
+\pdfbookmark[0]{目录}{mulu}
+\include{Body/AbstractinChinese} %中文摘要
+\include{Body/AbstractinEnglish} %英文摘要
+%\addtocontents{toc}{\protect\vskip1\baselineskip} %中文目录增加空行
+%\addtocontents{toe}{\protect\vskip1\baselineskip} %英文目录增加空行
+\baselineskip 6mm
+\tableofcontents %显示中文目录
+\makeatletter %英文目录格式
+\def\@dotsep{1} %定义英文目录的点间距
+\setlength\leftmargini {0pt} \setlength\leftmarginii {0pt}
+\setlength\leftmarginiii {0pt} \setlength\leftmarginiv {0pt}
+\setlength\leftmarginv {0pt} \setlength\leftmarginvi {0pt}
+\def\engcontentsname{\bfseries Contents}
+\newcommand\tableofengcontents{%\cleardoublepage%如果不注释此行则英文目录始终从奇数页开始(如果在documentclass中用twoside的话)
+   \pdfbookmark[0]{Contents}{econtent}
+   \if@twocolumn
+     \@restonecoltrue\onecolumn
+   \else
+     \@restonecolfalse
+   \fi
+   \chapter*{\engcontentsname
+       \@mkboth{%
+          \engcontentsname}{\engcontentsname}}
+   \@starttoc{toe}%
+   \if@restonecol\twocolumn\fi
+   }
+\renewcommand{\baselinestretch}{1.3}
+\fontsize{12pt}{12pt}\selectfont
+\baselineskip 6mm
+\tableofengcontents %显示英文目录
+\clearpage
+\pagenumbering{arabic}\setcounter{page}{1} %页码设置为阿拉伯字体并重设为1
+\include{Body/Introduction}
+\include{Body/Chapter1}
+\include{Body/Chapter2}
+\include{Body/Chapter3}
+\include{Body/Chapter4}
+\include{Body/Chapter5}
+
+\defaultfont
+\phantomsection \addtolength{\bibsep}{-0.8 em}
+\include{Body/Bibliography} %参考文献
+\addtocontents{fen}{\protect\vskip1\baselineskip}
+
+\phantomsection \addtolength{\bibsep}{-0.8 em}
+\include{Body/Publications} %publications and finished papers
+\addtocontents{fen}{\protect\vskip1\baselineskip}
+
+\include{Body/Acknowledgements} %致谢
+%\appendix %带章节的附录部分
+%\include{Body/AppA} %附录A
+%\include{Body/AppB} %附录B
+\clearpage
+\end{CJK*}
+\end{document}

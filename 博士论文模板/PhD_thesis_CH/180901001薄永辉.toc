@@ -1,0 +1,63 @@
+\ttl@change@i {\@ne }{chapter}{1.1em}{\hspace {-1.1em}\hei \bf \vspace {0.2em}}{\contentslabel {0.0em}}{\hspace *{-0.0em}}{\titlerule *[5pt]{.}\contentspage }\relax 
+\ttl@change@v {chapter}{}{}{}\relax 
+\ttl@change@i {\@ne }{section}{1.3cm}{\vspace {0em}}{\contentslabel {1.8em}}{\hspace *{-1.8em}}{\titlerule *[5pt]{.}\contentspage }\relax 
+\ttl@change@v {section}{}{}{}\relax 
+\ttl@change@i {\@ne }{subsection}{2.2cm}{}{\contentslabel {2.7em}}{\hspace *{-2.7em}}{\titlerule *[5pt]{.}\contentspage }\relax 
+\ttl@change@v {subsection}{}{}{}\relax 
+\ttl@change@i {\@ne }{subsubsection}{2.86cm}{}{\contentslabel {3.4em}}{\hspace *{-3.4em}}{\titlerule *[5pt]{.}\contentspage }\relax 
+\ttl@change@v {subsubsection}{}{}{}\relax 
+\contentsline {chapter}{\CJKfamily {hei}摘\hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces \hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces \hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces \hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces 要}{i}{section*.1}
+\contentsline {chapter}{\CJKfamily {hei}\textbf {Abstract}}{iii}{section*.3}
+\contentsline {chapter}{\CJKfamily {hei}前\hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces \hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces \hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces \hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces 言}{1}{section*.7}
+\contentsline {chapter}{\numberline {}第{1}章\hspace {0.8em}几何数值积分}{6}{chapter.1}
+\contentsline {section}{\numberline {1.1}拉格朗日方程和哈密尔顿方程}{6}{section.1.1}
+\contentsline {section}{\numberline {1.2}辛积分子}{9}{section.1.2}
+\contentsline {subsection}{\numberline {1.2.1}辛龙格-库塔方法}{9}{subsection.1.2.1}
+\contentsline {subsection}{\numberline {1.2.2}变分积分子}{12}{subsection.1.2.2}
+\contentsline {subsection}{\numberline {1.2.3}生成函数方法}{14}{subsection.1.2.3}
+\contentsline {subsection}{\numberline {1.2.4}分裂组合方法}{18}{subsection.1.2.4}
+\contentsline {section}{\numberline {1.3}能量守恒方法}{22}{section.1.3}
+\contentsline {subsection}{\numberline {1.3.1}平均向量场方法}{23}{subsection.1.3.1}
+\contentsline {subsection}{\numberline {1.3.2}能量和二次不变量守恒方法}{24}{subsection.1.3.2}
+\contentsline {chapter}{\numberline {}第{2}章\hspace {0.8em}两类任意高阶的参数辛格式}{28}{chapter.2}
+\contentsline {section}{\numberline {2.1}一个简单的辛格式}{28}{section.2.1}
+\contentsline {section}{\numberline {2.2}参数生成函数方法}{31}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}具有新坐标的生成函数}{32}{subsection.2.2.1}
+\contentsline {subsection}{\numberline {2.2.2}具有新变量的哈密尔顿-雅可比方程}{34}{subsection.2.2.2}
+\contentsline {subsection}{\numberline {2.2.3}生成函数方法的经典框架}{36}{subsection.2.2.3}
+\contentsline {subsection}{\numberline {2.2.4}参数辛格式}{46}{subsection.2.2.4}
+\contentsline {section}{\numberline {2.3}对称组合方法}{48}{section.2.3}
+\contentsline {section}{\numberline {2.4}多参数辛格式}{48}{section.2.4}
+\contentsline {section}{\numberline {2.5}数值实验}{51}{section.2.5}
+\contentsline {subsection}{\numberline {2.5.1}H\'{e}non-Heiles\hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces 模型}{52}{subsection.2.5.1}
+\contentsline {subsection}{\numberline {2.5.2}扰动开普勒问题}{57}{subsection.2.5.2}
+\contentsline {subsection}{\numberline {2.5.3}在哈密尔顿偏微分方程上的应用}{60}{subsection.2.5.3}
+\contentsline {section}{\numberline {2.6}结论}{64}{section.2.6}
+\contentsline {chapter}{\numberline {}第{3}章\hspace {0.8em}一类任意高阶的能量和二次不变量守恒方法}{65}{chapter.3}
+\contentsline {section}{\numberline {3.1}能量守恒方法的构造}{65}{section.3.1}
+\contentsline {section}{\numberline {3.2}所提出方法的两个性质}{66}{section.3.2}
+\contentsline {subsection}{\numberline {3.2.1}二次不变量守恒}{66}{subsection.3.2.1}
+\contentsline {subsection}{\numberline {3.2.2}可解性}{67}{subsection.3.2.2}
+\contentsline {section}{\numberline {3.3}数值实验}{69}{section.3.3}
+\contentsline {subsection}{\numberline {3.3.1}H\'{e}non-Heiles\hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces 模型}{70}{subsection.3.3.1}
+\contentsline {subsection}{\numberline {3.3.2}扰动开普勒问题}{73}{subsection.3.3.2}
+\contentsline {subsection}{\numberline {3.3.3}在哈密尔顿偏微分方程上的应用}{75}{subsection.3.3.3}
+\contentsline {section}{\numberline {3.4}结论}{79}{section.3.4}
+\contentsline {chapter}{\numberline {}第{4}章\hspace {0.8em}哈密尔顿偏微分方程任意高阶的线性隐能量守恒方法}{80}{chapter.4}
+\contentsline {section}{\numberline {4.1}辅助变量方法}{80}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}标准辅助变量方法}{81}{subsection.4.1.1}
+\contentsline {subsection}{\numberline {4.1.2}指数辅助变量方法}{83}{subsection.4.1.2}
+\contentsline {section}{\numberline {4.2}两类任意高阶线性隐方法}{85}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}高斯配置方法}{85}{subsection.4.2.1}
+\contentsline {subsection}{\numberline {4.2.2}预估校正方法}{89}{subsection.4.2.2}
+\contentsline {subsection}{\numberline {4.2.3}空间傅里叶拟谱方法}{91}{subsection.4.2.3}
+\contentsline {section}{\numberline {4.3}数值实验}{96}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}非线性薛定谔方程}{96}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.2}sine-Gordon\hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces 方程}{102}{subsection.4.3.2}
+\contentsline {subsection}{\numberline {4.3.3}Korteweg-de\hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces Vries\hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces 方程}{105}{subsection.4.3.3}
+\contentsline {section}{\numberline {4.4}结论}{108}{section.4.4}
+\contentsline {chapter}{\numberline {}第{5}章\hspace {0.8em}总结与展望}{109}{chapter.5}
+\contentsline {chapter}{\CJKfamily {hei}{参考文献}}{111}{section*.9}
+\contentsline {chapter}{\CJKfamily {hei}发表及已完成的论文}{121}{section*.12}
+\contentsline {chapter}{\CJKfamily {hei}致\hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces \hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces \hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces \hspace {0.25em plus 0.125em minus 0.08em}\ignorespaces 谢}{122}{section*.14}
+\contentsfinish 

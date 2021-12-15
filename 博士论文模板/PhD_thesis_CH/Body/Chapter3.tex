@@ -1,0 +1,332 @@
+% !TeX encoding = GB2312
+\defaultfont
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiChapter{一类任意高阶的能量和二次不变量守恒方法}{A family of arbitrary high-order energy and quadratic invariants preserving methods}\label{BiChapter-3}
+参数辛方法的提出使得在守恒算法的设计上有了更多的自由, 其直接应用便在于数值求解的每一步通过选取适当的参数以实现能量守恒. 所得到的的算法也是保二次不变量的, 这就给出了不同于时间步长自适应技巧~\cite{kane-99-variational,chen-02-total-MEM,chen-03-total}, 而同样在较弱的意义下证实了辛能量守恒方法的存在性. 这一建设性的思想在文献~\cite{luigi-12-EQUIP}~中提出, 随后得到了广泛地发展和应用~\cite{luigi-18-analysis-EQUIP,luigi-16-line-integral,li-20-EQUIP-constraint,wang-13-parametric-PRK}, 并被称为能量和二次不变量守恒算法~(EQUIP). 特别地, 在哈密尔顿波方程上的应用产生了~EQUIP~多辛方法~\cite{chen-20-EQUIP-MS}. 
+
+本章中, 我们使用上一章展示的一般辛格式~Scheme I~及其对称组合方法构造一类任意阶的~EQUIP~方法, 而后通过数值算例验证所构造算法的理论分析及守恒性.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{能量守恒方法的构造}{Construction of energy-preserving methods}\label{BiSec-3-1}
+哈密尔顿系统~\eqref{eq-1-1-11}~的另一突出性质便是能量守恒~\eqref{eq-1-1-12}, 能量守恒算法在数值计算上也有长时间的优越性. 尽管辛格式具有辛守恒性质, 但其并不能保持系统的非二次守恒量. 本章专注于对一般形式的能量, 使用上一章发展的参数辛方法设计能量守恒算法.
+
+对于任意取定的参数, 一般的辛格式~Scheme I~均是辛的, 是否能找到一个参数, 使得该方法能量守恒是一个有趣的课题. 参数的存在性是首要的问题, 稍后, 我们将给出参数的存在性证明. 在本章的这类~EQUIP~方法中, 包含如下的一个简单格式
+\begin{equation}\label{eq-3-1-1}
+\begin{aligned}
+&p_{n+1}=p_n-\tau H_q\big(\lambda p_{n+1}+(1-\lambda)p_n,\lambda q_n+(1-\lambda)q_{n+1}\big),\\
+&q_{n+1}=q_n+\tau H_p\big(\lambda p_{n+1}+(1-\lambda)p_n,\lambda q_n+(1-\lambda)q_{n+1}\big),\\
+&H(p_{n+1},q_{n+1}) = H(p_n,q_n).
+\end{aligned}
+\end{equation}
+将其命名为~Scheme EI, 该格式的构造便是直接在~Scheme I~的基础上强加能量守恒, 也就是在数值求解的每一步均需要找到参数使得~$H(p_{n+1},q_{n+1})=H(p_n,q_n)$. 相似地, Scheme I~的对称组合方法可给出接下来的~EQUIP~方法
+\begin{equation}\label{eq-3-1-2}
+\begin{aligned}
+&(p_{n+1},q_{n+1})=\Psi_\tau(p_n,q_n),\\
+&H(p_{n+1},q_{n+1})=H(p_n,q_n).
+\end{aligned}
+\end{equation}
+这里, 记号~$\Psi_h$~见~\eqref{eq-2-3-2}, 将该格式简记为~Scheme EII.
+
+根据之前的讨论, Scheme I~当~$\lambda$~不等于~$1/2$~时具有一阶精度, 故~Scheme EI~是一阶的能量和二次不变量守恒算法, 而~Scheme EII~则是对称二阶的. 利用上章的第二类参数辛方法的高阶成员, 我们能够获得更高阶的~EQUIP~方法, 这里仅以~Scheme EII~作为一个例子. 
+
+鉴于计算的复杂性, 第一类基于生成函数方法的高阶参数辛方法并没有被考虑. 注意到在这类~EQUIP~方法中, 哈密尔顿函数可更换为其它的非二次守恒量以实现其它的守恒性.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{所提出方法的两个性质}{Two properties of the proposed methods}\label{BiSec-3-2}
+EQUIP~方法除能量守恒之外, 还具有其它的两个性质. 一是二次不变量守恒, 这源于其较弱地继承了辛守恒性质; 二是参数的存在性, 这表明每一步均能找到参数值使得能量是守恒的.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{二次不变量守恒}{Quadratic invariants conservation}\label{BiSubsec-3-2-1}
+事实上, 基于对称组合的参数辛方法均为~Scheme I~的组合. 以~Scheme I~讨论, 如果参数~$\lambda$~能被发现使得~$H(p_{n+1},q_{n+1})=H(p_n,q_n)$~成立, 那么在当前时间步
+便获得一个能量守恒方法
+\begin{equation}\label{eq-3-2-1}
+\Phi_\tau^\lambda:(p_n,q_n)\mapsto (p_{n+1},q_{n+1}).
+\end{equation} 
+而对于固定的参数值~$\lambda$, 格式~\eqref{eq-3-2-1}~是辛的. 如果参数的存在性已经被证实, 那么存在实数序列~\{$\lambda_i$\}~形成如下的图示
+\begin{equation}\label{eq-3-2-2}
+(p_n,q_n)\stackrel{\Phi_\tau^{\lambda_1}}{\longmapsto}(p_{n+1},q_{n+1}) \stackrel{\Phi_\tau^{\lambda_2}}{\longmapsto}(p_{n+2},q_{n+2}) \stackrel{\Phi_\tau^{\lambda_3}}{\longmapsto}(p_{n+3},q_{n+3})\longmapsto\cdots.
+\end{equation}
+这里, 由辛方法~$\Phi_\tau^{\lambda_i}$~定义的数值解~$(p_{n+i},q_{n+i})$~满足~$H(p_{n+i},q_{n+i})=H(p_n,q_n)$. 即在~\eqref{eq-3-2-2}~中, 不同的辛方法在每一步被使用以实现能量守恒. 
+
+\begin{remark}\label{Re-3-2-1}
+在~\eqref{eq-3-2-2}~中求解的~$\lambda_i$~并不总是等于~$1/2$, 根据定理~\ref{Th-1-2-2}, 故本章展示的~EQUIP~方法精确地保持形式为~$p^TCq$~的二次守恒量, 其中~$C$~为常矩阵. 如开普略问题的角动量~\eqref{eq-2-5-7}~便是这种形式, 该性质将在数值实验中得到证实.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{可解性}{Solvability}\label{BiSubsec-3-2-2}
+凭借上章中提出的参数辛方法, 我们发展了一类新颖的~EQUIP~方法. 而这类方法的关键问题, 在于每一时间步中参数是否存在使得能量相等. 隐函数定理被使用作为基本工具解决该问题. 对于给定的起始值~$p_n$, $q_n$~和时间步长~$\tau$, 首先考查如下的方程
+\begin{equation}\label{eq-3-2-3}
+\begin{aligned}
+&G(p_{n+1},q_{n+1},\lambda,p_n,q_n,\tau)\\
+&\triangleq
+\left(\begin{array}{c}
+p_{n+1}-p_n+\tau H_q\big(\lambda p_{n+1}+(1-\lambda)p_n,\lambda q_n+(1-\lambda)q_{n+1}\big)\\
+q_{n+1}-q_n-\tau H_p\big(\lambda p_{n+1}+(1-\lambda)p_n,\lambda q_n+(1-\lambda)q_{n+1}\big)\\
+H(p_{n+1},q_{n+1})-H(p_n,q_n)
+\end{array}\right)=0
+\end{aligned}
+\end{equation}
+关于~$p_{n+1}$, $q_{n+1}$~和~$\lambda$~的解的存在性, 该方程等价于~Scheme EI~的可解性, 且满足~$G(p_n,q_n,1/2,p_n,q_n,0)=0$. 方程~\eqref{eq-3-2-3}~的雅可比矩阵为
+\begin{equation}\label{eq-3-2-4}
+\frac{\partial G}{\partial(p_{n+1},q_{n+1},\lambda)}\bigg|_{(p_n,q_n,\frac{1}{2},p_n,q_n,0)} =
+\left(\begin{array}{ccc}
+I_d & 0 & 0\\
+0 & I_d & 0\\
+H_p(p_n,q_n) & H_q(p_n,q_n) & 0
+\end{array}\right).
+\end{equation}
+因为~\eqref{eq-3-2-4}~无论如何都是奇异的, 故隐函数定理的传统过程并不能获得~\eqref{eq-3-2-3}~的可解性, 这也表明牛顿迭代类方法对于求解~Scheme EI~是无效的. 为此, 我们考虑标量函数
+\begin{equation}\label{eq-3-2-5}
+E(\lambda,\tau)=H\big(p_{n+1}(\lambda,\tau),q_{n+1}(\lambda,\tau)\big)-H(p_n,q_n).
+\end{equation}
+上式为哈密尔顿函数的误差函数, 且~$p_{n+1}(\lambda,\tau)$~和~$q_{n+1}(\lambda,\tau)$~由~Scheme I~确定. 此时, Scheme EI~的可解性便等价于~$E(\lambda,\tau)=0$~的解~$\lambda=\lambda(\tau)$~的存在性, 初始条件为~$E(1/2,0)=0$.
+
+基于此, 经过计算可获得如下的偏导数
+\begin{equation}\label{eq-3-2-6}
+E_{\lambda}(1/2,0)=E_\tau(1/2,0)=E_{\lambda\lambda}(1/2,0)=E_{\lambda \tau}(1/2,0)=E_{\tau\tau}(1/2,0)=0.
+\end{equation}
+这并不是所期待的, 其使得获得可解性更加的麻烦. 然而, 这却促使我们推导出接下来的定理.
+
+\begin{theorem}\label{Th-3-2-1}
+假定哈密尔顿函数~$H$~是充分光滑的, 那么对于较小的~$\tau_0$, 在邻域~$(-\tau_0,\tau_0)$~中, 就存在着函数~$\lambda$=$\lambda(\tau)$~使得
+\begin{subequations}\label{eq-3-2-7}
+\begin{align}
+&(1)\ E\big(\lambda(\tau),\tau\big)=0\quad \mbox{for\ all}\ \tau\in (-\tau_0,\tau_0),\label{eq-3-2-7-a}\\
+&(2)\ \lambda(\tau)=\frac{1}{2}+\varepsilon(\tau)\tau\quad \mbox{with}\  \varepsilon(\tau)=\mbox{constant}+\mathcal{O}(\tau).\label{eq-3-2-7-b}
+\end{align}
+\end{subequations}	
+\end{theorem} 
+
+\begin{proof}
+当~$\lambda=1/2$~时, Scheme I~是二阶的, 否则其是一阶格式. 于是, 我们能够得到如下关于误差函数~\eqref{eq-3-2-5}~的估计
+\begin{align}\label{eq-3-2-8}
+E(\lambda,\tau)=\left\{\aligned
+&C_0\tau^3+\mathcal{O}(\tau^4),\ C_0\neq0,\quad\quad\quad\mbox{for}\ \lambda=1/2,\\
+&C(\lambda)\tau^2+\mathcal{O}(\tau^3),\ C(\lambda)\neq0,\quad\mbox{for}\ \lambda\neq1/2.
+\endaligned\right.
+\end{align}
+其中, 常数~$C_0$~和函数~$C(\lambda)$~也依赖于起始值~$p_n$~和~$q_n$. 这样, \eqref{eq-3-2-5}~有展开式
+\begin{equation}\label{eq-3-2-9}
+E(\lambda,\tau)=\sum_{i\geq3}\frac{1}{i!}\frac{\partial^iE}{\partial \tau^i}\left(\frac{1}{2},0\right)\tau^i+\sum_{i\geq2}\sum_{j\geq1}\frac{1}{i!j!}\frac{\partial^{i+j}E}{\partial \tau^i\partial \lambda^j}\left(\frac{1}{2},0\right)\tau^i\left(\lambda-\frac{1}{2}\right)^j.
+\end{equation}
+于是, 试图找到~\eqref{eq-3-2-9}~的形式为~$\lambda(\tau)=1/2+\varepsilon(\tau)\tau$~的解, $\varepsilon(\tau)$~为~$\tau$~的实值函数. 将~$\lambda=1/2+\varepsilon\tau$~代入~~\eqref{eq-3-2-9}~中, 则
+\begin{equation}\label{eq-3-2-10}
+E(\lambda,\tau) = \sum_{i\geq3}\frac{1}{i!}\frac{\partial^iE}{\partial \tau^i}\left(\frac{1}{2},0\right)\tau^i+\sum_{i\geq2}\sum_{j\geq1}\frac{1}{i!j!}\frac{\partial^{i+j}E}{\partial \tau^i\partial \lambda^j}\left(\frac{1}{2},0\right)\tau^{i+j}\varepsilon^j.
+\end{equation}
+可以看到, 当~$\tau\neq0$~时, $E(\lambda,\tau)=0$~便等价于 
+\begin{equation}\label{eq-3-2-11}
+\bar{E}(\varepsilon,\tau)=\frac{1}{6}\frac{\partial^3E}{\partial \tau^3}\left(\frac{1}{2},0\right)+\frac{1}{2}\frac{\partial^3E}{\partial \tau^2\partial \lambda}\left(\frac{1}{2},0\right)\varepsilon+\mathcal{O}(\varepsilon \tau)+\mathcal{O}(\tau).
+\end{equation}
+取初始点为
+\begin{equation}\label{eq-3-2-12}
+\varepsilon_0=-\frac{1}{3}\frac{\partial^3E}{\partial \tau^3}\left(\frac{1}{2},0\right)\Big/\frac{\partial^3E}{\partial \tau^2\partial \lambda}\left(\frac{1}{2},0\right),\quad \tau_0=0,
+\end{equation}
+即~$\bar{E}(\varepsilon_0,\tau_0)=0$. 等式~\eqref{eq-3-2-8}~意味着~$\frac{\partial^3E}{\partial \tau^3}\left(1/2,0\right)$~和~$\frac{\partial^3E}{\partial \tau^2\partial \lambda}\left(1/2,0\right)$~均不为零. 根据雅可比矩阵
+\begin{equation}\label{eq-3-2-13}
+\frac{\partial \bar{E}}{\partial \varepsilon}(\varepsilon_0,\tau_0)=\frac{1}{2}\frac{\partial^3E}{\partial \tau^2\partial \lambda}\left(\frac{1}{2},0\right)\neq0,
+\end{equation}
+应用隐函数定理到~\eqref{eq-3-2-11}, 在小邻域~$(-\tau_0,\tau_0)$~中, $\varepsilon=\varepsilon(\tau)$~是存在唯一的, 其形式为
+\begin{equation}\label{eq-3-2-14}
+\varepsilon(\tau)=\varepsilon_0+\mathcal{O}(\tau)=\mbox{constant}+\mathcal{O}(\tau)
+\end{equation}
+使得~$\bar{E}(\varepsilon(\tau),\tau)=0$. 因此, 对于~Scheme EI, \eqref{eq-3-2-5}~的解~$\lambda(\tau)=1/2+\varepsilon(\tau)\tau$~的存在性得到证实. 此外, 使用记号~\eqref{eq-2-3-1}~和~\eqref{eq-2-3-2}, 可以表示出关系式 
+\begin{equation}\label{eq-3-2-15}
+\Psi_\tau^\lambda(p_n,q_n)-\Phi_\tau^{\lambda}(p_n,q_n)=C_1(\lambda)\tau^l+\mathcal{O}(\tau^{l+1}), \quad l\geq2.
+\end{equation}
+并且, 对于~$\lambda=1/2$, 有~$l\geq3$. Scheme EII~的哈密尔顿函数误差为
+\begin{equation}\label{eq-3-2-16}
+E(\lambda,\tau)=H\big(\Phi_\tau^{\lambda}(p_n,q_n)+C_1(\lambda)\tau^l+\mathcal{O}(\tau^{l+1})\big)-H(p_n,q_n).
+\end{equation}
+这样, 本定理的推导过程对于~\eqref{eq-3-2-16}~也是适用的. 相似地, 我们可以获得本章这类~EQUIP~方法的可解性, 即均有~\eqref{eq-3-2-7}~成立.
+\end{proof}
+
+在上述定理的意义下, 本章提出的一类~EQUIP~方法在~$\lambda=1/2$~附近是可解的, 且~Scheme EI~可以视为中点格式~\eqref{eq-1-2-13}~的小扰动, 而这一扰动实现了能量守恒算法, 这也解释了中点格式为什么在大多数的计算模拟中总具有优异的数值行为. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{数值实验}{Numerical experiments}\label{BiSec-3-3}
+本节中, 我们考查一些数值算例以验证本章的~EQUIP~方法的理论分析和有效性. 时间步长取为~$\tau=0.02$, 所有格式的收敛性由公式~\eqref{eq-2-5-1}~计算. 实际计算中, 对于参数辛方法, 使用分块龙格-库塔方法的标准求解器, 而后凭借割线法求解非线性系统~\eqref{eq-3-2-5}~以确定~$\lambda$~的值, 割线法的容许误差设为~$10^{-15}$. 为了与传统能量守恒算法作比较, 也使用平均向量场方法~(AVF)~\eqref{eq-1-3-7}~进行计算.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{H\'{e}non-Heiles~模型}{The H\'{e}non-Heiles model}\label{BiSubsec-3-3-1}
+考查第~\ref{BiSubsec-2-5-1}~节的~H\'{e}non-Heiles~模型, 初始条件仍由盒子轨道~\eqref{eq-2-5-4}~和混沌轨道~\eqref{eq-2-5-5}~给出. 图~\ref{fig-3-1}~和图~\ref{fig-3-5}~均刻画了令人满意的轨道, 在临界能量的限制下, 数值轨迹从不逃脱到等势线的外部. 三个能量守恒方法的能量误差见图~\ref{fig-3-2}~和图~\ref{fig-3-4}, 结果表明~EQUIP~方法较~AVF~方法在保守恒量上确实是更优异的, 即不会出现误差值随时间线性增长的现象. 图~\ref{fig-3-3}~和图~\ref{fig-3-6}~给出了两种初始条件下, 割线法求解~Schemes EI~和~EII~的情况, 参数值在~$1/2$~附近波动, 而迭代次数为四次左右, 这说明~EQUIP~方法并没有增加过多的计算量. 最后, 表~\ref{tab-3-1}~展示了三个能量守恒方法的收敛性测试. 以上结果证实了本章的~EQUIP~方法的理论分析和有效性.
+
+\begin{figure}[H]
+\centering
+\subfigure[AVF~方法]{
+\includegraphics[width=0.45\textwidth]{AVF_bHH_R}}\\
+\subfigure[Scheme EI]{
+\includegraphics[width=0.45\textwidth]{bHH_R}}
+\subfigure[Scheme EII]{
+\includegraphics[width=0.45\textwidth]{bHH2_R}}
+\caption{H\'{e}non-Heiles~模型盒子轨道: 三个能量守恒格式的数值轨道.}\label{fig-3-1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.45\textwidth]{bHH_EPS_HE}
+\caption{H\'{e}non-Heiles~模型盒子轨道: 三个能量守恒格式的能量误差.}\label{fig-3-2}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[参数值演化]{
+\includegraphics[width=0.45\textwidth]{bHH_par}}
+\subfigure[求解非线性系统~\eqref{eq-3-2-5}~迭代数]{
+\includegraphics[width=0.45\textwidth]{bHH_Iter}}
+\caption{H\'{e}non-Heiles~模型盒子轨道: 割线法求解~Schemes EI~\&~EII.}\label{fig-3-3}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.45\textwidth]{cHH_EPS_HE}
+\caption{H\'{e}non-Heiles~模型混沌轨道: 三个能量守恒格式的能量误差.}\label{fig-3-4}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[AVF~方法]{
+\includegraphics[width=0.45\textwidth]{AVF_cHH_R}}\\
+\subfigure[Scheme EI]{
+\includegraphics[width=0.45\textwidth]{cHH_R}}
+\subfigure[Scheme EII]{
+\includegraphics[width=0.45\textwidth]{cHH2_R}}
+\caption{H\'{e}non-Heiles~模型混沌轨道: 三个能量守恒格式的数值轨道.}\label{fig-3-5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[参数值演化]{
+\includegraphics[width=0.45\textwidth]{cHH_par}}
+\subfigure[求解非线性系统~\eqref{eq-3-2-5}~迭代数]{
+\includegraphics[width=0.45\textwidth]{cHH_Iter}}
+\caption{H\'{e}non-Heiles~模型混沌轨道: 割线法求解~Schemes EI~\&~EII.}\label{fig-3-6}
+\end{figure}
+
+\begin{table}[H]
+\tabcolsep=13pt
+\small \renewcommand\arraystretch{1.25} \centering 
+\caption{H\'{e}non-Heiles~模型混沌轨道: 三个能量守恒格式的收敛性测试.}\label{tab-3-1}\vspace{4mm}
+\begin{tabularx}{\textwidth}{*{7}{l}} \toprule
+\multirow{2}*{$\tau$} & \multicolumn{2}{c}{AVF} & \multicolumn{2}{c}{Scheme EI} & \multicolumn{2}{c}{Scheme EII}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+& Error & Order & Error & Order & Error & Order\\ \midrule
+0.02/2 & 1.78E-05 & - & 2.50E-03 & - & 4.23E-06 & -\\
+0.02/4 & 4.46E-06 & 2.00 & 1.24E-03 & 1.01 & 1.06E-06 & 2.00\\
+0.02/8 & 1.11E-06 & 2.00 & 6.22E-04 & 0.99 & 2.64E-07 & 2.00\\
+0.02/16 & 2.78E-07 & 2.00 & 3.10E-04 & 1.00 & 6.60E-08 & 2.00\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{扰动开普勒问题}{The perturbed Kepler problem}\label{BiSubsec-3-3-2}
+本实验中考查第~\ref{BiSubsec-2-5-2}~节的扰动开普勒问题, 起始值仍由~\eqref{eq-2-5-8}~给出. 在图~\ref{fig-3-9}~中, 三个能量守恒算法刻画了与原始问题~\cite{hairer-lubich-06-geometric}~相似的椭圆轨道, 它们同时也较好地保持了能量和角动量, 请见图~\ref{fig-3-9}~和图~\ref{fig-3-10}. 从数值结果可知, Schemes EI~和~EII~是精确保持角动量的, 这也证实了这类~EQUIP~方法确实在较弱意义下具有辛守恒性质, 这里~AVF~方法能量误差的线性增长的趋势是更加明显的. 图~\ref{fig-3-8}~和图~\ref{fig-3-11}~中割线法求解的参数值始终在~$1/2$~附近, 且迭代次数大致为五次. 事实上, 如果增加割线法迭代的容许误差为机器精度~$10^{-12}$, 则迭代次数将相应地减少为两次, 这表明~Schemes EI~和~EII~的计算量与原参数辛方法是大体相当的.
+
+\begin{figure}[H]
+\centering
+\subfigure[能量误差]{
+\includegraphics[width=0.45\textwidth]{kepler_EPS_HE}}
+\subfigure[角动量误差]{
+\includegraphics[width=0.45\textwidth]{kepler_EPS_LE}}
+\caption{开普勒问题: 三个能量守恒格式的能量和角动量误差.}\label{fig-3-7}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[参数值演化]{
+\includegraphics[width=0.45\textwidth]{kepler_EPS_par}}
+\subfigure[求解非线性系统~\eqref{eq-3-2-5}~迭代数]{
+\includegraphics[width=0.45\textwidth]{kepler_EPS_Iter}}
+\caption{开普勒问题: 割线法求解~Schemes EI~\&~EII.}\label{fig-3-8}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[AVF~方法]{
+\includegraphics[width=0.45\textwidth]{perkepler_AVF_R}}\\
+\subfigure[Scheme EI]{
+\includegraphics[width=0.45\textwidth]{perkepler_EPS_R}}
+\subfigure[Scheme EII]{
+\includegraphics[width=0.45\textwidth]{perkepler2_EPS_R}}
+\caption{扰动开普勒问题: 三个能量守恒格式的数值轨道.}\label{fig-3-9}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[能量误差]{
+\includegraphics[width=0.45\textwidth]{perkepler_EPS_HE}}
+\subfigure[角动量误差]{
+\includegraphics[width=0.45\textwidth]{perkepler_EPS_LE}}
+\caption{扰动开普勒问题: 三个能量守恒格式的能量和角动量误差.}\label{fig-3-10}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[参数值演化]{
+\includegraphics[width=0.45\textwidth]{perkepler_EPS_par}}
+\subfigure[求解非线性系统~\eqref{eq-3-2-5}~迭代数]{
+\includegraphics[width=0.45\textwidth]{perkepler_EPS_Iter}}
+\caption{扰动开普勒问题: 割线法求解~Schemes EI~\&~EII.}\label{fig-3-11}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{在哈密尔顿偏微分方程上的应用}{Applications to Hamiltonian PDEs}\label{BiSubsec-3-3-3}
+这里, 我们将~Schemes EI~和~EII~应用于哈密尔顿偏微分方程的时间离散. 为此, 考查第~\ref{BiSubsec-2-5-3}~节的~sine-Gordon~方程, 初始条件为~\eqref{eq-2-5-12}~及~\eqref{eq-2-5-13}~两种情形, 空间傅里叶拟谱离散的剖分数为~$64$. 由于这两个~EQUIP~方法的数值结果是相似的, 我们仅展示~Schemes EI~的模拟结果. 图~\ref{fig-3-12}~和图~\ref{fig-3-13}~正确描述了圆环孤子和四个圆环孤子碰撞的波形变化, 其结果与文献~\cite{jiang-19-SG-IEQ,cai-19-SG-NB,argyris-91-FEM-SG}~是一致的. 图~\ref{fig-3-14}~给出了相当美观的能量守恒数值结果, 而图~\ref{fig-3-15}~中, 割线法求解的参数接近于~$1/2$, 且所需迭代次数大致为四次. 这些结果表明了本章的~EQUIP~方法能很好地适用于哈密尔顿偏微分方程的时间离散.
+
+\begin{figure}[H]
+\centering
+\subfigure[$T=0$~时初始值]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_E0}}
+\subfigure[Scheme EI, $T=2.8$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_E1}}\vspace{6mm}
+\subfigure[Scheme EI, $T=5.6$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_E2}}
+\subfigure[Scheme EI, $T=8.4$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_E3}}\vspace{6mm}
+\subfigure[Scheme EI, $T=11.2$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_E4}}
+\subfigure[Scheme EI, $T=12.6$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_E5}}\vspace{6mm}
+\caption{sine-Gordon~方程圆环孤子:~Scheme EI~在不同时刻的数值解.}\label{fig-3-12}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[$T=0$~时初始值]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_E0}}
+\subfigure[Scheme EI, $T=2.5$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_E1}}\vspace{6mm}
+\subfigure[Scheme EI, $T=5$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_E2}}
+\subfigure[Scheme EI, $T=7.5$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_E3}}\vspace{6mm}
+\subfigure[Scheme EI, $T=10$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_E4}}\vspace{6mm}
+\caption{sine-Gordon~方程四个圆环孤子碰撞:~Scheme EI~在不同时刻的数值解.}\label{fig-3-13}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[圆环孤子]{
+\includegraphics[width=0.45\textwidth]{CRS_EPS_HE}}
+\subfigure[四个圆环孤子碰撞]{
+\includegraphics[width=0.45\textwidth]{CCS_EPS_HE}}
+\caption{sine-Gordon~方程:~Schemes EI~的能量误差.}\label{fig-3-14}
+\end{figure}
+\vspace{-5mm}
+\begin{figure}[H]
+\centering
+\subfigure[圆环孤子, 参数值演化]{
+\includegraphics[width=0.45\textwidth]{CRS_EPS_par}}
+\subfigure[圆环孤子, 求解非线性系统~\eqref{eq-3-2-5}~迭代数]{
+\includegraphics[width=0.45\textwidth]{CRS_EPS_Iter}}
+\subfigure[四个圆环孤子碰撞, 参数值演化]{
+\includegraphics[width=0.45\textwidth]{CCS_EPS_par}}
+\subfigure[四个圆环孤子碰撞, 求解非线性系统~\eqref{eq-3-2-5}~迭代数]{
+\includegraphics[width=0.45\textwidth]{CCS_EPS_Iter}}
+\caption{sine-Gordon~方程: 割线法求解~Schemes EI.}\label{fig-3-15}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{结论}{Concluding remarks}\label{BiSec-3-4}
+基于上一章的第二类参数辛方法, 我们提出了一类任意高阶的能量和二次不变量守恒算法, 思路在于每一时间步中通过选择适当的参数以实现能量守恒. 其中的一阶格式可视为隐中点方法的小扰动, 而这一扰动带来了能量守恒, 侧面解释了隐中点方法在大多数实际计算中的优异行为. 该类守恒算法因求解的参数值依赖于初始值, 故在较弱地意义下继承了辛守恒性质, 表现为精确地保持力学系统的二次不变量. 这也使得该类算法在保持守恒量的数值模拟上, 较以往能量守恒算法更有优势, 特别地在于能量误差并不随着时间线性增长. 通过三个数值算例我们验证了这类算法的理论分析及有效性, 也表明它们在计算量上与原参数辛方法是相当的.

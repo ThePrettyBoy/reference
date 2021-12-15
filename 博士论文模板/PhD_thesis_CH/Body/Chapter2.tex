@@ -1,0 +1,1091 @@
+% !TeX encoding = GB2312
+\defaultfont
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiChapter{两类任意高阶的参数辛格式}{Two families of arbitrary high-order parameterized symplectic schemes}\label{BiChapter-2}
+上一章中, 我们介绍了哈密尔顿系统的两类广泛研究的数值算法, 分别为辛积分子和能量守恒算法. 特别地, 基于参数辛方法而产生的能量和二次不变量守恒算法~(EQUIP)~较以往能量守恒算法更有优势, 且对于参数的任意取值给出了更多的辛方法. 而在这些工作的一开始, 便在于如何构造参数辛方法. 本章中, 利用生成函数方法和对称组合方法, 我们展示了两类任意高阶的参数辛方法. 稍后, 它们将被用来构造~EQUIP~方法.
+
+通过引入一个一般的生成函数生成了第一类参数辛方法, 该生成函数包含三类经典的生成函数~\eqref{eq-1-2-32}. 在这类辛方法中, 如下首先介绍的一个简单辛格式, 对于参数的特定取值, 便是辛欧拉方法~\eqref{eq-1-2-12}~和隐中点法则~\eqref{eq-1-2-13}. 我们期待这个简单的辛格式将在实际计算中得到使用.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{一个简单的辛格式}{A simple symplectic scheme}\label{BiSec-2-1}
+目前, 形式上最为简单的辛格式只有辛欧拉方法和隐中点法则, 如下格式将这两个方法统一并推广, 从而有更加一般的形式, 正如
+\begin{equation}\label{eq-2-1-1}
+\begin{aligned}
+p_{n+1}&=p_n-\tau H_q\big(\lambda p_{n+1}+(1-\lambda)p_n,\lambda q_n+(1-\lambda)q_{n+1}\big),\\
+q_{n+1}&=q_n+\tau H_p\big(\lambda p_{n+1}+(1-\lambda)p_n,\lambda q_n+(1-\lambda)q_{n+1}\big).
+\end{aligned}
+\end{equation}
+这里, $\lambda$~是自由的实参数. 为了方便, 将以上格式记为~Scheme I. 对于~$\lambda$~分别等于~$0$, $1$, $1/2$~的情形, 辛欧拉方法和隐中点法则被获得. 格式~\eqref{eq-2-1-1}~对于任意的参数均是辛的, 这明确了每固定一个参数值, 我们能够得到更多简单的辛格式. 为了证明辛守恒性质, 需验证条件~\eqref{eq-1-1-17}~成立即可.
+
+\begin{theorem}\label{Th-2-1-1}
+对于任意给定的参数值, Scheme I~均是辛的.
+\end{theorem}
+
+\begin{proof}
+关于起始变量~$p_n$~和~$q_n$~微分~Scheme I~的两个等式可推导出
+\begin{align*}
+&\left(\begin{array}{cc}
+I+\lambda \tau H_{qp} & (1-\lambda)\tau H_{qq}\\
+-\lambda \tau H_{pp} & I-(1-\lambda)\tau H_{pq}
+\end{array}\right)
+\bigg(\frac{\partial(p_{n+1},q_{n+1})}{\partial(p_n,q_n)}\bigg)\\
+&=\left(\begin{array}{cc}
+I-(1-\lambda)\tau H_{qp} & -\lambda \tau H_{qq}\\
+(1-\lambda)\tau H_{pp} & I+\lambda \tau H_{pq}
+\end{array}\right).
+\end{align*}
+上述方程的系数矩阵是对角占优的. 表示记号
+\begin{equation}\label{eq-2-1-2}
+A=I+\lambda \tau H_{qp},\ B=I-(1-\lambda)\tau H_{pq},\ C=\tau H_{qq},\ D=\tau H_{pp}.
+\end{equation}
+那么, 矩阵~$A$, $B$~和~$E\triangleq B+\lambda(1-\lambda)DA^{-1}C$~是非奇异的. 从而得到数值解流的雅可比矩阵~$\Big(\frac{\partial(p_{n+1},q_{n+1})}{\partial(p_n,q_n)}\Big)$~为
+\begin{equation}\label{eq-2-1-3}
+\left(\begin{array}{cc}
+A^{-1}B^T-(1-\lambda)A^{-1}CE^{-1}DF & A^{-1}C\big((1-\lambda)E^{-1}G-\lambda I\big)\\
+E^{-1}DF & -E^{-1}G
+\end{array}\right).
+\end{equation}
+其中, $F=(1-\lambda)I+\lambda A^{-1}B^T$, $G=\lambda^2DA^{-1}C-A^T$. 将~\eqref{eq-2-1-3}~代入到~\eqref{eq-1-1-17}~的左端, 经过简单的矩阵运算, 即可得到~\eqref{eq-1-1-17}~成立.
+\end{proof}
+ 
+上述定理给出了~Scheme I~的辛性质最直接的证明方式. 同时注意到, 哈密尔顿函数~$H$~的变量的正确匹配对于该格式的辛性质起到了决定作用. 当~$\lambda$~取定~$1/2$~时, Scheme I~是中点方法, 其属于龙格-库塔方法类. 而我们感兴趣在于~$\lambda$~不等于~$1/2$~的情形, 这也帮助我们更清楚地认识这个简单的辛格式.
+
+\begin{theorem}\label{Th-2-1-2}
+对于~$\lambda$~不等于~$1/2$~的参数值, Scheme I~等价于一级的辛分块龙格-库塔方法.	
+\end{theorem}
+
+\begin{proof}
+给定一个一级的分块龙格-库塔方法, 其系数分别为
+\begin{equation}\label{eq-2-1-4}
+a_{11}=\lambda,\quad \hat{a}_{11}=1-\lambda,\quad b_1=\hat{b}_{1}=1.
+\end{equation}
+代入~\eqref{eq-2-1-4}~到分块龙格-库塔方法公式~\eqref{eq-1-2-8}~得到
+\begin{equation}\label{eq-2-1-5}
+\begin{aligned}
+&k_1=-H_q\big(p_n+\lambda\tau k_1,q_n+(1-\lambda)\tau l_1\big),\\
+&l_1=H_p\big(p_n+\lambda\tau k_1,q_n+(1-\lambda)\tau l_1\big),\\
+&p_{n+1}=p_n+\tau k_1,\quad q_{n+1}=q_{n}+\tau l_1.
+\end{aligned}
+\end{equation}
+消去系数~$k_1$~和~$l_1$, 方法~\eqref{eq-2-1-5}~确实是~Scheme I, 其~Butcher~表为
+\begin{equation}\label{eq-2-1-6}
+\begin{tabular}{c|c}
+$\lambda$ & $\lambda$\\ \hline
+& $1$\\
+\end{tabular}\quad
+\begin{tabular}{c|c}
+$1-\lambda$ & $1-\lambda$\\ \hline
+& $1$\\
+\end{tabular}.
+\end{equation}
+此时, Scheme I~的辛性质也可以由分块龙格-库塔方法辛条件~\eqref{eq-1-2-9}~得到.
+\end{proof}
+
+此定理明确了~Scheme I~所属的方法类. 尽管该格式实际是由生成函数方法产生的, 但这里我们仍以单独一节内容简要归纳它的一些重要性质. 当然, 这也提供了两种直接的方法证明~Scheme I~的辛性质. 根据以上两个定理的证明及已有的结果, 我们有如下注记.
+
+\begin{remark}\label{Re-2-1-1}
+由龙格-库塔方法的阶条件~\cite{hairer-08-ODE-I,hairer-lubich-06-geometric,sun-00-symplectic-RK,sun-93-symplectic-PRK}, Scheme I~当~$\lambda$~不等于~$1/2$~时具有一阶精度, 而当~$\lambda$~等于~$1/2$~便是二阶中点方法.
+\end{remark}
+
+\begin{remark}\label{Re-2-1-2}
+以映射~\eqref{eq-1-3-9}~表示~Scheme I~定义的数值解流, 则它的伴随方法为
+\begin{equation}\label{eq-2-1-7}
+y_{n+1}=\Phi_\tau(y_n,1-\lambda),\quad n=0,1,\dots.
+\end{equation}
+即在~\eqref{eq-2-1-1}~中以~$1-\lambda$~替换~$\lambda$~便得到~Scheme I~的伴随方法. 本章后续的内容中, 我们将介绍如何利用~Scheme I~及其伴随方法~\eqref{eq-2-1-7}~的组合方法, 构造第二类任意高阶参数辛方法.
+\end{remark}
+
+\begin{remark}\label{Re-2-1-3}
+对于可分哈密尔顿系统, 其具有可分哈密尔顿函数~$H(p,q)=T(p)+U(q)$. Scheme I~应用到该类系统能写为
+\begin{equation}\label{eq-2-1-8}
+\begin{aligned}
+p_{n+1}&=p_n-\tau U'\big(\lambda q_n+(1-\lambda)q_{n+1}\big),\\
+q_{n+1}&=q_n+\tau T'\big(\lambda p_{n+1}+(1-\lambda)p_n\big).\\
+\end{aligned}
+\end{equation}
+格式~\eqref{eq-2-1-8}~是显式的, 当且仅当~Scheme I~是辛欧拉方法. 特别地, 当动能表达式为~$T(p)=\frac{1}{2}p^TM^{-1}p$, 所求解的系统为二阶系统~$\ddot{q} = -M^{-1}U_q(q)$. 这里, $M$~是对称正定的常矩阵. 我们可以获得~Scheme I~的~Nystr\"{o}m~方法为
+\begin{equation}\label{eq-2-1-9}
+\begin{aligned}
+&k_1=-M^{-1}U'\big(q_n+(1-\lambda)\tau \dot{q}_n+\lambda(1-\lambda)\tau^2k_1\big),\\
+&q_{n+1}=q_{n}+\tau\dot{q}_n+\lambda \tau^2k_1,\quad \dot{q}_{n+1}=\dot{q}_n+\tau k_1.
+\end{aligned}
+\end{equation}			
+\end{remark}
+
+\begin{example}\label{Ex-2-1-1}
+作为本节结束, 我们给出~Scheme I~的四种不同参数值所对应数值方法的具体形式. 它们的数值表现将在本章的数值实验中展现.
+\begin{subequations}\label{eq-2-1-10}
+\begin{align}
+\lambda=-1:&\left\{\aligned
+  &p_{n+1}=p_n-\tau H_q(2p_n-p_{n+1},2q_{n+1}-q_n),\\
+  &q_{n+1}=q_n+\tau H_p(2p_n-p_{n+1},2q_{n+1}-q_n);
+\endaligned\right.\label{eq-2-1-10-a}\\
+\lambda=\frac{1}{3}:&\left\{\aligned
+  &p_{n+1}=p_n-\tau H_q\left(\frac{2p_n+p_{n+1}}{3},\frac{2q_{n+1}+q_n}{3}\right),\\
+  &q_{n+1}=q_n+\tau H_p\left(\frac{2p_n+p_{n+1}}{3},\frac{2q_{n+1}+q_n}{3}\right);
+\endaligned\right.\label{eq-2-1-10-b}\\
+\lambda=\frac{3}{2}:&\left\{\aligned
+  &p_{n+1}=p_n-\tau H_q\left(\frac{3p_{n+1}-p_n}{2},\frac{3q_n-q_{n+1}}{2}\right),\\
+  &q_{n+1}=q_n+\tau H_p\left(\frac{3p_{n+1}-p_n}{2},\frac{3q_n-q_{n+1}}{2}\right);
+\endaligned\right.\label{eq-2-1-10-c}\\
+\lambda=2:&\left\{\aligned
+  &p_{n+1}=p_n-\tau H_q(2p_{n+1}-p_n,2q_n-q_{n+1}),\\
+  &q_{n+1}=q_n+\tau H_p(2p_{n+1}-p_n,2q_n-q_{n+1}).
+\endaligned\right.\label{eq-2-1-10-d}
+\end{align}
+\end{subequations}	
+\end{example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{参数生成函数方法}{Parameterized generating function methods}\label{BiSec-2-2}
+生成函数方法作为构造哈密尔顿系统辛算法的一般框架, 由我们计算数学奠基人冯康先生于~1989~年在文献~\cite{feng-89-generating}~中提出, 其提供了任意阶辛算法的存在性证明. 同时, 也明确了任意给定的辛变换在理论上均能找到一个相对应的生成函数. 而生成函数依赖于不同的坐标而具有多种形式, 每一类生成函数都对应于一类任意阶辛方法. 因此, 生成函数方法在辛算法的理论和构造上均具有重要的意义.
+
+目前, 生成函数的三类经典坐标得到了广泛使用~\cite{feng-qin-10-symplectic,hairer-lubich-06-geometric,leimkuhler-04-simulating,li-14-coefficient-varying,makazaga-09-generating,tu-19-generating,sanzserna-94-Hamiltonian}. 本节中, 我们引入参数坐标, 其涵盖了以往的三类经典坐标, 由此我们提出了一个一般的生成函数, 并系统地推导出一类参数辛方法, 这统一并推广了经典的生成函数方法. 我们先简要介绍这个一般的生成函数, 然后跟随冯康先生的一般框架塑造完整的参数生成函数方法.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{具有新坐标的生成函数}{Generating function with new coordinates}\label{BiSubsec-2-2-1}
+考查具有~$d$~自由度的哈密尔顿系统~\eqref{eq-1-1-11}~和时间间隔~$[t_0,t_1]$, 以列向量~$p,q\in\mathbb{R}^d$~表示系统在~$t_0$~时刻的初始值, 而在~$t_1$~处则表示为~$P,Q\in\mathbb{R}^d$. 根据精确解流~\eqref{eq-1-1-14}~的辛性质, 映射~$(p,q)\mapsto(P,Q)$~是辛变换. 后续定理的证明中使用到如下的可积引理.
+
+\begin{lemma}[\cite{hairer-lubich-06-geometric}]\label{Le-2-2-1}
+令~$\mathbb D\in\mathbb{R}^n$~是开集, 且函数~$f:\mathbb D\rightarrow\mathbb{R}^n$~是连续可微的. 假定对所有的~$y\in\mathbb D$, 雅可比矩阵~$f'(y)$~是对称的. 那么, 对于每一个~$y_0\in\mathbb{R}$, 就存在着一个邻域和函数~$H(y)$, 在该邻域中成立
+\begin{equation}\label{eq-2-2-1}
+f_1(y)~dy_1+\cdots+f_n(y)~dy_n=dH.
+\end{equation}
+这意味着等式~\eqref{eq-2-2-1}~是全微分.
+\end{lemma}
+
+如下定理给出了一个一般的生成函数, 其坐标中含有一个自由的实参数. 该参数的三种不同取值与三类经典的生成函数相对应.
+
+\begin{theorem}\label{Th-2-2-1}
+令~$\lambda$~是一个实数. 映射~$\varphi:(p,q)\mapsto (P,Q)$~是光滑的且接近于恒等变换. 该映射是辛的当且仅当局部存在着函数~$S\big(\lambda P+(1-\lambda)p,\lambda q+(1-\lambda)Q\big)$~使得成立
+\begin{equation}\label{eq-2-2-2}
+(Q-q)^T~d\big(\lambda P+(1-\lambda)p\big)-(P-p)^T~d\big(\lambda q+(1-\lambda)Q\big) = dS.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+将映射~$\varphi$~的雅可比矩阵写为分块形式~$\frac{\partial(P,Q)}{\partial(p,q)}=\left(\begin{array}{cc} P_p & P_q\\ Q_p & Q_q \end{array}\right)$, 代入到辛条件~\eqref{eq-1-1-17}, 则~$\varphi$~的辛性等价于下面的三个等式
+\begin{equation}\label{eq-2-2-3}
+P_p^TQ_p=Q_p^TP_p,\quad Q_q^TP_q=P_q^TQ_q,\quad Q_p^TP_q+I=P_p^TQ_q.
+\end{equation}
+再将~$dP=P_p~dp+P_q~dq$, $dQ=Q_p~dp+Q_q~dq$~代入~\eqref{eq-2-2-2}~的左边便得到
+\begin{equation}\label{eq-2-2-4}
+\left(\begin{array}{c}
+\lambda P_p^T(Q-q)-(1-\lambda)Q_p^T(P-p)+(1-\lambda)(Q-q)\\
+\lambda P_q^T(Q-q)-(1-\lambda)Q_q^T(P-p)-\lambda(P-p)
+\end{array}\right)^T
+\left(\begin{array}{c}
+dp\\dq
+\end{array}\right).
+\end{equation}
+为了使用可积引理~\ref{Le-2-2-1}, 我们期望~\eqref{eq-2-2-4}~的系数向量的雅可比矩阵是对称的. 基于此, 计算出的雅可比矩阵如下
+\begin{equation}\label{eq-2-2-5}
+\begin{aligned}
+&\lambda\left(\begin{array}{cc}
+P_p^TQ_p & P_p^TQ_q\\
+P_q^TQ_p+I & P_q^TQ_q
+\end{array}\right)
+-(1-\lambda)\left(\begin{array}{cc}
+Q_p^TP_p & Q_p^TP_q+I\\
+Q_q^TP_p & Q_q^TP_q
+\end{array}\right)\\
+&+\left(\begin{array}{cc}
+(1-\lambda)(Q_p+Q_p^T) & -\lambda P_p^T+(1-\lambda)Q_q\\
+-\lambda P_p+(1-\lambda)Q_q^T & -\lambda(P_q+P_q^T)
+\end{array}\right)\\
+&+\lambda\sum_{i=1}^d (Q_i-q_i)\frac{\partial^2P_i}{\partial(p,q)^2}-(1-\lambda)\sum_{i=1}^d (P_i-p_i)\frac{\partial^2Q_i}{\partial(p,q)^2}.
+\end{aligned}
+\end{equation}
+
+因为~$P_i$~和~$Q_i$~的~Hessian~矩阵总是对称的, 故~\eqref{eq-2-2-5}~的对称性与辛条件~\eqref{eq-2-2-3}~等价. 根据引理~\ref{Le-2-2-1}, 局部存在函数~$\hat{S}(p,q)$~使得成立
+\begin{equation}\label{eq-2-2-6}
+(Q-q)^T~d\big(\lambda P+(1-\lambda)p\big)-(P-p)^T~d\big(\lambda q+(1-\lambda)Q\big) = d\hat{S}.
+\end{equation}
+自此, 在不至于混淆的情况下, 我们使用记号~$u=\lambda P+(1-\lambda)p$~和~$v=\lambda q+(1-\lambda)Q$. 构造如下的隐函数组
+\begin{equation}\label{eq-2-2-7}
+\begin{aligned}
+&F_1(u,v,p,q) \triangleq \lambda P(p,q)+(1-\lambda)p-u=0,\\
+&F_2(u,v,p,q) \triangleq (1-\lambda)Q(p,q)+\lambda q-v=0,
+\end{aligned}
+\end{equation}
+其雅可比矩阵为
+\begin{equation}\label{eq-2-2-8}
+\frac{\partial(F_1,F_2)}{\partial(p,q)}=
+\left(\begin{array}{cc}
+I+\lambda(\frac{\partial P}{\partial p}-I) & \lambda\frac{\partial P}{\partial q}\\
+(1-\lambda)\frac{\partial Q}{\partial p} & \frac{\partial Q}{\partial q}-\lambda(\frac{\partial Q}{\partial q}-I)
+\end{array}\right).
+\end{equation}
+映射~$\varphi$~接近于恒等变换使得~\eqref{eq-2-2-8}~总是非奇异的. 故隐函数定理可以证明~$p$~和~$q$~均是变量~$u$~和~$v$~的函数. 令~$S(u,v)\triangleq\hat{S}\big(p(u,v),q(u,v)\big)$~便完成了本定理的证明.
+\end{proof}
+
+将全微分~$dS=\partial_uS~du+\partial_vS~dv$~的系数函数与~\eqref{eq-2-2-2}~的左边相比较, 可推导出系统
+\begin{equation}\label{eq-2-2-9}
+\begin{aligned}
+&P=p-\partial_vS\big(\lambda P+(1-\lambda)p,\lambda q+(1-\lambda)Q\big),\\
+&Q=q+\partial_uS\big(\lambda P+(1-\lambda)p,\lambda q+(1-\lambda)Q\big).
+\end{aligned}
+\end{equation}
+上述定理告诉我们无论标量函数~$S(u,v)$~如何产生, 系统~\eqref{eq-2-2-9}~对于任意固定的参数值均是一个辛变换. 此时, 也注意到, 生成函数~$S$~的变量匹配对该变换辛性的作用是至关重要的.
+
+\begin{remark}\label{Re-2-2-1}
+定理~\ref{Th-2-2-1}~给出了一个一般的生成函数. 特别地, 当参数~$\lambda$~分别等于~$0$, $1$~和~$1/2$~时, 三类经典的生成函数~\eqref{eq-1-2-32}~被涵盖其中. 与~\eqref{eq-2-2-9}~相似, 这三类生成函数所确定的辛变换如下
+\begin{subequations}\label{eq-2-2-10}
+\begin{align}
+&\lambda=0:\left\{\aligned
+  &P=p-\partial_QS^1(p,Q),\\
+  &Q=q+\partial_pS^1(p,Q);
+\endaligned\right.\label{eq-2-2-10-a}\\
+&\lambda=1:\left\{\aligned
+  &P=p-\partial_qS^2(P,q),\\
+  &Q=q+\partial_PS^2(P,q);
+\endaligned\right.\label{eq-2-2-10-b}\\
+&\lambda=\frac{1}{2}:\left\{\aligned
+  &P=p-\partial_vS^3\left(\frac{P+p}{2},\frac{Q+q}{2}\right),\\
+  &Q=q+\partial_uS^3\left(\frac{P+p}{2},\frac{Q+q}{2}\right).
+\endaligned\right.\label{eq-2-2-10-c}
+\end{align}
+\end{subequations}	
+以上若分别令~$S_1=\tau H(p,Q)$, $S_2=\tau H(P,q)$~和~$S_3=\tau H\left(\frac{P+p}{2},\frac{Q+q}{2}\right)$, 可以得到辛欧拉方法~\eqref{eq-1-2-12}~和隐中点法则~\eqref{eq-1-2-13}. 而在~\eqref{eq-2-2-9}~中取~$S=\tau H(u,v)$~便是上一节所介绍的一般辛格式~Scheme I.
+\end{remark}
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{具有新变量的哈密尔顿-雅可比方程}{The Hamilton-Jacobi equation with new variables}\label{BiSubsec-2-2-2}
+众所周知, 生成函数是哈密尔顿-雅可比方程的解, 三类经典的哈密尔顿-雅可比方程~\eqref{eq-1-2-36}--\eqref{eq-1-2-38}~被以幂级数方法求解来构造任意阶辛算法~\cite{hairer-lubich-06-geometric,leimkuhler-04-simulating,feng-89-generating,sanzserna-94-Hamiltonian,feng-qin-10-symplectic}. 对于一般的时间依赖的生成函数~$S(u,v,t)$~的哈密尔顿-雅可比理论将在本小节中讨论. 
+
+假定点~$\big(P(t),Q(t)\big)\in\mathbb{R}^{2d}$~在系统~\eqref{eq-1-1-11}~的真解流中移动, 如下定理明确了生成函数~$S(u,v,t)$~通过~\eqref{eq-2-2-9}~生成了~\eqref{eq-1-1-11}~的精确解. 与以往变换~\eqref{eq-2-2-10}~相比, 这里我们在~\eqref{eq-2-2-9}~中增加了一个实参数, 这将在数值方法的构造上带来更多的自由.
+
+\begin{theorem}\label{Th-2-2-2}
+令~$\lambda$~是一个实数. 如果~$S(u,v,t)$~是如下偏微分方程
+\begin{equation}\label{eq-2-2-11}
+\frac{\partial S}{\partial t}(u,v,t)=H\left(u-(1-\lambda)\frac{\partial S}{\partial v}(u,v,t), v+\lambda\frac{\partial S}{\partial u}(u,v,t)\right)
+\end{equation}
+的光滑解, 初始条件为~$S(u,v,0) = 0$, 那么由~\eqref{eq-2-2-9}~定义的映射~$(p,q)\mapsto(P,Q)$~就是哈密尔顿系统~\eqref{eq-1-1-11}~的精确流.
+\end{theorem}
+
+\begin{proof}
+对~\eqref{eq-2-2-9}~的第一个方程关于时间~$t$~求导得到
+\begin{equation}\label{eq-2-2-12}
+\frac{\partial^2 S}{\partial t\partial v}(u,v,t)=-\left(I+\lambda\frac{\partial^2 S}{\partial u\partial v}(u,v,t)\right)\dot{P}-(1-\lambda)\frac{\partial^2 S}{\partial v^2}(u,v,t)\dot{Q}.
+\end{equation}
+再关于变量~$v$~微分~\eqref{eq-2-2-11}~的两边则有
+\begin{equation}\label{eq-2-2-13}
+\frac{\partial^2 S}{\partial t\partial v}(u,v,t)=-(1-\lambda)\frac{\partial^2 S}{\partial v^2}(u,v,t)H_P(P,Q)+\left(I+\lambda\frac{\partial^2 S}{\partial u\partial v}(u,v,t)\right)H_Q(P,Q).
+\end{equation}
+以上两等式左右相减便可推导出
+\begin{equation}\label{eq-2-2-14}
+\left(I+\lambda\frac{\partial^2 S}{\partial u\partial v}(u,v,t)\right)\big(\dot{P}+H_Q(P,Q)\big)+(1-\lambda)\frac{\partial^2 S}{\partial v^2}(u,v,t)\big(\dot{Q}-H_P(P,Q)\big)=0.
+\end{equation}
+同理, 微分~\eqref{eq-2-2-9}~的第二个方程并使用哈密尔顿-雅可比方程~\eqref{eq-2-2-11}~可获得
+\begin{equation}\label{eq-2-2-15}
+-\lambda\frac{\partial^2 S}{\partial u^2}(u,v,t)\big(\dot{P}+H_Q(P,Q)\big)+\left(I-(1-\lambda)\frac{\partial^2 S}{\partial u\partial v}(u,v,t)\right)\big(\dot{Q}-H_P(P,Q)\big)=0.
+\end{equation}
+将~\eqref{eq-2-2-14}~和~\eqref{eq-2-2-15}~联立得到如下的代数方程
+\begin{equation}\label{eq-2-2-16}
+\left(\begin{array}{cc}
+I+\lambda\frac{\partial^2 S}{\partial u\partial v}(u,v,t) & (1-\lambda)\frac{\partial^2 S}{\partial v^2}(u,v,t)\\
+-\lambda\frac{\partial^2 S}{\partial u^2}(u,v,t) & I-(1-\lambda)\frac{\partial^2 S}{\partial u\partial v}(u,v,t)
+\end{array}\right)
+\left(\begin{array}{c}
+\dot{P}+H_Q(P,Q)\\ \dot{Q}-H_P(P,Q)
+\end{array}\right)=0.
+\end{equation}
+由于映射~$(p,q) \mapsto (P,Q)$~接近于恒等变换, 故~\eqref{eq-2-2-16}~的系数矩阵是可逆的, 这便证明了
+\begin{equation}\label{eq-2-2-17}
+\dot{P}=-H_Q(P,Q),\quad \dot{Q}=H_P(P,Q).
+\end{equation}
+初始条件~$S(u,v,0)=0$~则意味着~$P(0)=p$~和~$Q(0)=q$.
+\end{proof}
+
+\begin{remark}\label{Re-2-2-2}
+定理~\ref{Th-2-2-2}~展示了一个一般的哈密尔顿-雅可比方程~\eqref{eq-2-2-11}, 其具有新变量~$u$~和~$v$. 特别当参数~$\lambda$~为~$0$, $1$~或~$1/2$~时, 便得到三类经典的方程~\eqref{eq-1-2-36}--\eqref{eq-1-2-38}, 而它们正好与系统~\eqref{eq-2-2-10}~分别对应.
+\end{remark}
+
+我们以两小节内容分别引入了一般的生成函数及其哈密尔顿-雅可比方程. 实际上, 直接对方程~\eqref{eq-2-2-11}~应用幂级数方法便可给出最终的参数辛方法. 而在下面的一节中, 我们将沿着冯康先生~\cite{feng-89-generating}~的理论框架, 给出参数生成函数方法的完整内容, 随后再给出所诱导的参数辛方法.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{生成函数方法的经典框架}{Classic framework of generating function methods}\label{BiSubsec-2-2-3}
+1989~年, 冯康先生将辛矩阵~(满足条件~\eqref{eq-1-1-17})~与对称矩阵之间通过分式变换建立联系, 进而给出了辛变换与生成函数的对应. 而每一个~Darboux~矩阵均确定了一个在辛矩阵与对称矩阵之间的分式变换, 这里我们首先引入一个新颖的~Darboux~矩阵, 其含有一个自由的实参数~$\lambda$.
+
+\begin{definition}[\cite{chen-03-total,feng-qin-10-symplectic}]\label{De-2-2-1}
+令矩阵~$\alpha\in\mathbb{R}^{4d\times 4d}$, 如果它满足
+\begin{equation}\label{eq-2-2-18}	
+\alpha^TJ_{4d}\alpha=\left(\begin{array}{cc} J_{2d} & 0 \\ 0 & -J_{2d} \end{array}\right),
+\end{equation}
+则称该矩阵为~Darboux~矩阵. 其中, $J_{2d}$~的定义为~\eqref{eq-1-1-11}.
+\end{definition}
+
+引入如下的矩阵~$\alpha_\lambda$~定义分式变换, 其形式为
+\begin{equation}\label{eq-2-2-19}
+\alpha_\lambda=\left(\begin{array}{cc} -J_{2d} & J_{2d} \\ E_\lambda & I_{2d}-E_\lambda \end{array}\right),\quad E_\lambda=\left(\begin{array}{cc} \lambda I_d & 0 \\ 0 & (1-\lambda)I_d \end{array}\right).
+\end{equation}
+
+\begin{theorem}\label{Th-2-2-3}
+对于任意给定的参数, $\alpha_\lambda$~均是~Darboux~矩阵, 且其逆矩阵为
+\begin{equation}\label{eq-2-2-20}
+\alpha_\lambda^{-1} = \left(\begin{array}{cc} F_\lambda & I_{2d} \\ F_\lambda-J_{2d} & I_{2d} \end{array}\right),\quad F_\lambda=\left(\begin{array}{cc} 0 & (1-\lambda)I_d \\ -\lambda I_d & 0 \end{array}\right).
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+使用定义~\ref{De-2-2-1}, 验证~$\alpha_\lambda$~符合条件~\eqref{eq-2-2-18}, 经过简单的计算可得到该矩阵的逆为~\eqref{eq-2-2-20}.
+\end{proof}
+
+辛变换在理论上均能由生成函数生成, 生成函数的构造依赖于所选择的坐标, 而这是与分式变换紧密相关的. 我们列出两个常用的矩阵群, 然后给出分式变换的定义.
+\begin{equation}\label{eq-2-2-21}
+\begin{aligned}
+&Sp(2d)=\big\{M \in GL(2d)~\big|~M^TJ_{2d}M=J_{2d}\big\},\\
+&Sm(2d)=\big\{N \in M(2d)~\big|~N^T=N\big\}.
+\end{aligned}
+\end{equation}
+以上依次为辛群和对称矩阵群, $GL(2d)$~为~$2d$~阶的一般线性群, 而~$M(2d)$~则为~$2d$~维矩阵的集合.
+
+\begin{definition}[\cite{feng-89-generating,feng-qin-10-symplectic,chen-03-total}]\label{De-2-2-2}
+令~$\alpha=\left(\begin{array}{cc} A_\alpha & B_\alpha \\ C_\alpha & D_\alpha \end{array}\right)$ $\in$~$GL(4d)$. 在横截性条件~$|C_\alpha M+D_\alpha|\neq 0$~下, 定义线性分式变换为	
+\begin{equation}\label{eq-2-2-22}
+\begin{aligned}
+\sigma_\alpha:\ &M(2d)\rightarrow M(2d),\\
+&M\rightarrow N=\sigma_\alpha(M)=(A_\alpha M+B_\alpha)(C_\alpha M+D_\alpha)^{-1}.
+\end{aligned}
+\end{equation}
+\end{definition}
+
+\begin{definition}[\cite{feng-85-symplectic,feng-89-generating,hairer-lubich-06-geometric,feng-qin-10-symplectic,leimkuhler-04-simulating,sanzserna-94-Hamiltonian}]\label{De-2-2-3}
+可微映射~$\hat{y}=g(y):\mathbb{R}^{2d}\rightarrow\mathbb{R}^{2d}$~是辛的, 如果其雅可比矩阵是辛的, 即满足~$g'(y)\in Sp(2d)$. 若一个映射~$\hat{z}=f(z):\mathbb R^{2d} \rightarrow \mathbb R^{2d}$~满足~$f'(z)\in Sm(2d)$, 则称其为梯度映射.
+\end{definition}
+
+\begin{theorem}\label{Th-2-2-4}
+利用定义~\ref{De-2-2-2}~和矩阵~$\alpha_\lambda$, 我们有~$\sigma_{\alpha_\lambda}$~将~$Sp(2d)$~变为~$Sm(2d)$, 且~$\sigma_{\alpha_\lambda}^{-1}=\sigma_{\alpha_\lambda^{-1}}$~将~$Sm(2d)$~映射到~$Sp(2d)$, 正如
+\begin{equation}\label{eq-2-2-23}
+\begin{aligned}
+(1)~N=~&\sigma_{\alpha_\lambda}(M):Sp(2d) \rightarrow Sm(2d),\\
+&\sigma_{\alpha_\lambda}(M)=J_{2d}(I_{2d}-M)\big(I_{2d}-E_\lambda(I_{2d}-M)\big)^{-1},
+\end{aligned}
+\end{equation}
+此变换的横截性条件为
+\begin{equation}\label{eq-2-2-24}
+\big|I_{2d}-E_\lambda(I_{2d}-M)\big|\neq 0;
+\end{equation}
+\begin{equation}\label{eq-2-2-25}
+\begin{aligned}
+(2)~M=~&\sigma_{\alpha_\lambda^{-1}}(N):Sm(2d) \rightarrow Sp(2d),\\
+&\sigma_{\alpha_\lambda^{-1}}(N)=(I_{2d}+F_\lambda N)\big(I_{2d}-(J_{2d}-F_\lambda)N\big)^{-1},
+\end{aligned}
+\end{equation}
+此变换的横截性条件为
+\begin{equation}\label{eq-2-2-26}
+\big|I_{2d}-(J_{2d}-F_\lambda)N\big|\neq 0.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+$N\in Sm(2d)$~等价于	
+\begin{equation}\label{eq-2-2-27}
+\big(I_{2d}-E_\lambda(I_{2d}-M)\big)^{-T}(I_{2d}-M^T)J_{2d}^T=J_{2d}(I_{2d}-M)\big(I_{2d}-E_\lambda(I_{2d}-M)\big)^{-1}.
+\end{equation}
+上式两边取转置便得到
+\begin{equation}\label{eq-2-2-28}
+(I_{2d}-M^T)J_{2d}^T\big(I_{2d}-E_\lambda(I_{2d}-M)\big)=\big(I_{2d}-E_\lambda(I_{2d}-M)\big)^TJ_{2d}(I_{2d}-M).
+\end{equation}
+利用~$M\in Sp(2d)$~及恒等式~$J_{2d}E_\lambda+E_\lambda J_{2d}=J_{2d}$, \eqref{eq-2-2-28}~成立. 对于任意的参数可推导出
+\begin{equation}\label{eq-2-2-29}
+\big(I_{2d}-(J_{2d}-F_\lambda)N\big)\big(I_{2d}-E_\lambda(I_{2d}-M)\big)=I_{2d},
+\end{equation}
+这便得到横截性条件~\eqref{eq-2-2-26}. 为了证实方程~$N=\sigma_{\alpha_\lambda}(M)$~关于~$M$~是可解的, 如下恒等式
+\begin{equation}\label{eq-2-2-30}
+\begin{aligned}
+&\left(\begin{array}{cc} -J_{2d}-NE_\lambda & J_{2d}-N(I_{2d}-E_\lambda) \\ 0 & I_{2d} \end{array}\right)\alpha_\lambda^{-1}\\
+&\quad\quad\quad\quad\quad\quad\quad~=\left(\begin{array}{cc} I_{2d} & 0 \\ F_\lambda-J_{2d} & I_{2d} \end{array}\right)\left(\begin{array}{cc} I_{2d} & -N \\ 0 & I_{2d}-(J_{2d}-F_\lambda)N \end{array}\right)
+\end{aligned}
+\end{equation}
+的两端取行列式意味着
+\begin{equation}\label{eq-2-2-31}
+\big|-J_{2d}-NE_\lambda\big|\cdot\big|\alpha_\lambda\big|^{-1}=\big|I_{2d}-(J_{2d}-F_\lambda)N\big|.
+\end{equation}
+从而, $-J_{2d}-NE_\lambda$~是可逆的. 利用隐函数定理, 方程~$N=\sigma_{\alpha_\lambda}(M)$~关于~$M$~的解即为	
+\begin{equation}\label{eq-2-2-32}
+M=(-J_{2d}-NE_\lambda)^{-1}\big(N(I_{2d}-E_\lambda)-J_{2d}\big).
+\end{equation}
+此时, 我们仅仅需要证明~\eqref{eq-2-2-32}~的右端等于~$\sigma_{\alpha_\lambda^{-1}}(N)$~即可. 简单的计算可得到~\eqref{eq-2-2-25}.
+\end{proof}
+
+\begin{remark}\label{Re-2-2-3}
+对于任意参数, 等式~\eqref{eq-2-2-29}~意味着在~$N=\sigma_{\alpha_\lambda}(M)$~下, 横截性条件~\eqref{eq-2-2-24}~和~\eqref{eq-2-2-26}~是等价的. 每固定一个参数值, 均能获得一个具体的分式变换, 且变换~\eqref{eq-2-2-23}~和~\eqref{eq-2-2-25}~也建立了在接近于单位变换的辛映射与接近于零变换的梯度映射之间的一一对应.
+\end{remark}
+
+在以上内容的基础上, 我们通过如下两个定理引入具有参数坐标的一般生成函数, 且建立在新坐标下辛映射与梯度映射之间的关系. 同样的, 可积引理~\ref{Le-2-2-1}~将在定理的证明中被使用.
+
+\begin{theorem}\label{Th-2-2-5}
+令辛映射~$\hat{y}=g(y)$~的雅可比矩阵~$M(y)=g'(y)\in Sp(2d)$~且其在~$\mathbb{R}^{2d}$~的某些邻域内满足~\eqref{eq-2-2-24}. 那么, 在某些邻域中存在着一个梯度映射~$\hat{z}=f(z)$, 即~$N(z)=f'(z)\in Sm(2d)$, 其满足~\eqref{eq-2-2-26}. 且存在一个生成函数~$G(z)$~使得~\eqref{eq-2-2-23}~和~\eqref{eq-2-2-25}~成立及
+\begin{subequations}\label{eq-2-2-33}
+\begin{align}
+&(1)\ f(z)= \nabla G(z),\label{eq-2-2-33-a}\\
+&(2)\ J_{2d}(y-\hat{y})=f\big(y-E_\lambda(y-\hat{y})\big)=\nabla G\big(y-E_\lambda(y-\hat{y})\big).\label{eq-2-2-33-b}
+\end{align}
+\end{subequations}	
+这里, 表达式~$y-E_\lambda(y-\hat{y})$~便是参数坐标. 对于每一个给定的参数可获得一个具体而又简单的新坐标. 特别地, 当~$\lambda$~分别等于~$0$, $1$~或~$1/2$~时, 此参数坐标涵盖了以往三类经典的坐标.
+\end{theorem}
+
+\begin{proof}
+在本定理的条件下, 先表示新坐标为
+\begin{equation}\label{eq-2-2-34}
+z(y,\lambda)=y-E_\lambda(y-\hat{y})=y-E_\lambda\big(y-g(y)\big),
+\end{equation}
+以此定义如下的隐函数
+\begin{equation}\label{eq-2-2-35}
+I(y,z)=y-E_\lambda\big(y-g(y)\big)-z=0.
+\end{equation}
+因为对于任意的参数, 此隐函数关于~$y$~的偏导数
+\begin{equation}\label{eq-2-2-36}
+\frac{\partial}{\partial y}I(y,z)=I_{2d}-E_\lambda\big(I_{2d}-M(y)\big)
+\end{equation}
+总是非奇异矩阵, 故隐函数定理表明存在着一个邻域使得~\eqref{eq-2-2-35}~唯一确定了一个函数~$y=y(z)$. 再定义
+\begin{equation}\label{eq-2-2-37}
+\hat{z}=f(z)\triangleq J_{2d}\Big(y(z)-g\big(y(z)\big)\Big),
+\end{equation}
+则等式~$J_{2d}\big(y-g(y)\big)= f\Big(y-E_\lambda\big(y-g(y)\big)\Big)$~成立, 且~$f(z)$~的雅可比矩阵为 
+\begin{equation}\label{eq-2-2-38}
+\begin{aligned}
+N(z)=f'(z)&=J_{2d}\big(I_{2d}-M(y)\big)y'(z)=J_{2d}\big(I_{2d}-M(y)\big)\big(z'(y)\big)^{-1}\\
+&=J_{2d}(I_{2d}-M)\big(I_{2d}-E_\lambda(I_{2d}-M)\big)^{-1}=\sigma_{\alpha_\lambda}(M).
+\end{aligned}
+\end{equation}
+定理~\ref{Th-2-2-4}~可得到~\eqref{eq-2-2-26}, 而~$M(y)\in Sp(2d)$~意味着~$M(y)\in Sp(2d)$, $M=\sigma_{\alpha_\lambda^{-1}}(N)$~且~$\hat{z}=f(z)$~是梯度映射. 使用可积引理~\ref{Le-2-2-1}, 便存在着一个函数~$G(z)$~使得~$f(z)= \nabla G(z)$. 因此, 等式~\eqref{eq-2-2-33}~成立.
+\end{proof}
+
+上述定理表明, 给定辛变换便能找到相应的梯度映射, 进而得到该辛变换的生成函数. 在该定理的证明中, 只要将~$\alpha_\lambda$~替换为~$\alpha_\lambda^{-1}$, 即可获得如下的定理.
+
+\begin{theorem}\label{Th-2-2-6}
+令~$G(z)$~为标量函数, 其诱导的梯度映射为~$\hat{z}=f(z)\triangleq\nabla G(z)$, 即~$N(z)=f'(z)=\nabla^2 G(z)\in Sm(2d)$. 在~$\mathbb R^{2n}$~的某些邻域中, $N(z)$~满足~\eqref{eq-2-2-26}. 那么, 在某些邻域中就存在一个辛映射~$\hat{y}=g(y)$, 其雅可比矩阵~$M(y)=g'(y)\in Sp(2d)$~且满足~\eqref{eq-2-2-24}, 并使得~\eqref{eq-2-2-23}~和~\eqref{eq-2-2-25}~成立及
+\begin{equation}\label{eq-2-2-39}
+z+F_\lambda\hat{z}=g\big(z-(J_{2n}-F_\lambda)\hat{z}\big).
+\end{equation}
+\end{theorem}
+
+在参数坐标~\eqref{eq-2-2-34}~下, 定理~\ref{Th-2-2-5}~和~\ref{Th-2-2-6}~建立了辛映射与梯度映射之间的紧密关联. 因为哈密尔顿系统~\eqref{eq-1-1-11}~的真解流是辛的, 自然地讨论它的生成函数, 并根据幂级数方法推导出一类含有自由参数的辛格式. 
+
+\begin{theorem}\label{Th-2-2-7}
+令~$\hat{y}=g(y,t)$~是系统~\eqref{eq-1-1-11}~的真解, 初始值为~$y$. 定义矩阵~$M_0\in Sp(2d)$~和映射~$\hat{y}_{M_0}=g_{M_0}(y,t)\triangleq g(M_0 y,t)$, 且~$M(y,t)=\frac{\partial}{\partial y}g_{M_0}(y,t)$. 那么, 该映射是辛的. 当~$M_0=I_{2d}$~时有~$\hat{y}_{M_0}=\hat{y}$. 如果~$M_0$~符合条件
+\begin{equation}\label{eq-2-2-40}
+\big|I_{2d}-E_\lambda(I_{2d}-M_0)\big|\neq 0,
+\end{equation}
+则当~$|t|$~足够小, 在某些邻域中便存在一个时间依赖的梯度映射~$\hat{z}=f_{M_0}(z,t)$, 其雅可比矩阵~$N(z,t)=\frac{\partial}{\partial z}f_{M_0}(z,t) \in Sm(2d)$~满足~\eqref{eq-2-2-26}, 也存在着一个时间依赖的生成函数~$G_H(z,t)$~使得~\eqref{eq-2-2-23}~和~\eqref{eq-2-2-25}~成立及
+\begin{subequations}\label{eq-2-2-41}
+\begin{align}
+&(1)\ f_{M_0}(z,t)= \nabla_z G_H(z,t),\label{eq-2-2-41-a}\\
+&(2)\ \frac{\partial}{\partial t} G_H(z,t)=-H\big(z+F_\lambda\nabla_z G_H(z,t)\big),\label{eq-2-2-41-b}\\
+&(3)\ J_{2d}(y-\hat{y}_{M_0})=f_{M_0}\big(y-E_\lambda(y-\hat{y}_{M_0}),t\big)=\nabla_z G_H(y-E_\lambda\big(y-\hat{y}_{M_0}),t\big).\label{eq-2-2-41-c}
+\end{align}
+\end{subequations}
+这里, 方程~\eqref{eq-2-2-41-b}~是哈密尔顿-雅可比方程, 其含有一个自由参数~$\lambda$. 并且, $z=y-E_\lambda(y-\hat{y}_{M_0})$~是在哈密尔顿背景中生成函数的参数坐标, 其引入了一个一般的生成函数.
+\end{theorem}
+
+\begin{proof}
+注意到~$\hat{y}_{M_0}=g_{M_0}(y,t)$~是如下初值问题
+\begin{equation}\label{eq-2-2-42}
+\frac{d\hat{y}_{M_0}}{dt} = J_{2d}^{-1} \nabla H(\hat{y}_{M_0}),\quad \hat{y}_{M_0}(t_0)=M_{0}y
+\end{equation}
+的解, 因此~$\hat{y}_{M_0}=g_{M_0}(y,t)$~是辛的且与~$\hat{y}=g(y,t)$~有相同的光滑性. 条件~\eqref{eq-2-2-40}~表明在~$\mathbb{R}^{2n}$~的某些邻域中, 对于充分小的~$|t|$, 成立
+\begin{equation}\label{eq-2-2-43}
+\big|I_{2d}-E_\lambda(I_{2d}-M)\big|\neq 0.
+\end{equation}
+定理~\ref{Th-2-2-5}~保证了存在着一个时间依赖的梯度映射~$\hat{z}=f_{M_0}(z,t)$~使得~\eqref{eq-2-2-23}, \eqref{eq-2-2-25}, \eqref{eq-2-2-26}~和~\eqref{eq-2-2-41-c}~的左端等式均成立. 剩余部分的证明, 我们首先定义如下函数
+\begin{equation}\label{eq-2-2-44}
+\mathcal{H}(z,t)=-H(\hat{y}_{M_0})\big|_{\hat{y}_{M_0}=z+F_\lambda\hat{z}(z,t)}=-H\big(z+F_\lambda\hat{z}(z,t)\big),
+\end{equation}
+以及微分形式
+\begin{equation}\label{eq-2-2-45}
+\mathcal{Z}=\hat{z}~dz+\mathcal{H}(z,t)~dt=\sum_{i=1}^{2d}\hat{z_i}~dz_i+\mathcal{H}~dt.
+\end{equation}
+如果能够证明~$\mathcal{Z}$~是闭的微分形式, 那么使用可积引理~\ref{Le-2-2-1}, 就存在着一个时间依赖的标量函数~$G_H(z,t)$~使得
+\begin{equation}\label{eq-2-2-46}
+\mathcal{Z}=\hat{z}~dz+\mathcal{H}(z,t)~dt=d G_H(z,t),
+\end{equation}
+也就是, $\hat{z}=f_{M_0}(z,t)=\nabla_z G_H(z,t)$, $\mathcal{H}(z,t)=-H\big(z+F_\lambda\hat{z}(z,t)\big)=\frac{\partial}{\partial t}G_H(z,t)$. 作为结果, \eqref{eq-2-2-41}~成立. 接下来给出~ $d\mathcal{Z}=0$~的一个简单证明, 正如
+\begin{equation}\label{eq-2-2-47}
+\begin{aligned}
+d\mathcal Z&=d\hat{z}\wedge dz+d\mathcal{H}(z,t)\wedge dt\\
+&=\sum_{i,j=1}^{2d}\frac{\partial \hat{z_i}}{\partial z_j}~dz_j\wedge dz_i+\sum_{i=1}^{2d}\frac{\partial \hat{z_i}}{\partial t}~dt\wedge dz_i+\sum_{i=1}^{2d}\frac{\partial \mathcal{H}}{\partial z_i}~dz_i\wedge dt\\
+&=\sum_{1\leq i<j\leq 2d}\Big(\frac{\partial \hat{z_j}}{\partial z_i}-\frac{\partial \hat{z_i}}{\partial z_i}\Big)~dz_i\wedge dz_j+\sum_{i=1}^{2d}\Big(\frac{\partial \mathcal{H}}{\partial z_i}-\frac{\partial \hat{z_i}}{\partial t}\Big)~dz_i\wedge dt
+\end{aligned}
+\end{equation}
+且~$N(z,t)=\frac{\partial}{\partial z}f_{M_0}(z,t)=\frac{\partial \hat{z}}{\partial z} \in Sm(2d)$. 这样, 仅仅需要推导出如下的关系
+\begin{equation}\label{eq-2-2-48}
+\frac{\partial \mathcal{H}}{\partial z_i}=\frac{\partial \hat{z_i}}{\partial t},\quad \mbox{i.e.},\ \frac{\partial \mathcal{H}}{\partial z}=\frac{\partial \hat{z}}{\partial t}.
+\end{equation}
+直接计算可以给出
+\begin{equation}\label{eq-2-2-49}
+\begin{aligned}
+\frac{\partial \mathcal{H}}{\partial z}&=-\bigg(I_{2d}+F_\lambda\frac{\partial \hat{z}}{\partial z}\bigg)^T\nabla H(\hat{y}_{M_0})\\
+&=-\bigg(I_{2d}+\frac{\partial \hat{z}}{\partial z}F_\lambda^T\bigg)\nabla H(\hat{y}_{M_0}).
+\end{aligned}
+\end{equation}
+使用定理~\ref{Th-2-2-5}~和~\eqref{eq-2-2-42}, 我们得到关系式
+\begin{equation}\label{eq-2-2-50}
+z=y-E_\lambda(y-\hat{y}_{M_0}),\quad \hat{z}=J_{2d}(y-\hat{y}_{M_0}).
+\end{equation}
+\eqref{eq-2-2-50}~的左端便是生成函数的参数坐标, 其包含一个自由参数. 求微分可得
+\begin{equation}\label{eq-2-2-51}
+\frac{dz}{dt}=E_\lambda J_{2d}^{-1}\nabla H(\hat{y}_{M_0}),\quad \frac{d\hat{z}}{dt}=-\nabla H(\hat{y}_{M_0}).
+\end{equation}
+因为~$\frac{d\hat{z}}{dt}=\frac{\partial \hat{z}}{\partial z}\frac{dz}{dt}+\frac{\partial \hat{z}}{\partial t}$~和恒等式~$E_\lambda J_{2d}+F_\lambda^T=0$, 故有
+\begin{equation}\label{eq-2-2-52}
+\begin{aligned}
+\frac{\partial \hat{z}}{\partial t}&=-\nabla H(\hat{y}_{M_0})-\frac{\partial \hat{z}}{\partial z}E_\lambda J_{2d}^{-1}\nabla H(\hat{y}_{M_0})\\
+&=-\bigg(I_{2d}-\frac{\partial \hat{z}}{\partial z}E_\lambda J_{2d}\bigg)\nabla H(\hat{y}_{M_0})=\frac{\partial \mathcal H}{\partial z}.
+\end{aligned}
+\end{equation}
+如此, 便完成了本定理的证明.
+\end{proof} 
+
+\begin{theorem}\label{Th-2-2-8}
+在定理~\ref{Th-2-2-7}~的基础上, 假定哈密尔顿函数~$H(y)$~是解析的, 那么对于较小的~$|t|$, 生成函数~$G_H(z,t)$~能被表示为时间~$t$~的收敛幂级数, 其中~$G_H(z,t)=\sum_{i=0}^{\infty} K_i(z)t^i$~满足如下递推关系式
+\begin{subequations}\label{eq-2-2-53}
+\begin{align}
+&K_0(z)=\frac{1}{2}z^TN_0z,\quad N_0=J_{2d}(I_{2d}-M_0)\big(I_{2d}-E_\lambda(I_{2d}-M_0)\big)^{-1},\label{eq-2-2-53-a}\\
+&K_1(z)=-H(S_0z),\quad S_0=I_{2d}+F_\lambda N_0,\label{eq-2-2-53-b}\\
+&\begin{aligned}\label{eq-2-2-53-c}
+  &K_{i+1}(z)=-\frac{1}{i+1}\sum_{j=1}^{i} \frac{1}{j!} \sum_{m_1,\cdots,m_j=1}^{2d} \sum_{n_1+\cdots+n_j=i,n_l\geqslant 1} H_{y_{m_1},\cdots,y_{m_j}}(S_0z)\\
+  &~~~~~~~~~~~~~\times\big(F_\lambda\nabla K_{n_1}(z)\big)_{m_1}\times\cdots\times\big(F_\lambda\nabla K_{n_j}(z)\big)_{m_j}\quad \mbox{for}\ i\geqslant 1.
+\end{aligned}
+\end{align}
+\end{subequations}
+这里, $H_{y_{m_1},\cdots,y_{m_j}}(C_0z)$~表示~$H(y)$~关于~$y_{m_1}, \cdots, y_{m_j}$~的导数在~$y=C_0z$~处的取值, $\big(F_\lambda\nabla K_{n_l}(z)\big)_{m_j}$~则为~$F_\lambda\nabla K_{n_l}(z)$~的第~$m_j$~个位置的元素. 每一个系数函数~$K_i$~均包含一个自由参数, 因此, 将推导出一类含有单参数的辛算法. 
+\end{theorem}
+
+\begin{proof}
+本定理的假定意味着~$G_H(z,t)$~对于较小的~$|t|$~在某些邻域中解析地依赖于变量~$z$~和~$t$. 这样, $G_H$~的展开式可表示为
+\begin{equation}\label{eq-2-2-54}
+G_H(z,t)=\sum_{i=0}^{\infty} K_i(z)t^i.	
+\end{equation}	
+关于~$z$~和~$t$~分别对~\eqref{eq-2-2-54}~求微分, 则
+\begin{equation}\label{eq-2-2-55}
+\begin{aligned}
+&\nabla_z{G_H}(z,t)=\sum_{i=0}^{\infty}\nabla K_i(z)t^i,\\ 
+&\frac{\partial}{\partial t}G_H(z,t)=\sum_{i=0}^{\infty}(i+1)K_{i+1}(z)t^i.
+\end{aligned}
+\end{equation}
+利用~\eqref{eq-2-2-41-a}, \eqref{eq-2-2-50}~和~\eqref{eq-2-2-55}~可得到
+\begin{equation}\label{eq-2-2-56}
+\nabla K_0(z)=\nabla_z G_H(z,0)=f_{M_0}(z,0)=J_{2d}(I_{2d}-M_0)y=N_0z.
+\end{equation}
+其中, $K_0(z)=\frac{1}{2}z^TN_0z$. 将~$z+F_\lambda\nabla_z G_H(z,t)$~重新表示为
+\begin{equation}\label{eq-2-2-57}
+z+F_\lambda\nabla_z G_H(z,t)= S_0z+\sum_{i=1}^{\infty}F_\lambda\nabla K_i(z)t^i.
+\end{equation}	
+此时, 将~$H\big(z+F_\lambda\nabla_z G_H(z,t)\big)$~在点~$S_0z$~处~Taylor~展开, 即有
+\begin{equation}\label{eq-2-2-58}
+\begin{aligned}
+&H(z+F_\lambda\nabla_z G_H(z,t))\\
+&~~~~=H(S_0z)+\sum_{j=1}^{\infty}\frac{1}{j!}\sum_{m_1,\cdots,m_j=1}^{2d}\sum_{n_1,\cdots,n_j=1}^{\infty}t^{n_1+\cdots+n_j}H_{y_{m_1},\cdots,y_{m_j}}(S_0z)\\
+&~~~~~~~~\times\big(F_\lambda\nabla K_{n_1}(z)\big)_{m_1}\times\cdots\times\big(F_\lambda\nabla K_{n_j}(z)\big)_{m_j}\\
+&~~~~=H(S_0z)+\sum_{j=1}^{\infty}\frac{1}{j!}\sum_{m_1,\cdots,m_j=1}^{2d}\sum_{i\geq j}t^i\sum_{n_1+\cdots+n_j=i,n_l\geqslant 1}H_{y_{m_1},\cdots,y_{m_j}}(S_0z)\\
+&~~~~~~~~\times\big(F_\lambda\nabla K_{n_1}(z)\big)_{m_1}\times\cdots\times\big(F_\lambda\nabla K_{n_j}(z)\big)_{m_j}\\
+&~~~~=H(S_0z)+\sum_{i=1}^{\infty}t_i\sum_{j=1}^{i} \frac{1}{j!} \sum_{m_1,\cdots,m_j=1}^{2d} \sum_{n_1+\cdots+n_j=i,n_l\geqslant 1} H_{y_{m_1},\cdots,y_{m_j}}(S_0z)\\
+&~~~~~~~~\times\big(F_\lambda\nabla K_{n_1}(z)\big)_{m_1}\times\cdots\times\big(F_\lambda\nabla K_{n_j}(z)\big)_{m_j}.
+\end{aligned}
+\end{equation}
+将~\eqref{eq-2-2-58}~代入~\eqref{eq-2-2-41-b}~的右端, 并比较时间~$t$~的相同次幂的系数, 便推导出递推关系式~\eqref{eq-2-2-53}.
+\end{proof}
+
+以上定理给出了系统~\eqref{eq-2-2-42}~解流的生成函数及其幂级数展开式, 而为了在参数坐标~\eqref{eq-2-2-50}~下, 通过经典的生成函数方法构造适用于~\eqref{eq-1-1-11}~的辛格式. 在上述定理中, 我们设定~$M_0=I_{2d}$. 此时, 条件~$I_{2d}-E_\lambda(I_{2d}-M_0)=I_{2d}$~总是非奇异的, 且~$N_0=0$, $S_0=I_{2d}$. 为了更加直观, 在这个设定下, 我们重述上面的两个一般性的定理~\ref{Th-2-2-7}~和~\ref{Th-2-2-8}.
+
+\begin{theorem}\label{Th-2-2-9}
+令~$\hat{y}=g(y,t)$~是~\eqref{eq-1-1-11}~的真解, 初始值为~$y$, 其雅可比矩阵为~$M(y,t)=\frac{\partial}{\partial y}g(y,t)$. 当~$|t|$~足够小, 则在某些邻域中存在着一个时间依赖的梯度映射~$\hat{z}=f_{M_0}(z,t)$, 其雅可比矩阵~$N(z,t)=\frac{\partial}{\partial z}f_{M_0}(z,t)\in Sm(2d)$~满足~\eqref{eq-2-2-26}, 也存在一个时间依赖的生成函数~$G_H(z,t)$~使得~\eqref{eq-2-2-23}~和~\eqref{eq-2-2-25}~成立及
+\begin{subequations}\label{eq-2-2-59}
+\begin{align}
+&(1)\ f(z,t)= \nabla_z G_H(z,t),\label{eq-2-2-59-a}\\
+&(2)\ \frac{\partial}{\partial t} G_H(z,t)=-H\big(z+F_\lambda\nabla_z G_H(z,t)\big),\label{eq-2-2-59-b}\\
+&(3)\ J_{2d}(y-\hat{y})=f\big(y-E_\lambda(y-\hat{y}),t\big)=\nabla_z G_H\big(y-E_\lambda(y-\hat{y}),t\big).\label{eq-2-2-59-c}
+\end{align}
+\end{subequations}
+\end{theorem}
+
+\begin{remark}\label{Re-2-2-4}
+定理~\ref{Th-2-2-9}~给出了典则系统意义下生成函数的参数坐标
+\begin{equation}\label{eq-2-2-60}
+z=y-E_\lambda(y-\hat{y}).
+\end{equation}
+方程~\eqref{eq-2-2-59-b}~是一般的哈密尔顿-雅可比方程, 其含有一个自由参数~$\lambda$. 当~$\lambda$~分别取定为~$0$, $1$~或~$1/2$~时, 我们可以得到三类经典坐标下的生成函数~\eqref{eq-1-2-32}~和~哈密尔顿-雅可比方程~\eqref{eq-1-2-36}--\eqref{eq-1-2-38}~\cite{feng-89-generating,hairer-lubich-06-geometric,leimkuhler-04-simulating,sanzserna-94-Hamiltonian}.
+\end{remark}
+
+如下定理便可得到典则系统~\eqref{eq-1-1-11}~精确解流的生成函数的幂级数展开式, 其包含一个自由参数, 稍后这将导出第一类参数辛方法.
+
+\begin{theorem}\label{Th-2-2-10}
+在定理~\ref{Th-2-2-9}~的基础上, 假定哈密尔顿函数~$H(y)$~是解析的, 那么对于较小的~$|t|$, 生成函数~$G_H(z,t)$~能被表示为时间~$t$~的收敛幂级数, 正如
+\begin{subequations}\label{eq-2-2-61}
+\begin{align}
+&G_H(z,t)=\sum_{i=1}^{\infty} K_i(z)t^i,\label{eq-2-2-61-a}\\
+&K_1(z)=-H(z),\label{eq-2-2-61-b}\\
+&\begin{aligned}\label{eq-2-2-61-c}
+  &K_{i+1}(z)=-\frac{1}{i+1}\sum_{j=1}^{i} \frac{1}{j!} \sum_{m_1,\cdots,m_j=1}^{2d} \sum_{n_1+\cdots+n_j=i,n_l\geqslant 1} H_{z_{m_1},\cdots,z_{m_j}}(z)\\
+  &~~~~~~~~~~~~~\times\big(F_\lambda\nabla K_{n_1}(z)\big)_{m_1}\times\cdots\times\big(F_\lambda\nabla K_{n_j}(z)\big)_{m_j}\quad \mbox{for}\ i\geqslant 1.
+\end{aligned}
+\end{align}
+\end{subequations}
+\end{theorem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{参数辛格式}{Parameterized symplectic schemes}\label{BiSubsec-2-2-4}
+我们仍然考虑通过获得哈密尔顿-雅可比方程的近似解构造辛算法. 基于三类经典的哈密尔顿-雅可比方程~\eqref{eq-1-2-36}--\eqref{eq-1-2-38}~的任意阶辛格式能在文献~\cite{feng-89-generating,hairer-lubich-06-geometric,leimkuhler-04-simulating,sanzserna-94-Hamiltonian}~中找到. 上一小节, 基于生成函数方法的经典框架, 我们引入了一般的生成函数~\eqref{eq-2-2-59-a}~和哈密尔顿-雅可比方程~\eqref{eq-2-2-59-b}. 基于此, 接下来所推导的参数辛方法将三类经典辛方法统一起来.
+
+截断幂级数~\eqref{eq-2-2-61-a}~如下
+\begin{equation}\label{eq-2-2-62}
+\tilde{G}_H^{(r)}(z,h) = \sum_{i=1}^{r} K_i(z)\tau^i
+\end{equation}
+以近似方程~\eqref{eq-2-2-59-b}~的精确解, 其中~$\tau$~为时间步长. 根据定理~\ref{Th-2-2-9}, 可诱导出梯度映射
+\begin{equation}\label{eq-2-2-63}
+\hat{z}=\nabla_z \tilde{G}_H^{(r)}(z,\tau).
+\end{equation}
+该映射定义了一个辛变换, 使用~\eqref{eq-2-2-59-c}~并令~$y=y_n$, $\hat{y}=y_{n+1}$, 辛格式为
+\begin{equation}\label{eq-2-2-64}
+y_{n+1}-y_n=-J_{2d}^{-1}\nabla_z \tilde{G}_H^{(r)}\big((I_{2d}-E_\lambda)y_n+E_\lambda y_{n+1},\tau\big),
+\end{equation}
+该格式具有~$r$~阶精度.
+
+\begin{remark}\label{Re-2-2-5}
+辛格式~\eqref{eq-2-2-64}~给出了一个含有单参数的任意高阶辛方法. 当参数等于~$0$, $1$~和~$1/2$~时, 分别是基于三类经典生成函数~\eqref{eq-1-2-32}~的辛方法, 且它们已经在实际计算中得到广泛地使用. 这里, 我们将它们统一并推广, 在生成函数方法的理论及辛算法的构造上均具有重要意义.
+\end{remark}
+
+定理~\ref{Th-2-2-6}~保证了格式~\eqref{eq-2-2-64}~的辛性质. 幂级数~\eqref{eq-2-2-62}~是对哈密尔顿-雅可比方程~\eqref{eq-2-2-59-b}~精确解的~$r$~阶近似, 使得该格式具有~$r$~阶收敛阶. 当~$\lambda=1/2$~时, 生成函数~\eqref{eq-2-2-62}~的偶数次幂的系数全等于零, 从而导出具有任意偶数阶精度的辛方法~\cite{feng-89-generating,leimkuhler-04-simulating,hairer-lubich-06-geometric}. 递推系数~\eqref{eq-2-2-61-c}~依次为
+\begin{subequations}\label{eq-2-2-65}
+\begin{align}
+&K_1(z)=-H(z),\label{eq-2-2-65-a}\\
+&K_2(z)=\frac{1}{2}\Big((\nabla H)^TF_\lambda(\nabla H)\Big)(z),\label{eq-2-2-65-b}\\
+&K_3(z)=-\frac{1}{6}\Big((\nabla H)^TF_\lambda(\nabla^2H)(F_\lambda+F_\lambda^T)(\nabla H)+(\nabla H)^TF_\lambda^T(\nabla^2H)F_\lambda(\nabla H)\Big)(z).\label{eq-2-2-65-c}
+\end{align}
+\end{subequations}
+更加直观地, 有
+\begin{align*}
+&K_1(u,v) = H(u,v),\\
+&K_2(u,v) = (\lambda-\frac{1}{2})\left(\big(\frac{\partial H}{\partial u}\big)^T\frac{\partial H}{\partial v}\right)(u,v),\\
+&K_3(u,v) = \frac{1}{2}(\lambda^2-\lambda+\frac{1}{3})\left(\big(\frac{\partial H}{\partial u}\big)^T \frac{\partial^2H}{\partial v^2}\frac{\partial H}{\partial u}+\big(\frac{\partial H}{\partial v}\big)^T \frac{\partial^2H}{\partial u^2}\frac{\partial H}{\partial v}\right)(u,v)
+\nonumber\\&~~~~~~~~~~~~~~~~~~+(\lambda^2-\lambda+\frac{1}{6})\left(\big(\frac{\partial H}{\partial v}\big)^T\frac{\partial^2H}{\partial u\partial v}\frac{\partial H}{\partial u}\right)(u,v).
+\end{align*}
+这里, $z=(u,v)$, $\hat{y}=(P,Q)$~且~$u=\lambda P+(1-\lambda)p$, $v=\lambda q+(1-\lambda)Q$. 系数~$K_i(u,v)$, $i\geqslant 4$~也能类似给出. 令~$y_n=(p_n,q_n)$, $y_{n+1}=(p_{n+1},q_{n+1})$, 再在~\eqref{eq-2-2-46}~中分别令~$r=1$, $2$, 我们得到如下两个辛格式
+\begin{subequations}\label{eq-2-2-66}
+\begin{align}
+&\begin{aligned}\label{eq-2-2-66-a}
+  &p_{n+1} = p_n-\tau\partial_{\bar{v}}H(\bar{u},\bar{v}),\\
+  &q_{n+1} = q_n+\tau\partial_{\bar{u}}H(\bar{u},\bar{v}).
+\end{aligned}\\
+&\begin{aligned}\label{eq-2-2-66-b}
+  &p_{n+1}=p_n-\tau\partial_{\bar{v}}H(\bar{u},\bar{v})-(\lambda-\frac{1}{2})\tau^2\left(\frac{\partial^2H}{\partial {\bar{v}}^2}\frac{\partial H}{\partial {\bar{u}}}+\frac{\partial^2H}{\partial {\bar{v}}\partial {\bar{u}}}\frac{\partial H}{\partial {\bar{v}}}\right)(\bar{u},\bar{v}),\\
+  &q_{n+1}=q_n+\tau\partial_{\bar{u}}H(\bar{u},\bar{v})+(\lambda-\frac{1}{2})\tau^2\left(\frac{\partial^2H}{\partial {\bar{u}}^2}\frac{\partial H}{\partial {\bar{v}}}+\frac{\partial^2H}{\partial {\bar{u}}\partial {\bar{v}}}\frac{\partial H}{\partial {\bar{u}}}\right)(\bar{u},\bar{v}).
+\end{aligned}			
+\end{align}
+\end{subequations}
+其中, $\bar{u}=\lambda p_{k+1}+(1-\lambda)p_k$, $\bar{v}=\lambda q_k+(1-\lambda)q_{k+1}$. 注意到前者就是~Scheme I~\eqref{eq-2-2-1}, 将格式~\eqref{eq-2-2-66-b}~简记为~Scheme II. 特别地, 由生成函数方法的角度说明了对于任意的参数~$\lambda$, Scheme I~均是辛的. 若保留系数~$K_3$, 则获得一个单参数三阶辛方法.
+
+格式~\eqref{eq-2-2-64}~给出了第一类任意高阶的参数辛方法. 正如经典的生成函数理论, 对于~$r\geqslant 3$, 得到的格式将涉及到哈密尔顿函数~$H$~高阶导数的计算, 这势必在算法的实现上带来一定的复杂性. 故而, 我们考虑下一节的组合方法~\cite{hairer-lubich-06-geometric,qin-92-composition,yoshida-90-construction}~来解决这一冲突.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{对称组合方法}{Symmetric composition methods}\label{BiSec-2-3}
+为避免上一节中给出的参数生成函数方法涉及到哈密尔顿函数高阶导数的情况, 本节我们考虑~Scheme I~及其伴随方法~\eqref{eq-2-1-7}~的组合方法. 为了书写方便, Scheme I~定义了数值流 
+\begin{equation}\label{eq-2-3-1}
+\Phi_\tau^{\lambda}: (p_n,q_n)\mapsto (p_{n+1},q_{n+1}).
+\end{equation}
+其伴随方法可以写作~$(\Phi_h^{\lambda})^*=\Phi_h^{1-\lambda}$, 该方法也是辛的. 因此, 二阶精度的对称条件~~\eqref{eq-1-2-51}~便确定了一个新的数值映射
+\begin{equation}\label{eq-2-3-2}
+\Psi_\tau \triangleq \Phi_{\tau/2}^{\lambda} \circ (\Phi_{\tau/2}^{\lambda})^* = \Phi_{\tau/2}^{\lambda} \circ \Phi_{\tau/2}^{1-\lambda}: (p_n,q_n) \mapsto (p_{n+1},q_{n+1}),
+\end{equation}
+将其记为~Scheme III. 它是一个二阶对称辛格式, 其辛性质来自于辛方法的组合不改变辛性. 特别地, 对称方法应用于哈密尔顿系统~\eqref{eq-1-1-11}~也有着长时间的行为及稳定性.
+ 
+使用组合方法的思想, 通过~Scheme III~的对称组合可得到一个四阶对称辛方法. 正如~Triple Jump~和~Suzuki Fractals~\cite{hairer-lubich-06-geometric,suzuki-90-decomposition}, 上述过程可一直重复以构造任意高阶对称辛方法, 这类方法中均含有一个自由参数, 且不涉及高阶导数的计算. 这里, 我们仅展示~Scheme III~作为第二类参数辛方法的一个例子.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{多参数辛格式}{Multi-parametric symplectic schemes}\label{BiSec-2-4}
+Brugnano~及其合作者~\cite{luigi-12-EQUIP}~在高斯辛方法中引入自由参数, 通过每一步选取一个适当的参数值, 给出了不同于时间步长自适应方法~\cite{kane-99-variational}~在较弱意义下证实了辛能量守恒方法的存在性. 目前, 该理论已得到广泛地发展和使用~\cite{luigi-18-analysis-EQUIP,luigi-16-line-integral,li-20-EQUIP-constraint,wang-13-parametric-PRK,chen-20-EQUIP-MS}. 这一思路的优势在于得到的算法能保持能量及二次守恒量, 且在较弱的意义下实现了辛守恒.
+
+这样一来, 参数辛格式在算法的设计上便有了更多的自由. 通常的做法在于, 在哈密尔顿函数非二次的情形下, 通过参数的调节以实现能量守恒. 而系统~\eqref{eq-1-1-11}~可能有多个非二次守恒量, 而单参数辛方法只能继承一个不变量的守恒性, 是否能发展多参数辛方法以构造多不变量守恒格式是一个值得考虑的问题. 
+
+本节中, 我们首先通过分块龙格-库塔方法~\eqref{eq-1-2-8}~给出一些多参数辛格式. 为此, 我们简述如下的分块龙格-库塔方法的辛条件和阶条件.
+
+\begin{lemma}[\cite{leimkuhler-04-simulating,hairer-lubich-06-geometric,sun-93-symplectic-PRK,gan-13-SPRK}]\label{Le-2-4-1}
+如果一个~$s$~级分块龙格-库塔方法~\eqref{eq-1-2-8}~的系数满足~\eqref{eq-1-2-9}, 那么它是辛的. 若代数条件
+\begin{equation}\label{eq-2-4-1}
+\begin{aligned}
+&\sum_{i=1}^{s}b_i=\sum_{i=1}^{s}\hat{b}_i=1,\\ &\sum_{i=1}^{s}b_ic_i=\sum_{i=1}^{s}\hat{b}_i\hat{c}_i=\frac{1}{2},\quad \sum_{i,j=1}^{s}b_i\hat{a}_{ij}=\sum_{i,j=1}^{s}\hat{b}_ia_{ij}=1
+\end{aligned}
+\end{equation}
+成立, 则该方法具有二阶精度, 其中~$c_i=\sum_{j=1}^{s}a_{ij}$~和~$\hat{c}_i=\sum_{j=1}^{s}\hat{a}_{ij}$.
+\end{lemma}
+
+令实数~$\alpha$, $\beta$~和~$\gamma$~是自由参数, 取定~$a_{11}=\gamma\alpha$, $a_{12}=(1-\gamma)\alpha$, $a_{21}=\gamma\beta$, $a_{22}=(1-\gamma)\beta$, $\hat{a}_{11}=\hat{a}_{21}=(1-\alpha)\gamma$, $\hat{a}_{12}=\hat{a}_{22}=(1-\beta)(1-\gamma)$, $b_1=\hat{b}_1=\gamma$~和~$b_2=\hat{b}_2=1-\gamma$~构造一个~$2$~级分块龙格-库塔方法.  该方法的~Butcher~表为
+\begin{equation}\label{eq-2-4-2}
+\begin{tabular}{c|c}
+$\alpha$ & $\gamma\alpha$\quad $(1-\gamma)\alpha$\\ 
+$\beta$ & $\gamma\beta$\quad $(1-\gamma)\beta$\\ \hline
+& $\gamma$\quad\quad\ $1-\gamma$\\
+\end{tabular}\quad\quad
+\begin{tabular}{c|c}
+$(1-\beta)+\gamma(1-\alpha)$ & $(1-\alpha)\gamma$\quad $(1-\beta)(1-\gamma)$\\ 
+$(1-\beta)+\gamma(1-\alpha)$ & $(1-\alpha)\gamma$\quad $(1-\beta)(1-\gamma)$\\ \hline
+& $\gamma$\quad\quad\quad\quad$1-\gamma$\\
+\end{tabular}.
+\end{equation}
+通常, 我们假定~$0\leq\alpha\leq\beta\leq1$~和~$0\leq\gamma\leq1$. 将其简记为~Scheme IV.
+
+\begin{theorem}\label{Th-2-4-1}
+格式~\eqref{eq-2-4-2}~对于任意的~$\alpha$, $\beta$~和~$\gamma$~均是辛的. 假定~$\alpha<\beta$, 若条件
+\begin{equation}\label{eq-2-4-3}
+\gamma=\frac{\frac{1}{2}-\beta}{\alpha-\beta}
+\end{equation}
+成立, 则该格式具有~$2$~阶精度.
+\end{theorem}
+
+\begin{proof}
+根据引理~\ref{Le-2-4-1}, 简单的计算即可获得~\eqref{eq-2-4-2}~的辛性质和收敛阶.
+\end{proof}
+
+上述定理表明, Scheme IV~是一个三参数辛方法, 而将~$\gamma=(\frac{1}{2}-\beta)/(\alpha-\beta)$~代入~Scheme IV~中可得到一个双参数二阶辛方法. 当~$\alpha+\beta=1$~时, 我们获得一个单参数二阶辛方法
+\begin{equation}\label{eq-2-4-4}
+\begin{tabular}{c|c}
+$\alpha$ & $\frac{1}{2}\alpha$\quad\quad\quad\  $\frac{1}{2}\alpha$\\ 
+$1-\alpha$ & $\frac{1}{2}(1-\alpha)$\quad $\frac{1}{2}(1-\alpha)$\\ \hline
+& $\frac{1}{2}$\quad\quad\quad\quad $\frac{1}{2}$\\
+\end{tabular}\quad\quad
+\begin{tabular}{c|c c}
+$\frac{1}{2}$ & $\frac{1}{2}(1-\alpha)$\quad $\frac{1}{2}\alpha$\\ 
+$\frac{1}{2}$ & $\frac{1}{2}(1-\alpha)$\quad $\frac{1}{2}\alpha$\\ \hline
+&~~~~$\frac{1}{2}$\quad\quad\quad$\frac{1}{2}$\\
+\end{tabular}.
+\end{equation}
+特别地, 当~$\alpha=0$~时, \eqref{eq-2-4-4}~便是~SV~方法~\eqref{eq-1-2-11}. 若~$\alpha=\beta$, Scheme IV~是可约的且可简写为
+\begin{equation}\label{eq-2-4-5}
+\begin{tabular}{c|c}
+$\alpha$ & $\alpha$\\ \hline
+& $1$\\
+\end{tabular}\quad
+\begin{tabular}{c|c}
+$1-\alpha$ & $1-\alpha$\\ \hline
+& $1$\\
+\end{tabular},
+\end{equation}
+这便是一般的辛格式~Scheme I~\eqref{eq-2-2-1}, 以此给出了多参数辛方法~Scheme IV~与之前参数辛方法的联系.
+
+\begin{lemma}[\cite{hairer-lubich-06-geometric,hairer-08-ODE-I}]\label{Le-2-4-2}
+若分块龙格-库塔方法~\eqref{eq-1-2-8}~的两个龙格-库塔方法的系数~$b_i$, $a_{ij}$~和~$\hat{b}_i$, $\hat{a}_{ij}$~均满足	
+\begin{equation}\label{eq-2-4-6}
+a_{s+1-i,s+1-j}+a_{ij}=b_j\quad \mbox{for}\ i,j=1,\dots,s,
+\end{equation}
+那么~\eqref{eq-1-2-8}~是对称的.
+\end{lemma}
+
+对称方法在数值模拟上也有长时间地行为, 格式~\eqref{eq-2-4-4}~满足对称条件~\eqref{eq-2-4-6}. 我们直接给出如下定理, 证明过程能被省略.
+
+\begin{theorem}\label{Th-2-4-2}
+格式~\eqref{eq-2-4-4}~是一个单参数对称的二阶辛方法, 其推广了~SV~方法~\eqref{eq-1-2-11}. 特别地, SV~方法是二阶对称的辛方法.
+\end{theorem}
+
+我们也考虑由变分积分子~\eqref{eq-1-2-20}~的角度给出多参数辛方法~Scheme IV, 这正由于给定离散拉格朗日函数~\eqref{eq-1-2-16}, 所诱导的变分积分子总是辛的. 对于拉格朗日函数~$L(q,\dot{q})=\frac{1}{2}\dot{q}^TM\dot{q}-U(q)$, 其中~$M$~为常矩阵, 定义一个一般的离散拉格朗日函数, 离散变分原理表明~Scheme IV~等价于变分积分子.
+
+\begin{theorem}\label{Th-2-4-3}
+定义一般的离散拉格朗日函数	
+\begin{equation}\label{eq-2-4-7}
+\begin{aligned}
+L_d(q_n,q_{n+1})=&\gamma L\left(\alpha q_n+(1-\alpha)q_{n+1},\frac{q_{n+1}-q_n}{\tau}\right)\\
+&+(1-\gamma)L\left(\beta q_n+(1-\beta)q_{n+1},\frac{q_{n+1}-q_n}{\tau}\right).
+\end{aligned}
+\end{equation}
+注意到, 参数~$\alpha$, $\beta$~和~$\gamma$~的特定值, 便对应于离散拉格朗日函数~\eqref{eq-1-2-21}~和~\eqref{eq-1-2-24}. 使用离散变分原理~\cite{hairer-lubich-06-geometric}, 由~\eqref{eq-2-4-7}~所得到的变分积分子等价于~Scheme IV.
+\end{theorem} 
+
+\begin{proof}
+根据第一章的相关内容, 离散变分原理给出如下的辛格式
+\begin{equation}\label{eq-2-4-8}
+\begin{aligned}
+&p_n=-\tau D_1L_d(q_n,q_{n+1}),\\
+&p_{n+1}=\tau D_2L_d(q_n,q_{n+1}).
+\end{aligned}
+\end{equation}
+将~\eqref{eq-2-4-7}~缩写为~$L_d=\gamma\bar{L}+(1-r)\tilde{L}$, 格式~\eqref{eq-2-4-8}~能写为
+\begin{equation}\label{eq-2-4-9}
+\begin{aligned}
+&p_n=\left(\gamma D_2\bar{L}+(1-\gamma)D_2\tilde{L}\right)-\tau\left(\gamma\alpha D_1\bar{L}+(1-\gamma)\beta D_1\tilde{L}\right),\\
+&p_{n+1}=\left(\gamma D_2\bar{L}+(1-\gamma)D_2\tilde{L}\right)+\tau\left(\gamma(1-\alpha)D_1\bar{L}+(1-\gamma)(1-\beta) D_1\tilde{L}\right).\\
+\end{aligned}
+\end{equation}
+将上述~$L(q,\dot{q})$~的表达式代入~\eqref{eq-2-4-9}~中, 通过简单的核对, 即可得到~Scheme IV~\eqref{eq-2-4-2}~应用于拉格朗日系统~\eqref{eq-1-1-3}~的形式.
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{数值实验}{Numerical experiments}\label{BiSec-2-5}
+本节中, 我们凭借三个数值算例验证所提出的两类参数辛方法的理论分析和有效性, 也包括上一节的多参数辛方法. 每固定一个参数值, 均能获得一个辛格式. 对应于例~\ref{Ex-2-1-1}~的四种参数取值而产生的辛格式将被测试, 时间步长总是选取为~$\tau=0.02$. 通过如下的公式计算所有格式的收敛率, 正如
+\begin{equation}\label{eq-2-5-1}
+\mbox{Order} = \log_2 \frac{\mbox{Error}_\tau}{\mbox{Error}_{\tau/2}},\quad \mbox{Error}_\tau = ||y_\tau(1)-y_{\tau/2}(1)||_\infty.
+\end{equation}
+其中, $y_\tau(1)$~表示相应的格式以步长~$\tau$~在时间~$t=1$~的数值解. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{H\'{e}non-Heiles~模型}{The H\'{e}non-Heiles model}\label{BiSubsec-2-5-1}
+第一个实验对象为~H\'{e}non-Heiles~模型, 其来源于天体力学中描述恒星运动的问题. 经过维数的简化, 该模型等价于具有两个自由度的单位质量测试例子的运动, 其服从势函数~$U(q_1,q_2)$. 哈密尔顿函数表达式为
+\begin{equation}\label{eq-2-5-2}
+H(p_1,p_2,q_1,q_2)=\frac{1}{2}(p_1^2+p_2^2)+U(q_1,q_2).
+\end{equation}
+通常, 势函数选取为
+\begin{equation}\label{eq-2-5-3}
+U(q_1,q_2)=\frac{1}{2}(q_1^2+q_2^2)+q_1^2 q_2-\frac{1}{3}q_2^3.
+\end{equation}
+
+势能~$U=1/6$~为测试粒子的临界能量, 其由图~\ref{fig-2-2}~中等边三角形的三条直线组成, 该三角形的三个顶点即为~$U(q_1,q_2)$~的鞍点. 对于能量值~$H<1/6$, 系统~\eqref{eq-2-5-2}~的等势曲线是封闭的, 使得测试例子被束缚而无法逃逸. 当能量值~$H>1/6$~时, 等势曲线打开, 出现三个出口通道，通过通道测试粒子可以逃逸到无穷远处~\cite{zotos-15-HH,cai-18-PAVF}. 我们测试该模型的两类经典轨道~\cite{zotos-15-HH}, 其初始条件为
+\begin{itemize}
+\item 盒子轨道~(请参考图~\ref{fig-2-1}):
+\begin{equation}\label{eq-2-5-4}
+H_0=0.02,\ p_2(0)=0,\ q_1(0)=0,\ q_2(0)=-0.082;	
+\end{equation}
+\item 混沌轨道~(请参考图~\ref{fig-2-2}):
+\begin{equation}\label{eq-2-5-5}
+H_0=1/6,\ p_2(0)=0,\ q_1(0)=0,\ q_2(0)=0.82.
+\end{equation}
+\end{itemize}
+其中, $H_0$~为该模型的能量值, 由~\eqref{eq-2-5-2}~可计算出剩余的~$p_1(0)$~的值.
+
+图~\ref{fig-2-1}~给出了~Scheme I~\eqref{eq-2-2-1}~关于盒子轨道的数值模拟, 该轨迹等边三角形的内部形状得到正确刻画. 在临界能量的控制下, 图~\ref{fig-2-2}~中的混沌轨迹从不逃脱到等边三角形的外部, Scheme I~较好地保持了数值轨道和能量误差. 图~\ref{fig-2-3}~展示了~Schemes II-IV~的能量误差, 可以看出辛方法计算的误差始终以较小的量级在一个固定的范围内波动. 这里, 我们仅仅展示了~Scheme I~的数值轨迹, 其余三个格式是相似的. 表~\ref{tab-2-1}~和表~\ref{fig-2-2}~报告了四个方法的收敛性测试, 这与之前的理论分析是一致的.
+
+\begin{figure}[H]
+\centering
+\subfigure[Scheme I, $\lambda=-1$]{
+\includegraphics[width=0.45\textwidth]{1_bHH_sym_R}}
+\subfigure[Scheme I, $\lambda=\frac{1}{3}$]{
+\includegraphics[width=0.45\textwidth]{13_bHH_sym_R}}\vspace{3mm}
+\subfigure[Scheme I, $\lambda=\frac{3}{2}$]{
+\includegraphics[width=0.45\textwidth]{32_bHH_sym_R}}
+\subfigure[Scheme I, $\lambda=2$]{
+\includegraphics[width=0.45\textwidth]{2_bHH_sym_R}}\vspace{3mm}
+\subfigure[Scheme I, 能量误差]{
+\includegraphics[width=0.45\textwidth]{bHH_sym_HE}}\vspace{3mm}
+\caption{H\'{e}non-Heiles~模型盒子轨道:~Scheme I~的数值结果.}\label{fig-2-1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[Scheme I, $\lambda=-1$]{
+\includegraphics[width=0.45\textwidth]{1_cHH_sym_R}}
+\subfigure[Scheme I, $\lambda=\frac{1}{3}$]{
+\includegraphics[width=0.45\textwidth]{13_cHH_sym_R}}\vspace{6mm}
+\subfigure[Scheme I, $\lambda=\frac{3}{2}$]{
+\includegraphics[width=0.45\textwidth]{32_cHH_sym_R}}
+\subfigure[Scheme I, $\lambda=2$]{
+\includegraphics[width=0.45\textwidth]{2_cHH_sym_R}}\vspace{6mm}
+\subfigure[Scheme I, 能量误差]{
+\includegraphics[width=0.45\textwidth]{cHH_sym_HE}}\vspace{6mm}
+\caption{H\'{e}non-Heiles~模型混沌轨道:~Scheme I~的数值结果.}\label{fig-2-2}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[Scheme II, 盒子轨道]{
+\includegraphics[width=0.45\textwidth]{bHH_K2_sym_HE}}
+\subfigure[Scheme II, 混沌轨道]{
+\includegraphics[width=0.45\textwidth]{cHH_K2_sym_HE}}\vspace{6mm}
+\subfigure[Scheme III, 盒子轨道]{
+\includegraphics[width=0.45\textwidth]{bHH2_sym_HE}}
+\subfigure[Scheme III, 混沌轨道]{
+\includegraphics[width=0.45\textwidth]{cHH2_sym_HE}}\vspace{6mm}
+\subfigure[Scheme IV, 盒子轨道]{
+\includegraphics[width=0.45\textwidth]{bHH_PRK_sym_HE}}
+\subfigure[Scheme IV, 混沌轨道]{
+\includegraphics[width=0.45\textwidth]{cHH_PRK_sym_HE}}\vspace{6mm}
+\caption{H\'{e}non-Heiles~模型:~Schemes II--IV~的能量误差.}\label{fig-2-3}
+\end{figure}
+
+\begin{table}[H]
+\tabcolsep=4pt \small \renewcommand \arraystretch{1.25} \centering
+\caption{H\'{e}non-Heiles~模型混沌轨道:~Schemes I--III~的收敛性测试.}\label{tab-2-1}\vspace{4mm} 
+\begin{tabularx}{\textwidth}{*{10}{l}} \toprule
+\multirow{2}*{Schemes} & \multirow{2}*{$\tau$} & \multicolumn{2}{c}{$\lambda=-1$} & \multicolumn{2}{c}{$\lambda=\frac{1}{3}$} & \multicolumn{2}{c}{$\lambda=\frac{3}{2}$} & \multicolumn{2}{c}{$\lambda=2$}\\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(lr){9-10}
+&& Error & Order & Error & Order & Error & Order & Error & Order\\ \midrule
+\multirow{4}*{\centering I}
+& 0.02/2 & 4.31E-03 & - & 4.38E-04 & - & 2.63E-03 & - & 3.85E-03 & -\\
+& 0.02/4 & 2.09E-03 & 1.04 & 2.23E-04 & 0.98 & 1.34E-03 & 0.98 & 1.98E-03 & 0.96\\
+& 0.02/8 & 1.03E-03 & 1.02 & 1.12E-04 & 0.99 & 6.73E-04 & 0.99 & 1.00E-03 & 0.98\\
+& 0.02/16 & 5.13E-04 & 1.01 & 5.63E-05 & 0.99 & 3.38E-04 & 0.99 & 5.06E-04 & 0.99\\ \midrule
+\multirow{4}*{II}
+& 0.02/2 & 5.09E-04 & - & 2.35E-05 & - & 2.24E-04 & - & 4.77E-04 & -\\
+& 0.02/4 & 1.25E-04 & 2.02 & 5.87E-06 & 2.00 & 5.67E-05 & 1.98 & 1.21E-04 & 1.98\\
+& 0.02/8 & 3.11E-05 & 2.01 & 1.47E-06 & 2.00 & 1.42E-05 & 1.99 & 3.06E-05 & 1.99\\
+& 0.02/16 & 7.74E-06 & 2.01 & 3.67E-07 & 2.00 & 3.57E-06 & 2.00 & 7.68E-06 & 1.99\\ \midrule
+\multirow{4}*{III}
+& 0.02/2 & 1.12E-04 & - & 3.54E-06 & - & 5.04E-05 & - & 1.18E-04 & -\\
+& 0.02/4 & 2.79E-05 & 2.00 & 8.84E-07 & 2.00 & 1.26E-05 & 2.00 & 2.94E-05 & 2.00\\
+& 0.02/8 & 6.97E-06 & 2.00 & 2.21E-07 & 2.00 & 3.15E-06 & 2.00 & 7.34E-06 & 2.00\\
+& 0.02/16 & 1.74E-06 & 2.00 & 5.52E-08 & 2.00 & 7.88E-07 & 2.00 & 1.84E-06 & 2.00\\ \bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\tabcolsep=13pt \small \renewcommand\arraystretch{1.25} \centering
+\caption{H\'{e}non-Heiles~模型混沌轨道:~Scheme IV~的收敛性测试.}\label{tab-2-2}\vspace{4mm}
+\begin{tabularx}{\textwidth}{*{7}{l}} \toprule
+\multirow{2}*{$\tau$} & \multicolumn{2}{c}{$\alpha=0,\ \beta=1$} & \multicolumn{2}{c}{$\alpha=\frac{1}{5},\ \beta=\frac{1}{3}$} & \multicolumn{2}{c}{$\alpha=\frac{1}{4},\ \beta=\frac{1}{2}$}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+& Error & Order & Error & Order & Error & Order\\ \midrule
+0.02/2 & 1.06E-05 & -- & 2.31E-05 & -- & 1.76E-05 & --\\
+0.02/4 & 2.65E-06 & 2.00 & 5.77E-06 & 2.00 & 4.40E-06 & 2.00\\
+0.02/8 & 6.63E-07 & 2.00 & 1.44E-06 & 2.00 & 1.10E-06 & 2.00\\
+0.02/16 & 1.66E-07 & 2.00 & 3.61E-07 & 2.00 & 2.75E-07 & 2.00\\ \bottomrule
+\end{tabularx}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{扰动开普勒问题}{The perturbed Kepler problem}\label{BiSubsec-2-5-2}
+第二个实验对象为扰动开普勒问题, 其来源于~Einstein~广义相对论在~Schwarzschild~势中行星的运动, 该系统的哈密尔顿函数为 
+\begin{equation}\label{eq-2-5-6}
+H(p_1,p_2,q_1,q_2)=\frac{1}{2}(p_1^2+p_2^2)-\frac{1}{\sqrt{q_1^2+q_2^2}}-\frac{\mu}{3\sqrt{(q_1^2+q_2^2)^3}}.
+\end{equation}
+其中, $\mu$~是比较小的实数. 特别地, 当~$\mu=0$~时, 该系统便回归到经典的开普略问题~(双体问题)~\eqref{eq-1-1-9}. 除了哈密尔顿函数~$H$~守恒之外, 这两个系统均有如下的二次守恒量, 被称为角动量, 正如
+\begin{equation}\label{eq-2-5-7}
+L(p_1,p_2,q_1,q_2)=q_1p_2-q_2p_1.
+\end{equation}
+本实验中, 对于扰动哈密尔顿函数~\eqref{eq-2-5-6}, 我们选取~$\mu=0.0075$. 离心率~$e=0.6$~及初始条件~\eqref{eq-1-2-52}~\cite{luigi-12-EQUIP,hairer-lubich-06-geometric}~为
+\begin{equation}\label{eq-2-5-8}
+p_1(0)=0,\ p_2(0)=\sqrt{\frac{1+e}{1-e}},\ q_1(0)=1-e,\ q_2(0)=0.
+\end{equation}
+
+我们仅在图~\ref{fig-2-5}~中展示~Scheme I~对于扰动问题的数值轨迹, 其与原始轨迹~\cite{hairer-lubich-06-geometric}~是相似的. 图~\ref{fig-2-4}~直至图~\ref{fig-2-8}~包含了~Schemes I--IV~的能量和角动量误差, 能量误差在较小量级上得到保持, 而角动量~\eqref{eq-2-5-6}~则是守恒的, 表现为误差值始终在机器精度下. 辛方法可以继承二次守恒量, 证实了这四个格式的辛性质.
+
+\begin{figure}[H]
+\centering
+\subfigure[Scheme I, 能量误差]{
+\includegraphics[width=0.45\textwidth]{Kepler_sym_HE}}
+\subfigure[Scheme I, 角动量误差]{
+\includegraphics[width=0.45\textwidth]{Kepler_sym_LE}}
+\caption{开普勒问题:~Scheme I~的能量和角动量误差.}\label{fig-2-4}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[Scheme I, $\lambda=-1$]{
+\includegraphics[width=0.45\textwidth]{1_perKepler_sym_R}}
+\subfigure[Scheme I, $\lambda=\frac{1}{3}$]{
+\includegraphics[width=0.45\textwidth]{13_perKepler_sym_R}}\vspace{6mm}
+\subfigure[Scheme I, $\lambda=\frac{3}{2}$]{
+\includegraphics[width=0.45\textwidth]{32_perKepler_sym_R}}
+\subfigure[Scheme I, $\lambda=2$]{
+\includegraphics[width=0.45\textwidth]{2_perKepler_sym_R}}\vspace{6mm}
+\subfigure[Scheme I, 能量误差]{
+\includegraphics[width=0.45\textwidth]{perKepler_sym_HE}}
+\subfigure[Scheme I, 角动量误差]{
+\includegraphics[width=0.45\textwidth]{perKepler_sym_LE}}\vspace{6mm}
+\caption{扰动开普勒问题:~Scheme I~的数值结果.}\label{fig-2-5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[Scheme III, 能量误差]{
+\includegraphics[width=0.45\textwidth]{Kepler2_sym_HE}}
+\subfigure[Scheme III, 角动量误差]{
+\includegraphics[width=0.45\textwidth]{Kepler2_sym_LE}}
+\subfigure[Scheme IV, 能量误差]{
+\includegraphics[width=0.45\textwidth]{Kepler_PRK_sym_HE}}
+\subfigure[Scheme IV, 角动量误差]{
+\includegraphics[width=0.45\textwidth]{Kepler_PRK_sym_LE}}
+\caption{开普勒问题:~Schemes III~\&~IV~的能量和角动量误差.}\label{fig-2-6}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[Scheme III, 能量误差]{
+\includegraphics[width=0.45\textwidth]{perKepler2_sym_HE}}
+\subfigure[Scheme III, 角动量误差]{
+\includegraphics[width=0.45\textwidth]{perKepler2_sym_LE}}
+\caption{扰动开普勒问题:~Scheme III~的能量和角动量误差.}\label{fig-2-7}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[Scheme IV, 能量误差]{
+\includegraphics[width=0.45\textwidth]{perKepler_PRK_sym_HE}}
+\subfigure[Scheme IV, 角动量误差]{
+\includegraphics[width=0.45\textwidth]{perKepler_PRK_sym_LE}}
+\caption{扰动开普勒问题:~Scheme IV~的能量和角动量误差.}\label{fig-2-8}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSubsection{在哈密尔顿偏微分方程上的应用}{Applications to Hamiltonian PDEs}\label{BiSubsec-2-5-3}
+本实验中, 我们将~Scheme I~应用到哈密尔顿偏微分方程的数值模拟, 该研究邻域已得到广泛地发展及关注~\cite{song-19-coupled,reich-00-MSRK-wave,wang-03-sine-Gordon,wang-13-multisymplectic,wang-08-LSP,cai-20-MS-linear,chen-01-MS-Fourier,eidnes-20-local-global-kahan,gong-14-local-global-AVF}. 目前, 一种突出的方式以构造哈密尔顿偏微分方程的数值方法, 便是将哈密尔顿常微分方程的已有算法直接推广到偏微分方程, 而这取决于空间上离散方式的选择, 在空间半离散后需获得哈密尔顿常微分方程系统. 这一过程依赖于边界条件的选取, 具体的细节请参考文献~\cite{cai-19-SG-NB,luigi-19-HBVM-KDV,gong-17-Fourier-NLS,wang-03-sine-Gordon}.
+
+这里, 我们考查如下的~sine-Gordon~方程
+\begin{equation}\label{eq-2-5-9}
+u_{tt}-\triangle u+\phi(x,y)\ \mbox{sin}\left(u\right)=0,\quad (x,y)\in\Omega\in\mathbb{R}^2,\ t\in (0,T].
+\end{equation} 
+函数~$\phi(x,y)$~能被视为~Josephson~电流密度, $\triangle$~为拉普拉斯算子, $\Omega$~为空间区域. 选择~$\phi(x,y)=1$~及周期边界条件. 能量守恒是该方程的一个重要守恒性质, 将~\eqref{eq-2-5-9}~两边与~$u_t$~做内积可得到能量守恒
+\begin{equation}\label{eq-2-5-10}
+E(t)=\int_{\Omega}\left[\frac{1}{2}\big(u_t^2+|\nabla u|^2\big)+\phi\ \big(1-\mbox{cos}(u)\big)\right]dxdy=E(0).
+\end{equation} 
+引入中间变量~$v=u_t$~并记~$z=(u,v)^T$, 则方程~\eqref{eq-2-5-9}~可写为典则形式
+\begin{equation}\label{eq-2-5-11}
+z_t=J_2\frac{\delta H}{\delta z},\quad H(t)=\int_{\Omega}\left[\frac{1}{2}(v^2+|\nabla u|^2)+\phi\ \big(1-\mbox{cos}(u)\big)\right]dxdy.
+\end{equation} 
+这里, $J=\left(\begin{array}{cc} 0 & 1\\ -1 & 0 \end{array}\right)$. 本实验测试下面的两组初始值, 分别为
+\begin{itemize}
+\item 圆环孤子~\cite{jiang-19-SG-IEQ,cai-19-SG-NB,argyris-91-FEM-SG}~(请参考图~\ref{fig-2-9}):
+\begin{align}\label{eq-2-5-12}
+\aligned
+&u(x,y,0)=4\ \mbox{tan}^{-1}\bigg(\mbox{exp}\left(3-\sqrt{x^2+y^2}\right)\bigg),\\
+&u_t(x,y,0)=0,\quad \Omega=[-7,7)\times[-7,7);
+\endaligned
+\end{align}
+\item 四个圆环孤子碰撞~\cite{jiang-19-SG-IEQ,cai-19-SG-NB,argyris-91-FEM-SG}~(请参考图~\ref{fig-2-10}):
+\begin{align}\label{eq-2-5-13}
+\aligned
+&u(x,y,0)=4\ \mbox{tan}^{-1}\mbox{exp}\bigg[\left(4-\sqrt{(x+3)^2+(y+3)^2}\right)/0.436\bigg],\\
+&u_t(x,y,0)=4.13\ \mbox{sech}\bigg[\left(4-\sqrt{(x+3)^2+(y+3)^2}\right)/0.436\bigg],\\
+&\Omega=[-30,10)\times[-30,10).
+\endaligned
+\end{align}
+\end{itemize}
+正如周期边界条件的选取, 傅里叶拟谱方法~\cite{shen-11-spectral,gong-17-Fourier-NLS}~用来空间离散方程~\eqref{eq-2-5-11}, 且半离散后的方程为典则系统~\eqref{eq-1-1-11}. 对于圆环孤子~\eqref{eq-2-5-12}, 我们选取空间剖分数为~$64$, 而对于四圆环孤子碰撞~\eqref{eq-2-5-13}, 空间剖分数为~$128$. 然后, 应用~Scheme I~时间离散可获得全离散格式.
+
+图~\ref{fig-2-9}~和图~\ref{fig-2-10}~描绘了~Scheme I~对于参数~$\lambda=1/3$~时在不同时刻的数值解, 其波形与文献~\cite{jiang-19-SG-IEQ,cai-19-SG-NB,argyris-91-FEM-SG}~中的结果是一致的. 其余三种参数取值所得到的数值解是相似的, 故在此处省略. 在图~\ref{fig-2-10}~中, 直到~$T=10$~的模拟图产生了所期待的沿着直线~$x=-10$~和~$y=-10$~的对称性. Scheme I~正确刻画了四个圆环孤子的碰撞, 且反映了在中心位置极其复杂的相互作用和~$u$~值的快速变化. 最后, 图~\ref{fig-2-11}~展示了两种初始值直到~$T=50$~的能量误差, 可见辛格式在长时间的计算上确实能较好地保持波形及能量.
+
+\begin{figure}[H]
+\centering
+\subfigure[$T=0$~时初始值]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_0_sym}}
+\subfigure[Scheme I, $T=2.8$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_1_sym}}\vspace{6mm}
+\subfigure[Scheme I, $T=5.6$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_2_sym}}
+\subfigure[Scheme I, $T=8.4$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_3_sym}}\vspace{6mm}
+\subfigure[Scheme I, $T=11.2$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_4_sym}}
+\subfigure[Scheme I, $T=12.6$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CRS_solu_5_sym}}\vspace{6mm}
+\caption{sine-Gordon~方程圆环孤子:~Scheme I~($\lambda=1/3$)~在不同时刻的数值解.}\label{fig-2-9}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[$T=0$~时初始值]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_0_sym}}
+\subfigure[Scheme I, $T=2.5$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_1_sym}}\vspace{6mm}
+\subfigure[Scheme I, $T=5$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_2_sym}}
+\subfigure[Scheme I, $T=7.5$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_3_sym}}\vspace{6mm}
+\subfigure[Scheme I, $T=10$~时数值解]{
+\includegraphics[width=0.45\textwidth]{CCS_solu_4_sym}}\vspace{6mm}
+\caption{sine-Gordon~方程四个圆环孤子碰撞:~Scheme I~($\lambda=1/3$)~在不同时刻的数值解.}\label{fig-2-10}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\subfigure[Scheme I, 圆环孤子]{
+\includegraphics[width=0.45\textwidth]{CRS_sym_HE}}
+\subfigure[Scheme I, 四个圆环孤子碰撞]{
+\includegraphics[width=0.45\textwidth]{CCS_sym_HE}}
+\caption{sine-Gordon~方程:~Scheme I~的能量误差.}\label{fig-2-11}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\BiSection{结论}{Concluding remarks}\label{BiSec-2-6}
+本章提出了两类任意高阶的参数辛方法, 一类基于生成函数方法, 而另一类则基于对称组合方法. 特别地,一个单参数的简单辛格式由新定义的一般生产函数生成, 对于参数的三种不同取值涵盖了辛欧拉方法和隐中点格式. 每固定一个参数值, 均能获得简单的辛格式, 可广泛地应用于实际计算中. 该格式也在第一节中由辛条件和辛分块龙格-库塔方法率先提出. 
+
+跟随冯康先生生成函数方法的一般框架, 我们引入了一般的生成函数及哈密尔顿-雅可比方程. 随即以幂级数方法推导出一类参数辛方法, 其包含以往三类经典的生成函数所对应的辛方法, 这统一并推广了经典的生成函数理论. 一些简单的多参数辛方法被构造, 想法在于同时调节以实现多不变量守恒. 最后, 丰富的数值例子验证了本章的理论分析及参数辛方法的有效性.
+
+本章提出的辛方法适用于大多数哈密尔顿偏微分方程的时间离散, 且本章内容在非典则系统下的推广是值得考查的问题. 参数辛方法中自由的实参数, 将在下一章中通过适当调节以获得能量和二次不变量守恒算法.

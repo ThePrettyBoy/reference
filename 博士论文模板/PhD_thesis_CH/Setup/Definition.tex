@@ -1,0 +1,433 @@
+% 定义双标题命令
+\newcommand{\figenname}{Fig}
+\newcommand{\listfigenname}{List of Figures}
+\newfloatlist[chapter]{figen}{fen}{\listfigenname}{\figenname}
+\newfixedcaption{\figencaption}{figen}
+\renewcommand{\thefigen}{\thechapter-\arabic{figen}}
+\makeatletter
+\renewcommand{\@cftmakefentitle}{\chapter*{\listfigenname\@mkboth{\bfseries\listfigenname}{\bfseries\listfigenname}}}
+\makeatletter
+\newcommand{\FigureBiCaption}[2]
+{
+\renewcommand{\figurename}{图}
+\caption{\protect\setlength{\baselineskip}{1.5em} #1} %\protect\setlength{\baselinestretch}{1.3}\selectfont
+\vspace{-0.5ex}
+\figencaption{\protect\setlength{\baselineskip}{1.5em} #2}
+}
+\newcommand{\SubfigureCaption}[2]  % Two Parameters, the first one is the width of the subfigure,
+{
+\addtocounter{subfigure}{-1}       % the second one is the caption of the subfigure
+\vspace{-2ex}
+\subfigure[#2]{\rule{#1}{0pt}}
+}
+
+\newcommand{\TableBiCaption}[2]
+{
+\renewcommand{\tablename}{表}
+\caption{\protect\setlength{\baselineskip}{1.5em} #1}
+\addtocounter{table}{-1}
+\renewcommand{\tablename}{Table}
+\vspace{-0.5ex}
+\caption{\protect\setlength{\baselineskip}{1.5em} #2}
+\vspace{1ex}
+}
+
+%%%%%%%%%%%%%%%========================================================================
+
+\newcommand{\BiChapter}[2]
+{
+    \chapter{#1}
+    \addcontentsline{toe}{chapter}{\bfseries Chapter \thechapter\hspace{0.5em} #2}
+}
+
+\newcommand{\BiSection}[2]
+{
+    \section{#1}
+    \addcontentsline{toe}{section}{\protect\numberline{\csname thesection\endcsname}#2}
+}
+
+\newcommand{\BiSubsection}[2]
+{
+    \subsection{#1}
+    \addcontentsline{toe}{subsection}{\protect\numberline{\csname thesubsection\endcsname}#2}
+}
+
+\newcommand{\BiSubsubsection}[2]
+{
+    \subsubsection{#1}
+    \addcontentsline{toe}{subsubsection}{\protect\numberline{\csname thesubsubsection\endcsname}#2}
+}
+
+\newcommand{\BiAppendixChapter}[2] % 该附录命令适用于发表文章，简历等
+{
+\phantomsection
+\markboth{#1}{#1}%\markboth{\MakeUppercase{#1}}{\MakeUppercase{#1}}
+\addcontentsline{toc}{chapter}{\hei #1}
+\addcontentsline{toe}{chapter}{\bfseries #2}
+\chapter*{#1}
+}
+
+\newcommand{\BiAppChapter}[2]      % 该附录命令适用于有章节的完整附录
+{
+\phantomsection
+\markboth{#1}{#1}%\markboth{\MakeUppercase{#1}}{\MakeUppercase{#1}}
+\chapter{#1}
+% \addcontentsline{toc}{chapter}{\hei #1}
+
+%%%%%%%%%%%%%=======================================================================================================
+
+\addcontentsline{toe}{chapter}{\bfseries Appendix \thechapter~~#2} }
+
+\renewcommand{\thefigure}{\arabic{chapter}-\arabic{figure}}          % 使图编号为 7-1 的格式 %\protect{~}
+\makeatletter
+\renewcommand{\p@subfigure}{\thefigure}                              % 使子图编号为 7-1(a) 的格式
+\makeatother
+\renewcommand{\thetable}{\arabic{chapter}-\arabic{table}}            % 使表编号为 7-1 的格式
+\renewcommand{\theequation}{\arabic{chapter}-\arabic{equation}}      % 使公式编号为 7-1 的格式
+
+\setlength\jot{2.5ex}                                                % 设置公式之间的垂直距离 默认value = 3pt
+\newcommand{\cdash}{—\!\!\!—\!\!\!—}                              % 输入中文破折号的命令
+% 左右
+\setlength{\textwidth}{14.5cm}
+\setlength{\oddsidemargin}{0.71cm}   % 左边 3.25cm=0.71+2.54
+\setlength{\evensidemargin}{0.71cm}
+% 上下
+\setlength{\topmargin}{0.42cm}       % 3.3=2.54+0.76
+\setlength{\headheight}{0.80cm}      % 0.8
+\setlength{\headsep}{0.40cm}         % 0.4
+\setlength{\textheight}{21.0cm}      % 21.0
+\setlength{\footskip}{1.1cm}         % 1.1
+
+% 允许公式换页显示,否则大型推导公式都在一页内，
+% 一页显示不下放到第二页，导致很大的空白空间，很不好看
+\allowdisplaybreaks[4]
+
+% 面这组命令使浮动对象的缺省值稍微宽松一点，从而防止幅度
+% 对象占据过多的文本页面，也可以防止在很大空白的浮动页上放置很小的图形。
+\renewcommand{\topfraction}{0.9999999}
+\renewcommand{\textfraction}{0.0000001}
+\renewcommand{\floatpagefraction}{0.9999}
+
+% 重定义字体命令
+% 注意win2000,没有 simsun,　最好到网上找一个
+\newcommand{\song}{\CJKfamily{song}}    % 宋体   (Windows自带simsun.ttf)
+\newcommand{\fs}{\CJKfamily{fs}}        % 仿宋体 (Windows自带simfs.ttf)
+\newcommand{\kai}{\CJKfamily{kai}}      % 楷体   (Windows自带simkai.ttf)
+\newcommand{\hei}{\CJKfamily{hei}}      % 黑体   (Windows自带simhei.ttf)
+\newcommand{\li}{\CJKfamily{li}}        % 隶书   (Windows自带simli.ttf)
+
+% 重定义字号命令
+\newcommand{\yihao}{\fontsize{26pt}{26pt}\selectfont}       % 一号, 1.倍行距
+\newcommand{\xiaoyi}{\fontsize{24pt}{24pt}\selectfont}       % 一号, 1.倍行距
+\newcommand{\erhao}{\fontsize{22pt}{22pt}\selectfont}       % 二号, 1.倍行距
+\newcommand{\xiaoer}{\fontsize{18pt}{18pt}\selectfont}      % 小二, 单倍行距
+\newcommand{\sanhao}{\fontsize{16pt}{16pt}\selectfont}      % 三号, 1.倍行距
+\newcommand{\xiaosan}{\fontsize{15pt}{15pt}\selectfont}     % 小三, 1.倍行距
+\newcommand{\sihao}{\fontsize{14pt}{14pt}\selectfont}       % 四号, 1.0倍行距
+\newcommand{\banxiaosi}{\fontsize{13pt}{13pt}\selectfont}   % 半小四, 1.0倍行距
+\newcommand{\xiaosi}{\fontsize{12pt}{12pt}\selectfont}      % 小四, 1.倍行距
+\newcommand{\dawuhao}{\fontsize{11.5pt}{11.5pt}\selectfont} % 大五号, 单倍行距
+\newcommand{\wuhao}{\fontsize{10.5pt}{10.5pt}\selectfont}   % 五号, 单倍行距
+\newcommand{\xiaowu}{\fontsize{9.5pt}{9.5pt}\selectfont}    % 五号, 单倍行距
+\newcommand{\banbanxiaosi}{\fontsize{12pt}{12pt}\selectfont}% 半半小四, 1.0倍行距
+
+%% 定义定理、定义、引理等结构
+%\theoremstyle{definition}
+%\newtheorem{definition}{\hei 定义}[section]
+%\newtheorem{proposition}{\hei 命题}[section]
+%\newtheorem{lemma}{\hei 引理}[section]
+%\newtheorem{theorem}{\hei 定理}[section]
+%\newtheorem{axiom}{\hei 公理}
+%\newtheorem{corollary}{\hei 推论}[section]
+%\newtheorem{remark}{\hei 注}[section]
+%\newtheorem{example}{\hei 例}[section]
+
+\theoremstyle{definition}
+\newtheorem{definition}{\hei 定义~}[section]
+\newtheorem{proposition}{\hei 命题~}[section]
+\newtheorem{lemma}{\hei 引理~}[section]
+\newtheorem{theorem}{\hei 定理~}[section]
+%\newtheorem{axiom}{\hei 公理}
+\newtheorem{corollary}{\hei 推论~}[section]
+\newtheorem{remark}{\hei 注~}[section]
+\newtheorem{problem}{\hei 问题~}[section]
+\newtheorem{example}{\hei 例~}[section]
+%\newtheorem{algorithm}{\hei 算法~}[section]
+
+\renewcommand{\proofname}{\hei 证明}
+
+\numberwithin{equation}{section}         % 以section为基本单位对公式编号
+
+% 用于中文段落缩进 和正文版式
+%\CJKcaption{GB_aloft}
+\CJKcaption{Setup/gb_452}
+
+\newlength \CJKtwospaces
+
+\def\CJKindent{
+    \settowidth\CJKtwospaces{\CJKchar{"0A1}{"0A1}\CJKchar{"0A1}{"0A1}}%
+    \parindent\CJKtwospaces
+}
+
+\CJKtilde  \CJKindent
+
+
+\setlength{\parindent}{24pt}
+
+% 章节标题为“第1章”的形式
+\renewcommand\chaptername{\CJKprechaptername~\thechapter~\CJKchaptername}
+
+% 定义段落章节的标题和目录项的格式
+\setcounter{secnumdepth}{4} \setcounter{tocdepth}{2}
+
+\titleformat{\chapter}[hang]{\xiaoer\bf\filcenter\hei}{\xiaoer\chaptertitlename}{18pt}{\xiaoer}
+\titlespacing{\chapter}{0pt}{8pt}{16pt}
+
+
+%\renewcommand{\thesection}{\S~\arabic{chapter}.\arabic{section}}
+\titleformat{\section}[hang]{\hei\bf\filcenter\xiaosan}{\xiaosan{\S~\thesection}}{0.5em}{}
+\titlespacing{\section}{0pt}{13pt}{13pt}
+
+
+\titleformat{\subsection}[hang]{\hei\bf\filcenter\sihao}{\sihao\S~\thesubsection}{0.5em}{}
+\titlespacing{\subsection}{0pt}{8pt}{7pt}
+
+%\titleformat{\subsubsection}[runin]{\hei\bf\filcenter\xiaosi}{\thesubsubsection}{0.5em}{}[\;\;]
+
+\titleformat{\subsubsection}[hang]{\hei\bf\filcenter\xiaosi}{\S~\thesubsubsection}{0.5em}{}
+\titlespacing{\subsubsection}{0pt}{3pt}{2pt}
+
+% 缩小目录中各级标题之间的缩进，使它们相隔一个字符距离，也就是12pt
+\makeatletter
+\renewcommand*\l@chapter{\@dottedtocline{1}{0em}{1.1em}}
+\renewcommand*\l@section{\@dottedtocline{1}{18pt}{18pt}}
+\renewcommand*\l@subsection{\@dottedtocline{2}{30pt}{30pt}}
+\renewcommand*\l@subsubsection{\@dottedtocline{3}{36pt}{36pt}}
+\renewcommand*\l@paragraph{\@dottedtocline{4}{48pt}{48pt}}
+\renewcommand*\l@subparagraph{\@dottedtocline{5}{60pt}{60pt}}
+\makeatother
+\dottedcontents{chapter}[1.1em]{\hspace{-1.1em}\hei\bf \vspace{0.2em}}{0.0em}{5pt}
+\dottedcontents{section}[1.3cm]{\vspace{0em}}{1.8em}{5pt}
+\dottedcontents{subsection}[2.2cm]{}{2.7em}{5pt}
+\dottedcontents{subsubsection}[2.86cm]{}{3.4em}{5pt}
+
+% 定义页眉和页脚 使用 fancyhdr 宏包
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\makeheadrule}{%
+\makebox[-3pt][l]{\rule[.7\baselineskip]{\headwidth}{0.4pt}}
+\rule[0.85\baselineskip]{\headwidth}{2.25pt}\vskip-.8\baselineskip}
+\makeatletter
+\renewcommand{\headrule}{%
+    {\if@fancyplain\let\headrulewidth\plainheadrulewidth\fi
+     \makeheadrule}}
+
+\pagestyle{fancyplain}
+\renewcommand{\chaptermark}[1]{\markboth{\chaptertitlename~~ \ #1}{}}
+ \fancyhf{}
+% 在book文件类别下,\leftmark自动存录各章之章名,\rightmark记录节标题
+\fancyhead[CO]{\CJKfamily{song}\xiaowu\leftmark}             % \fancyhead[CO]是用来设置奇数页居中的页眉
+                                                             % 可以把\leftmark换成你喜欢的
+\fancyhead[CE]{\CJKfamily{song}\xiaowu\leftmark}             % \fancyhead[CE]是用来设置偶数页居中的页眉
+                                                             % 可以把\leftmark换成你喜欢的
+ \fancyfoot[C,C]{\xiaowu--~\thepage~--}
+
+% 设置行距和段落间垂直距离
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\CJKglue}{\hskip 0.3pt plus 0.08\baselineskip} % 加大字间距，使每行33个字
+%\setlength{\belowcaptionskip}{10pt}                         % 加大标题和表格之间的距离
+\setlength{\parskip}{3pt plus1pt minus1pt}                   % 段落之间的竖直距离
+\renewcommand{\baselinestretch}{1.2}                         % 定义行距
+
+% 调整列表环境的垂直间距
+\let\orig@Itemize =\itemize
+\let\orig@Enumerate =\enumerate
+\let\orig@Description =\description
+\def\Myspacing{\itemsep=1.5ex \topsep=-0.5ex \partopsep=0pt \parskip=0pt \parsep=0.5ex \itemindent=1.5cm \listparindent=1.5cm}
+\def\newitemsep{
+\renewenvironment{itemize}{\orig@Itemize\Myspacing}{\endlist}
+\renewenvironment{enumerate}{\orig@Enumerate\Myspacing}{\endlist}
+\renewenvironment{description}{\orig@Description\Myspacing}{\endlist}
+}
+
+\def\olditemsep{
+\renewenvironment{itemize}{\orig@Itemize}{\endlist}
+\renewenvironment{enumerate}{\orig@Enumerate}{\endlist}
+\renewenvironment{description}{\orig@Description}{\endlist}
+}
+
+\newitemsep
+
+% \renewcommand\@biblabel[1]{#1\hspace{0.5em}}            % 去除参考文献里标号两边的括号
+\newcommand{\ucite}[1]{$^{\mbox{\scriptsize \cite{#1}}}$} % 增加 \ucite 命令使显示的引用为上标形式
+
+% 定制浮动图形和表格标题样式 %这里用ccaption完全代替了caption2的功能
+%\captionstyle{\centerlastline}   %
+   %\indentcaption{0pt}
+   \hangcaption
+%\renewcommand{\captionfont}{\CJKfamily{song}\rmfamily}
+\renewcommand{\captionnamefont}{\CJKfamily{song}\rmfamily}
+\renewcommand{\captiontitlefont}{\CJKfamily{song}\rmfamily}
+%\renewcommand{\captionlabelfont}{\CJKfamily{song}\rmfamily}
+%\renewcommand{\captionlabeldelim}{~}
+\captiondelim{~} %~
+%\renewcommand{\captionfont}{\wuhao}
+\renewcommand{\captionnamefont}{\wuhao}
+\renewcommand{\captiontitlefont}{\wuhao}
+% 定义题头格言的格式
+% 用法 \begin{Aphorism}{author}
+%         aphorism
+%      \end{Aphorism}
+\newsavebox{\AphorismAuthor}
+\newenvironment{Aphorism}[1]
+{\vspace{0.5cm}\begin{sloppypar} \slshape
+\sbox{\AphorismAuthor}{#1}
+\begin{quote}\small\itshape }
+{\\ \hspace*{\fill}------\hspace{0.2cm} \usebox{\AphorismAuthor}
+\end{quote}
+\end{sloppypar}\vspace{0.5cm}}
+% 自定义一个空命令，用于注释掉文本中不需要的部分。
+\newcommand{\comment}[1]{}
+\renewcommand\contentsname{\hei 目~~~~录}
+%%%%%%将章标题中的中文数字（一、二、三）变为阿拉伯数字(1,2,3)
+\renewcommand\CJKthechapter{%\CJKnumber
+{\@arabic\c@chapter}}
+
+% 不要拉大行距使得页面充满
+\raggedbottom
+% This is the flag for longer version
+\newcommand{\longer}[2]{#1}
+\newcommand{\ds}{\displaystyle}
+% define graph scale
+\def\gs{1.0}
+% 自定义项目列表标签及格式 \begin{hitlist} 列表项 \end{hitlist}
+\newcounter{hitctr}                   % 自定义新计数器
+\newenvironment{hitlist}{             % 定义新环境
+\begin{list}{{\hei (\arabic{hitctr})}}% 标签格式
+    {
+     \usecounter{hitctr}
+     \setlength{\leftmargin}{0cm}     % 左边界
+     \setlength{\parsep}{0ex}         % 段落间距
+     \setlength{\topsep}{0pt}         % 列表到上下文的垂直距离
+     \setlength{\itemsep}{0ex}        % 标签间距
+     \setlength{\labelsep}{0.3em}     % 标号和列表项之间的距离,默认0.5em
+     \setlength{\itemindent}{46pt}    % 标签缩进量
+     \setlength{\listparindent}{27pt} % 段落缩进量
+    }}
+{\end{list}}
+% 自定义项目列表标签及格式 \begin{publist} 列表项 \end{publist}
+\newcounter{pubctr}                   % 自定义新计数器
+\newenvironment{publist}{             % 定义新环境
+\begin{list}{\arabic{pubctr}}         % 标签格式
+    {
+     \usecounter{pubctr}
+     \setlength{\leftmargin}{2em}     % 左边界 \leftmargin =\itemindent + \labelwidth + \labelsep
+     \setlength{\itemindent}{0em}     % 标号缩进量
+     \setlength{\labelwidth}{1em}     % 标号宽度
+     \setlength{\labelsep}{1em}       % 标号和列表项之间的距离,默认0.5em
+     \setlength{\rightmargin}{0em}    % 右边界
+     \setlength{\topsep}{0ex}         % 列表到上下文的垂直距离
+%    \setlength{\partopsep}{0ex}      % 列表是一个新的段落时，加的额外到上下文的距离
+     \setlength{\parsep}{0ex}         % 段落间距
+     \setlength{\itemsep}{0ex}        % 标签间距
+     \setlength{\listparindent}{26pt} % 段落缩进量
+    }}
+{\end{list}}
+
+% 默认字体
+\def\defaultfont{\renewcommand{\baselinestretch}{1.37}
+\fontsize{12.1pt}{13pt}\selectfont}
+
+% 封面、摘要、版权、致谢格式定义
+\def\ctitle#1{\def\@ctitle{#1}}\def\@ctitle{}
+\def\cdegree#1{\def\@cdegree{#1}}\def\@cdegree{}
+\def\caffil#1{\def\@caffil{#1}}\def\@caffil{}
+\def\csubject#1{\def\@csubject{#1}}\def\@csubject{}
+\def\cauthor#1{\def\@cauthor{#1}}\def\@cauthor{}
+\def\csupervisor#1{\def\@csupervisor{#1}}\def\@csupervisor{}
+\def\cassosupervisor#1{\def\@cassosupervisor{~ & {\hei 副\hfill 导\hfill 师：} & #1\\}}\def\@cassosupervisor{}
+\def\ccosupervisor#1{\def\@ccosupervisor{~ & {\hei 联\hfill 合\hfill 导\hfill 师：} & #1\\}}\def\@ccosupervisor{}
+\def\cdate#1{\def\@cdate{#1}}\def\@cdate{}
+\long\def\cabstract#1{\long\def\@cabstract{#1}}\long\def\@cabstract{}
+\def\ckeywords#1{\def\@ckeywords{#1}}\def\@ckeywords{}
+\def\etitle#1{\def\@etitle{#1}}\def\@etitle{}
+\def\edegree#1{\def\@edegree{#1}}\def\@edegree{}
+\def\eaffil#1{\def\@eaffil{#1}}\def\@eaffil{}
+\def\esubject#1{\def\@esubject{#1}}\def\@esubject{}
+\def\eauthor#1{\def\@eauthor{#1}}\def\@eauthor{}
+\def\esupervisor#1{\def\@esupervisor{#1}}\def\@esupervisor{}
+%\def\eassosupervisor#1{\def\@eassosupervisor{#1}}\def\@eassosupervisor{}
+\def\eassosupervisor#1{\def\@eassosupervisor{~ & \textbf{Associate Supervisor:} & #1\\}}\def\@eassosupervisor{}
+%\def\ecosupervisor#1{\def\@ecosupervisor{#1}}\def\@ecosupervisor{}
+\def\ecosupervisor#1{\def\@ecosupervisor{~ & \textbf{Co Supervisor:} & #1\\}}\def\@ecosupervisor{}
+\def\edate#1{\def\@edate{#1}}\def\@edate{}
+\long\def\eabstract#1{\long\def\@eabstract{#1}}\long\def\@eabstract{}
+\def\ekeywords#1{\def\@ekeywords{#1}}\def\@ekeywords{}
+\def\natclassifiedindex#1{\def\@natclassifiedindex{#1}}\def\@natclassifiedindex{}
+\def\internatclassifiedindex#1{\def\@internatclassifiedindex{#1}}\def\@internatclassifiedindex{}
+
+%%%%%%%%%=========== 定义公式与文本行距 ===============
+%\everydisplay{
+%\abovedisplayskip=.55\baselineskip  plus.3ex minus.3ex
+%\abovedisplayshortskip=-0.15\baselineskip plus.3ex minus.3ex
+%\belowdisplayskip=.55\baselineskip plus.3ex minus.3ex
+%\belowdisplayshortskip=.55\baselineskip plus.3ex minus.3ex
+%}
+
+%\setlength{\abovedisplayshortskip}{0.22cm}
+%\setlength{\belowdisplayshortskip}{0.22cm}
+%\setlength{\abovedisplayskip}{0.22cm}
+%\setlength{\belowdisplayskip}{0.22cm}
+
+%%%%%%%%%%========================================
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Definition of mathematical operator %%%%%%%%%%
+\def\be{\beta}
+\def\ba{\bar}
+\def\de{\delta}
+%\def\S{{\cal S}}
+\def\Z{{\cal Z}}
+\def\Y{{\cal Y}}
+\def\X{{\cal X}}
+\def\R{{\cal R}}
+\def\B{{\cal B}}
+\def\ze{\zeta}
+\def\la{\lambda}
+\def\nn{\nonumber}
+\def\n{\noindent}
+\def \[{\begin{equation}}
+\def \]{\end{equation}}
+\def\MS{{\cal S}}
+
+\def\st{\hbox{s.t.}}
+\def\rn{{\cal R}^n}
+\def\la{\lambda}
+\def\h{{\cal H}}
+\def\W{{\cal W}}
+\def\K{{\cal K}}
+\def\N{{\cal N}}
+
+\def\BS{{\mathbb{S}}}
+\def\u{{\mathbf{u}}}
+\def\z{{\mathbf{z}}}
+\def\f{{\mathbf{F}}}
+\def\U{{\mathcal{U}}}
+\def\q{{\mathbf{Q}}}
+\def\cf{\mathcal{F}}
+\def\x{{\mathbf{x}}}
+\def\y{{\mathbf{y}}}
+
+%\allowdisplaybreaks
+\def\argmin{{\arg\min}}
+\def\argmax{\arg\max}
+\def\mini{{\rm minimize}}
+
+
+%\def\dom{\text{\bf dom}}
+
+\def\ts{\textsuperscript}
+\newcommand{\upcite}[1]{\textsuperscript{\cite{#1}}}
+
+\definecolor{shadecolor}{rgb}{0.95,0.95,0.95}  %% 用于设置文本背景颜色
+%% \begin{shaded}
+%%  text
+%%\end{shaded} 

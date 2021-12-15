@@ -1,0 +1,54 @@
+\contentsline {chapter}{\bfseries Abstract in Chinese}{i}{section*.1}
+\contentsline {chapter}{\bfseries Abstract in English}{iii}{section*.3}
+\contentsline {chapter}{\bfseries Introduction}{1}{section*.7}
+\contentsline {chapter}{\bfseries Chapter 1\hspace {0.5em} Geometric numerical integration}{6}{chapter.1}
+\contentsline {section}{\numberline {1.1}Lagrange's equations and Hamilton's equations}{6}{section.1.1}
+\contentsline {section}{\numberline {1.2}Symplectic integrator}{9}{section.1.2}
+\contentsline {subsection}{\numberline {1.2.1}Symplectic Runge-Kutta method}{9}{subsection.1.2.1}
+\contentsline {subsection}{\numberline {1.2.2}Variational integrator}{12}{subsection.1.2.2}
+\contentsline {subsection}{\numberline {1.2.3}Generating function method}{14}{subsection.1.2.3}
+\contentsline {subsection}{\numberline {1.2.4}Splitting-composition method}{18}{subsection.1.2.4}
+\contentsline {section}{\numberline {1.3}Energy-preserving method}{22}{section.1.3}
+\contentsline {subsection}{\numberline {1.3.1}Averaged vector field method}{23}{subsection.1.3.1}
+\contentsline {subsection}{\numberline {1.3.2}Energy and quadratic invariants-preserving method}{24}{subsection.1.3.2}
+\contentsline {chapter}{\bfseries Chapter 2\hspace {0.5em} Two families of arbitrary high-order parameterized symplectic schemes}{28}{chapter.2}
+\contentsline {section}{\numberline {2.1}A simple symplectic scheme}{28}{section.2.1}
+\contentsline {section}{\numberline {2.2}Parameterized generating function methods}{31}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}Generating function with new coordinates}{32}{subsection.2.2.1}
+\contentsline {subsection}{\numberline {2.2.2}The Hamilton-Jacobi equation with new variables}{34}{subsection.2.2.2}
+\contentsline {subsection}{\numberline {2.2.3}Classic framework of generating function methods}{36}{subsection.2.2.3}
+\contentsline {subsection}{\numberline {2.2.4}Parameterized symplectic schemes}{46}{subsection.2.2.4}
+\contentsline {section}{\numberline {2.3}Symmetric composition methods}{48}{section.2.3}
+\contentsline {section}{\numberline {2.4}Multi-parametric symplectic schemes}{48}{section.2.4}
+\contentsline {section}{\numberline {2.5}Numerical experiments}{51}{section.2.5}
+\contentsline {subsection}{\numberline {2.5.1}The H\'{e}non-Heiles model}{52}{subsection.2.5.1}
+\contentsline {subsection}{\numberline {2.5.2}The perturbed Kepler problem}{57}{subsection.2.5.2}
+\contentsline {subsection}{\numberline {2.5.3}Applications to Hamiltonian PDEs}{60}{subsection.2.5.3}
+\contentsline {section}{\numberline {2.6}Concluding remarks}{64}{section.2.6}
+\contentsline {chapter}{\bfseries Chapter 3\hspace {0.5em} A family of arbitrary high-order energy and quadratic invariants preserving methods}{65}{chapter.3}
+\contentsline {section}{\numberline {3.1}Construction of energy-preserving methods}{65}{section.3.1}
+\contentsline {section}{\numberline {3.2}Two properties of the proposed methods}{66}{section.3.2}
+\contentsline {subsection}{\numberline {3.2.1}Quadratic invariants conservation}{66}{subsection.3.2.1}
+\contentsline {subsection}{\numberline {3.2.2}Solvability}{67}{subsection.3.2.2}
+\contentsline {section}{\numberline {3.3}Numerical experiments}{69}{section.3.3}
+\contentsline {subsection}{\numberline {3.3.1}The H\'{e}non-Heiles model}{70}{subsection.3.3.1}
+\contentsline {subsection}{\numberline {3.3.2}The perturbed Kepler problem}{73}{subsection.3.3.2}
+\contentsline {subsection}{\numberline {3.3.3}Applications to Hamiltonian PDEs}{75}{subsection.3.3.3}
+\contentsline {section}{\numberline {3.4}Concluding remarks}{79}{section.3.4}
+\contentsline {chapter}{\bfseries Chapter 4\hspace {0.5em} Arbitrary high-order linearly implicit energy-preserving methods for Hamiltonian PDEs}{80}{chapter.4}
+\contentsline {section}{\numberline {4.1}Scalar auxiliary variable approaches}{80}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}Standard scalar auxiliary variable approach}{81}{subsection.4.1.1}
+\contentsline {subsection}{\numberline {4.1.2}Exponential scalar auxiliary variable approach}{83}{subsection.4.1.2}
+\contentsline {section}{\numberline {4.2}Two classes of arbitrary high-order linearly implicit methods}{85}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}Gauss collocation method}{85}{subsection.4.2.1}
+\contentsline {subsection}{\numberline {4.2.2}Prediction-correction method}{89}{subsection.4.2.2}
+\contentsline {subsection}{\numberline {4.2.3}Spatial Fourier pseudo-spectral method}{91}{subsection.4.2.3}
+\contentsline {section}{\numberline {4.3}Numerical experiments}{96}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}The nonlinear Schr\"odinger equation}{96}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.2}The sine-Gordon equation}{102}{subsection.4.3.2}
+\contentsline {subsection}{\numberline {4.3.3}The Korteweg-de Vries equation}{105}{subsection.4.3.3}
+\contentsline {section}{\numberline {4.4}Concluding remarks}{108}{section.4.4}
+\contentsline {chapter}{\bfseries Chapter 5\hspace {0.5em} Summary and prospect}{109}{chapter.5}
+\contentsline {chapter}{\bfseries Bibliography}{111}{section*.9}
+\contentsline {chapter}{\bfseries Published and Completed Papers}{121}{section*.12}
+\contentsline {chapter}{\bfseries Acknowledgements}{122}{section*.14}

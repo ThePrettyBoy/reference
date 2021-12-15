@@ -1,0 +1,56 @@
+\BOOKMARK [0][]{mulu.0}{目录}{}% 1
+\BOOKMARK [0][]{section*.1}{摘 \040 \040要}{}% 2
+\BOOKMARK [0][]{section*.3}{Abstract}{}% 3
+\BOOKMARK [0][]{econtent.0}{Contents}{}% 4
+\BOOKMARK [0][]{section*.7}{前 \040 \040言}{}% 5
+\BOOKMARK [0][]{chapter.1}{ 第1章 几何数值积分}{}% 6
+\BOOKMARK [1][]{section.1.1}{1.1 拉格朗日方程和哈密尔顿方程}{chapter.1}% 7
+\BOOKMARK [1][]{section.1.2}{1.2 辛积分子}{chapter.1}% 8
+\BOOKMARK [2][]{subsection.1.2.1}{1.2.1 辛龙格-库塔方法}{section.1.2}% 9
+\BOOKMARK [2][]{subsection.1.2.2}{1.2.2 变分积分子}{section.1.2}% 10
+\BOOKMARK [2][]{subsection.1.2.3}{1.2.3 生成函数方法}{section.1.2}% 11
+\BOOKMARK [2][]{subsection.1.2.4}{1.2.4 分裂组合方法}{section.1.2}% 12
+\BOOKMARK [1][]{section.1.3}{1.3 能量守恒方法}{chapter.1}% 13
+\BOOKMARK [2][]{subsection.1.3.1}{1.3.1 平均向量场方法}{section.1.3}% 14
+\BOOKMARK [2][]{subsection.1.3.2}{1.3.2 能量和二次不变量守恒方法}{section.1.3}% 15
+\BOOKMARK [0][]{chapter.2}{ 第2章 两类任意高阶的参数辛格式}{}% 16
+\BOOKMARK [1][]{section.2.1}{2.1 一个简单的辛格式}{chapter.2}% 17
+\BOOKMARK [1][]{section.2.2}{2.2 参数生成函数方法}{chapter.2}% 18
+\BOOKMARK [2][]{subsection.2.2.1}{2.2.1 具有新坐标的生成函数}{section.2.2}% 19
+\BOOKMARK [2][]{subsection.2.2.2}{2.2.2 具有新变量的哈密尔顿-雅可比方程}{section.2.2}% 20
+\BOOKMARK [2][]{subsection.2.2.3}{2.2.3 生成函数方法的经典框架}{section.2.2}% 21
+\BOOKMARK [2][]{subsection.2.2.4}{2.2.4 参数辛格式}{section.2.2}% 22
+\BOOKMARK [1][]{section.2.3}{2.3 对称组合方法}{chapter.2}% 23
+\BOOKMARK [1][]{section.2.4}{2.4 多参数辛格式}{chapter.2}% 24
+\BOOKMARK [1][]{section.2.5}{2.5 数值实验}{chapter.2}% 25
+\BOOKMARK [2][]{subsection.2.5.1}{2.5.1 H\351non-Heiles 模型}{section.2.5}% 26
+\BOOKMARK [2][]{subsection.2.5.2}{2.5.2 扰动开普勒问题}{section.2.5}% 27
+\BOOKMARK [2][]{subsection.2.5.3}{2.5.3 在哈密尔顿偏微分方程上的应用}{section.2.5}% 28
+\BOOKMARK [1][]{section.2.6}{2.6 结论}{chapter.2}% 29
+\BOOKMARK [0][]{chapter.3}{ 第3章 一类任意高阶的能量和二次不变量守恒方法}{}% 30
+\BOOKMARK [1][]{section.3.1}{3.1 能量守恒方法的构造}{chapter.3}% 31
+\BOOKMARK [1][]{section.3.2}{3.2 所提出方法的两个性质}{chapter.3}% 32
+\BOOKMARK [2][]{subsection.3.2.1}{3.2.1 二次不变量守恒}{section.3.2}% 33
+\BOOKMARK [2][]{subsection.3.2.2}{3.2.2 可解性}{section.3.2}% 34
+\BOOKMARK [1][]{section.3.3}{3.3 数值实验}{chapter.3}% 35
+\BOOKMARK [2][]{subsection.3.3.1}{3.3.1 H\351non-Heiles 模型}{section.3.3}% 36
+\BOOKMARK [2][]{subsection.3.3.2}{3.3.2 扰动开普勒问题}{section.3.3}% 37
+\BOOKMARK [2][]{subsection.3.3.3}{3.3.3 在哈密尔顿偏微分方程上的应用}{section.3.3}% 38
+\BOOKMARK [1][]{section.3.4}{3.4 结论}{chapter.3}% 39
+\BOOKMARK [0][]{chapter.4}{ 第4章 哈密尔顿偏微分方程任意高阶的线性隐能量守恒方法}{}% 40
+\BOOKMARK [1][]{section.4.1}{4.1 辅助变量方法}{chapter.4}% 41
+\BOOKMARK [2][]{subsection.4.1.1}{4.1.1 标准辅助变量方法}{section.4.1}% 42
+\BOOKMARK [2][]{subsection.4.1.2}{4.1.2 指数辅助变量方法}{section.4.1}% 43
+\BOOKMARK [1][]{section.4.2}{4.2 两类任意高阶线性隐方法}{chapter.4}% 44
+\BOOKMARK [2][]{subsection.4.2.1}{4.2.1 高斯配置方法}{section.4.2}% 45
+\BOOKMARK [2][]{subsection.4.2.2}{4.2.2 预估校正方法}{section.4.2}% 46
+\BOOKMARK [2][]{subsection.4.2.3}{4.2.3 空间傅里叶拟谱方法}{section.4.2}% 47
+\BOOKMARK [1][]{section.4.3}{4.3 数值实验}{chapter.4}% 48
+\BOOKMARK [2][]{subsection.4.3.1}{4.3.1 非线性薛定谔方程}{section.4.3}% 49
+\BOOKMARK [2][]{subsection.4.3.2}{4.3.2 sine-Gordon 方程}{section.4.3}% 50
+\BOOKMARK [2][]{subsection.4.3.3}{4.3.3 Korteweg-de Vries 方程}{section.4.3}% 51
+\BOOKMARK [1][]{section.4.4}{4.4 结论}{chapter.4}% 52
+\BOOKMARK [0][]{chapter.5}{ 第5章 总结与展望}{}% 53
+\BOOKMARK [0][]{section*.9}{参考文献}{}% 54
+\BOOKMARK [0][]{section*.12}{发表及已完成的论文}{}% 55
+\BOOKMARK [0][]{section*.14}{致 \040 \040谢}{}% 56
